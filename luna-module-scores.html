@@ -151,7 +151,7 @@
       <div class="breadcrumb"><a href="index.html">Projects</a> / Luna Token Adoption</div>
       <h1>Luna Token Adoption: Module Scores</h1>
       <p class="text-subdued" style="margin-top:var(--space-xs);">Scans CSS/SCSS for hardcoded values that match Luna design token values. Score = var(--luna-*) usages / (usages + violations).</p>
-      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 26, 2026 at 05:38 PM</p>
+      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 26, 2026 at 06:00 PM</p>
     </div>
   </header>
 
@@ -1015,12 +1015,8 @@
         tips.push({
           title: 'Replace hardcoded spacing values',
           body: 'Margin, padding, gap, and size properties are using raw pixel or rem values. Swapping them for Luna space tokens is typically the highest-impact change and improves consistency across the app.',
-          before: 'margin: 16px;
-padding: 8px 24px;
-gap: 12px;',
-          after: 'margin: var(--luna-space-base);
-padding: var(--luna-space-s) var(--luna-space-l);
-gap: var(--luna-space-m);',
+          before: 'margin: 16px;\npadding: 8px 24px;\ngap: 12px;',
+          after: 'margin: var(--luna-space-base);\npadding: var(--luna-space-s) var(--luna-space-l);\ngap: var(--luna-space-m);',
           color: 'var(--color-warning)',
         });
       }
@@ -1028,12 +1024,8 @@ gap: var(--luna-space-m);',
         tips.push({
           title: 'Replace hardcoded hex colors',
           body: 'Color, background, and border properties are using hex values that map to Luna color tokens. Replacing them ensures your module respects future theme changes automatically.',
-          before: 'color: #343741;
-background-color: #F5F7FA;
-border-color: #E3E8F2;',
-          after: 'color: var(--luna-color-paragraph);
-background-color: var(--luna-color-lightest-shade);
-border-color: var(--luna-color-light-shade);',
+          before: 'color: #343741;\nbackground-color: #F5F7FA;\nborder-color: #E3E8F2;',
+          after: 'color: var(--luna-color-paragraph);\nbackground-color: var(--luna-color-lightest-shade);\nborder-color: var(--luna-color-light-shade);',
           color: 'var(--color-danger)',
         });
       }
@@ -1041,10 +1033,8 @@ border-color: var(--luna-color-light-shade);',
         tips.push({
           title: 'Replace hardcoded border-radius values',
           body: 'Border-radius properties use raw pixel values that map directly to Luna radius tokens.',
-          before: 'border-radius: 4px;
-border-radius: 8px;',
-          after: 'border-radius: var(--luna-radius-s);
-border-radius: var(--luna-radius-m);',
+          before: 'border-radius: 4px;\nborder-radius: 8px;',
+          after: 'border-radius: var(--luna-radius-s);\nborder-radius: var(--luna-radius-m);',
           color: 'var(--color-primary)',
         });
       }
@@ -1052,10 +1042,8 @@ border-radius: var(--luna-radius-m);',
         tips.push({
           title: 'Replace hardcoded font sizes',
           body: 'Font-size properties use raw rem values that map to Luna typography tokens.',
-          before: 'font-size: 0.857rem;
-font-size: 1.143rem;',
-          after: 'font-size: var(--luna-font-size-xs);
-font-size: var(--luna-font-size-m);',
+          before: 'font-size: 0.857rem;\nfont-size: 1.143rem;',
+          after: 'font-size: var(--luna-font-size-xs);\nfont-size: var(--luna-font-size-m);',
           color: 'var(--color-accent-secondary)',
         });
       }
