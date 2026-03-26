@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>icon — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>icon</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>icon</strong> implementations exist. The Ember version is 73 lines and the React version is 86 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">icon.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { concat } from &#x27;@ember/helper&#x27;;
+
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import svgJar from &#x27;ember-svg-jar/helpers/svg-jar&#x27;;
+import eq from &#x27;ember-truth-helpers/helpers/eq&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import type { LunaColor } from &#x27;../types.ts&#x27;;
+
+export type IconSize = &#x27;match-font&#x27; | &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27; | &#x27;xl&#x27; | &#x27;2xl&#x27; | &#x27;3xl&#x27; | &#x27;4xl&#x27;;
+
+interface LunaIconSignature {
+	Element: null; // This is an svg, but without splattributes
+	// Many of these pass directly to svg-jar, ideally we&#x27;d use the types from that.
+	Args: {
+		icon?: string;
+		size?: IconSize;
+		class?: string;
+		role?: string;
+		title?: string;
+		desc?: string;
+		color?: LunaColor;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+/**
+ * Icons are graphical symbols that represent actions or information, offering visual context and enhancing usability.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/icon.md)
+ * [Icon Library](https://docs.auditboardteam.com/Luna/icons/icon-library.md)
+ */
+const LunaIcon: TOC&lt;LunaIconSignature&gt; = &lt;template&gt;
+	{{svgJar
+		(concat &quot;#luna-&quot; @icon)
+		width=(or
+			(if (eq @size &quot;match-font&quot;) &quot;0.9em&quot;)
+			(if (eq @size &quot;xs&quot;) &quot;10px&quot;)
+			(if (eq @size &quot;sm&quot;) &quot;12px&quot;)
+			(if (eq @size &quot;md&quot;) &quot;16px&quot;)
+			(if (eq @size &quot;lg&quot;) &quot;20px&quot;)
+			(if (eq @size &quot;xl&quot;) &quot;24px&quot;)
+			(if (eq @size &quot;2xl&quot;) &quot;28px&quot;)
+			(if (eq @size &quot;3xl&quot;) &quot;32px&quot;)
+			(if (eq @size &quot;4xl&quot;) &quot;40px&quot;)
+			&quot;16px&quot;
+		)
+		height=(or
+			(if (eq @size &quot;match-font&quot;) &quot;0.9em&quot;)
+			(if (eq @size &quot;xs&quot;) &quot;10px&quot;)
+			(if (eq @size &quot;sm&quot;) &quot;12px&quot;)
+			(if (eq @size &quot;md&quot;) &quot;16px&quot;)
+			(if (eq @size &quot;lg&quot;) &quot;20px&quot;)
+			(if (eq @size &quot;xl&quot;) &quot;24px&quot;)
+			(if (eq @size &quot;2xl&quot;) &quot;28px&quot;)
+			(if (eq @size &quot;3xl&quot;) &quot;32px&quot;)
+			(if (eq @size &quot;4xl&quot;) &quot;40px&quot;)
+			&quot;16px&quot;
+		)
+		class=(concat (scopedClass &quot;Icon &quot;) @class)
+		role=(or @role (unless @title &quot;presentation&quot;))
+		data-qid-component-type=&quot;Luna::Icon&quot;
+		data-qid-icon-name=@icon
+		title=@title
+		desc=@desc
+		data-color=@color
+	}}
+&lt;/template&gt;;
+
+export default LunaIcon;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">icon.tsx</div><pre class="language-typescript">import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./icon.module.css&#x27;;
+
+export type IconSize = &#x27;match-font&#x27; | &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27; | &#x27;xl&#x27; | &#x27;2xl&#x27; | &#x27;3xl&#x27; | &#x27;4xl&#x27;;
+
+export type LunaColor = string; // TODO: Import from types when available
+
+interface IconProps {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;SVGSVGElement&gt;;
+	/** Icon name (without the &quot;luna-&quot; prefix) */
+	icon?: string;
+	/** Size of the icon */
+	size?: IconSize;
+	/** Additional CSS class */
+	className?: string;
+	/** ARIA role */
+	role?: string;
+	/** Title for accessibility */
+	title?: string;
+	/** Description for accessibility */
+	desc?: string;
+	/** Color of the icon */
+	color?: LunaColor;
+}
+
+const getSizeValue = (size?: IconSize): string =&gt; {
+	switch (size) {
+		case &#x27;match-font&#x27;:
+			return &#x27;0.9em&#x27;;
+		case &#x27;xs&#x27;:
+			return &#x27;10px&#x27;;
+		case &#x27;sm&#x27;:
+			return &#x27;12px&#x27;;
+		case &#x27;md&#x27;:
+			return &#x27;16px&#x27;;
+		case &#x27;lg&#x27;:
+			return &#x27;20px&#x27;;
+		case &#x27;xl&#x27;:
+			return &#x27;24px&#x27;;
+		case &#x27;2xl&#x27;:
+			return &#x27;28px&#x27;;
+		case &#x27;3xl&#x27;:
+			return &#x27;32px&#x27;;
+		case &#x27;4xl&#x27;:
+			return &#x27;40px&#x27;;
+		default:
+			return &#x27;16px&#x27;;
+	}
+};
+
+/**
+ * Icons are graphical symbols that represent actions or information, offering visual context and enhancing usability.
+ *
+ * Matches the Luna::Icon Ember component API and styling.
+ */
+export function Icon(props: IconProps) {
+	const { ref, icon, size, className, role, title, desc, color } = props;
+
+	const width = getSizeValue(size);
+	const height = getSizeValue(size);
+	const iconId = icon ? `#luna-${icon}` : &#x27;&#x27;;
+	const ariaRole = role ?? (title ? undefined : &#x27;presentation&#x27;);
+
+	const iconClassName = cn(styles.Icon, className);
+
+	return (
+		&lt;svg
+			ref={ref}
+			className={iconClassName}
+			width={width}
+			height={height}
+			role={ariaRole}
+			data-qid-component-type=&quot;Luna::Icon&quot;
+			data-qid-icon-name={icon}
+			data-color={color}
+		&gt;
+			{title &amp;&amp; &lt;title&gt;{title}&lt;/title&gt;}
+			{desc &amp;&amp; &lt;desc&gt;{desc}&lt;/desc&gt;}
+			{iconId &amp;&amp; &lt;use href={iconId} xlinkHref={iconId} /&gt;}
+		&lt;/svg&gt;
+	);
+}
+
+export default Icon;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="help-with-popup.html" class="nav-btn">← help-with-popup</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="icon-button.html" class="nav-btn">icon-button →</a>
+  </div>
+</body>
+</html>

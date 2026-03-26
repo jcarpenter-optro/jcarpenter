@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>select-recurrence-termination — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>select-recurrence-termination</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>select-recurrence-termination</strong> implementations exist. The Ember version is 312 lines and the React version is 525 lines. The React version is notably larger (525 vs 312 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">select-recurrence-termination.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports, ember/no-at-ember-render-modifiers, ember/no-tracked-properties-from-args */
+import { dedupeTracked } from &#x27;tracked-toolbox&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { concat, fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import didUpdate from &#x27;@ember/render-modifiers/modifiers/did-update&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import type { Task } from &#x27;ember-concurrency&#x27;;
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import and from &#x27;ember-truth-helpers/helpers/and&#x27;;
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import requirementArg from &#x27;../helpers/requirement-arg.ts&#x27;;
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { RRule } from &#x27;../utils/rrule.ts&#x27;;
+import type { LunaButtonArgs } from &#x27;./button.gts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import { labelIdForField } from &#x27;./field.gts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.ts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+import type { LunaPopupSignature } from &#x27;./popup.ts&#x27;;
+import Builder from &#x27;./select-recurrence-termination/builder.gts&#x27;;
+import type { LunaSelectRecurrenceTerminationBuilderSignature } from &#x27;./select-recurrence-termination/builder.ts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+
+export const OPTIONS = [
+	{
+		id: &#x27;until&#x27;,
+		labelKey: &#x27;input.select-recurrence-termination.option.date&#x27;,
+		value: &#x27;until&#x27;,
+	},
+	{
+		id: &#x27;count&#x27;,
+		labelKey: &#x27;input.select-recurrence-termination.option.number&#x27;,
+		value: &#x27;count&#x27;,
+	},
+];
+
+type Value = string | null;
+
+interface LunaSelectRecurrenceTerminationSignature {
+	Element: HTMLDivElement;
+	Args: {
+		id?: string;
+		value: Value;
+		active?: boolean;
+		// Should we still have this? Or just let people pass with splattributes
+		class: string;
+		placeholder?: string;
+		onCancel?: (reason: string) =&gt; void;
+		onChange?: (value: Value) =&gt; unknown;
+		requirements?: Requirements;
+		form?: LunaFormBlockValue;
+		name?: string;
+		disabled?: boolean;
+		/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+		serverErrors?: Array&lt;{ message?: string } | string&gt;;
+		ariaLabel?: string;
+		ariaLabelledBy?: string;
+		ariaDescribedBy?: string;
+		didAutosave?: () =&gt; void;
+	} &amp; Pick&lt;LunaButtonArgs, &#x27;size&#x27; | &#x27;variant&#x27;&gt; &amp;
+		Pick&lt;LunaPopupSignature[&#x27;Args&#x27;], &#x27;placement&#x27;&gt; &amp;
+		Pick&lt;LunaSelectRecurrenceTerminationBuilderSignature[&#x27;Args&#x27;], &#x27;requirements&#x27;&gt;;
+	Blocks: {
+		icon?: [];
+		trigger?: [value: Value];
+	};
+}
+
+let nextInputId = 0;
+
+/**
+ * A component for selecting the termination details of a recurrence.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/select-recurrence-termination.md)
+ */
+export default class LunaSelectRecurrenceTermination extends Component&lt;LunaSelectRecurrenceTerminationSignature&gt; {
+	@service declare intl: IntlService;
+
+	@consume(&#x27;luna-input-id&#x27;) declare inputId: string;
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+
+	popupId = `${guidFor(this)}--popup`;
+
+	options = OPTIONS;
+
+	@tracked showPopup = false;
+	@tracked rule: RRule;
+	@tracked selection = this.args.value;
+
+	@dedupeTracked valueIsUnchanged = true;
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: LunaSelectRecurrenceTerminationSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+		assert(&#x27;You cannot provide both ariaLabel and ariaLabelledBy&#x27;, !args.ariaLabel || !args.ariaLabelledBy);
+		this.rule = new RRule(this.args.value, this.intl);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			name: args.name,
+			didAutosave: this.didAutosave.bind(this),
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: this.args.ariaDescribedBy ?? null,
+
+			get value() {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get serverErrors() {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+
+			get selectorIsVisible() {
+				return that.showPopup;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-select-recurrence-termination-${nextInputId++}`;
+	}
+
+	get labelId() {
+		return this.inputId ? labelIdForField(this.inputId) : null;
+	}
+
+	get triggerIsActive() {
+		return this.args.active ?? this.showPopup;
+	}
+
+	get formattedSelection() {
+		return this.args.value ? this.rule.localeTerminationString : null;
+	}
+
+	@action
+	onRuleUpdate() {
+		this.rule = new RRule(this.args.value, this.intl);
+	}
+
+	@action
+	openSelector() {
+		this.selection = this.args.value;
+		this.valueIsUnchanged = true;
+		this.showPopup = true;
+	}
+
+	@action
+	async willCloseSelector(reason: string) {
+		if (this.valueIsUnchanged) {
+			return this.args.onCancel?.(reason);
+		}
+
+		await this.args.onChange?.(this.selection);
+		this.manager.onChange();
+	}
+
+	@action
+	onCloseSelector() {
+		this.showPopup = false;
+	}
+
+	@action
+	onChange(closeTask: Task&lt;void, []&gt;, value: Value) {
+		this.valueIsUnchanged = false;
+		this.selection = value;
+		void closeTask.perform();
+	}
+
+	@action
+	didAutosave() {
+		this.valueIsUnchanged = true;
+		this.args.didAutosave?.();
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+	&lt;template&gt;
+		&lt;div
+			class=&quot;SelectRecurrenceTermination {{@class}}&quot;
+			data-size={{or @size &quot;md&quot;}}
+			data-disabled={{toString0 @disabled}}
+			data-qid-component-type=&quot;Luna::SelectRecurrence&quot;
+			data-focused={{toString0 this.manager.inputHasFocus}}
+			data-errored={{toString0 this.manager.showErrorMessage}}
+			{{didUpdate this.onRuleUpdate @value}}
+			...attributes
+		&gt;
+			&lt;Button
+				@variant={{or @variant &quot;white&quot;}}
+				@width=&quot;full&quot;
+				@size={{or @size &quot;md&quot;}}
+				@errored={{this.manager.showErrorMessage}}
+				@disabled={{@disabled}}
+				@active={{this.triggerIsActive}}
+				id={{this.id}}
+				aria-controls={{this.popupId}}
+				role=&quot;combobox&quot;
+				aria-expanded={{toString0 this.showPopup}}
+				aria-owns={{this.popupId}}
+				aria-haspopup=&quot;dialog&quot;
+				aria-required={{if (requirementArg @requirements &quot;required&quot;) &quot;true&quot; &quot;false&quot;}}
+				aria-label={{@ariaLabel}}
+				aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+				aria-describedby={{this.manager.ariaDescribedBy}}
+				aria-invalid={{toString0 this.manager.showErrorMessage}}
+				{{on &quot;focus&quot; this.manager.focusIn}}
+				{{on &quot;click&quot; this.openSelector}}
+			&gt;
+				{{#if (has-block &quot;icon&quot;)}}
+					&lt;div class=&quot;pre-icon&quot;&gt;
+						{{yield to=&quot;icon&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+
+				&lt;div class=&quot;label&quot;&gt;
+					{{#if (has-block &quot;trigger&quot;)}}
+						{{yield @value to=&quot;trigger&quot;}}
+					{{else}}
+						{{or this.formattedSelection (t &quot;input.select-recurrence-termination.placeholder&quot;)}}
+					{{/if}}
+				&lt;/div&gt;
+
+				{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+					&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+				{{/if}}
+
+				&lt;Icon @class={{scopedClass &quot;icon&quot;}} @icon=&quot;chevron-down&quot; @size=&quot;sm&quot; /&gt;
+			&lt;/Button&gt;
+
+			&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}}&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+
+			{{#if this.showPopup}}
+				&lt;Popup
+					class=&quot;popup&quot;
+					role=&quot;dialog&quot;
+					aria-label={{if (and (not @placeholder) (not @value)) (t &quot;input.select-recurrence-termination.placeholder&quot;)}}
+					@id={{this.popupId}}
+					@show={{this.showPopup}}
+					@relativeTo={{concat &quot;#&quot; this.id}}
+					@placement={{or @placement &quot;bottom&quot;}}
+					@trapFocus={{true}}
+					@willClose={{this.willCloseSelector}}
+					@onClose={{this.onCloseSelector}}
+					as |popup|
+				&gt;
+					&lt;Builder
+						@value={{@value}}
+						@onChange={{fn this.onChange popup.closeTask}}
+						@options={{this.options}}
+						@onCancelTask={{popup.closeTask}}
+						@requirements={{@requirements}}
+					/&gt;
+				&lt;/Popup&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">builder.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useMemo, useState } from &#x27;react&#x27;;
+
+import { createDefaultIntl, type IntlLike, RRule } from &#x27;@soxhub/luna-utils/rrule&#x27;;
+
+import { Button } from &#x27;../button/button&#x27;;
+import { Field } from &#x27;../field/field&#x27;;
+import { Form } from &#x27;../form/form&#x27;;
+import { IconButton } from &#x27;../icon-button/icon-button&#x27;;
+import { Input } from &#x27;../input/input&#x27;;
+import { Menu } from &#x27;../menu/menu&#x27;;
+import { SelectDate } from &#x27;../select-date/select-date&#x27;;
+import { Text } from &#x27;../text/text&#x27;;
+import { XStack } from &#x27;../x-stack/x-stack&#x27;;
+import { YStack } from &#x27;../y-stack/y-stack&#x27;;
+
+import styles from &#x27;./builder.module.css&#x27;;
+
+export interface TerminationOption {
+	id: string;
+	value: string;
+	labelKey: string;
+}
+
+export interface SelectRecurrenceTerminationBuilderProps {
+	value: string | null;
+	options: TerminationOption[];
+	requirements?: {
+		required?: boolean;
+	};
+	onChange: (value: string | null) =&gt; void;
+	onCancel: () =&gt; void;
+	intl?: IntlLike;
+}
+
+/**
+ * Builder component for configuring recurrence termination options.
+ */
+export function SelectRecurrenceTerminationBuilder({
+	value,
+	options,
+	requirements,
+	onChange,
+	onCancel,
+	intl: intlProp,
+}: SelectRecurrenceTerminationBuilderProps) {
+	const intl = useMemo(() =&gt; intlProp ?? createDefaultIntl(), [intlProp]);
+
+	// Initialize rule from value
+	const [rule, setRule] = useState(() =&gt; new RRule(value, intl));
+
+	// Determine selected option from value
+	const [selectedOption, setSelectedOption] = useState&lt;TerminationOption | null&gt;(() =&gt; {
+		if (!value) return null;
+		if (value.includes(&#x27;COUNT&#x27;)) {
+			return options.find((opt) =&gt; opt.value === &#x27;count&#x27;) ?? null;
+		}
+		if (value.includes(&#x27;UNTIL&#x27;)) {
+			return options.find((opt) =&gt; opt.value === &#x27;until&#x27;) ?? null;
+		}
+		return null;
+	});
+
+	// Update rule when value changes
+	useEffect(() =&gt; {
+		setRule(new RRule(value, intl));
+	}, [value, intl]);
+
+	const handleSaveRule = useCallback(async () =&gt; {
+		const newValue = rule.string || null;
+		onChange(newValue);
+	}, [rule, onChange]);
+
+	const handleSelectOption = useCallback(
+		(option: TerminationOption | null) =&gt; {
+			setSelectedOption(option);
+			// Reset the rule&#x27;s termination values
+			const newRule = new RRule(value, intl);
+			newRule.until = null;
+			newRule.count = null;
+			setRule(newRule);
+
+			if (!option) {
+				// User selected &quot;none&quot; - clear termination and save
+				onChange(newRule.string || null);
+			}
+		},
+		[value, intl, onChange],
+	);
+
+	const handleUntilDateChange = useCallback(
+		(dateValue: string | { start: string; end: string } | null) =&gt; {
+			if (typeof dateValue === &#x27;string&#x27; &amp;&amp; dateValue) {
+				const newRule = new RRule(value, intl);
+				newRule.setUntilDate(dateValue);
+				setRule(newRule);
+			}
+		},
+		[value, intl],
+	);
+
+	const handleUntilTimeChange = useCallback(
+		(timeValue: string) =&gt; {
+			if (timeValue) {
+				const newRule = new RRule(value, intl);
+				if (newRule.until) {
+					newRule.setUntilTime(timeValue);
+					setRule(newRule);
+				}
+			}
+		},
+		[value, intl],
+	);
+
+	const handleCountChange = useCallback(
+		(countValue: string) =&gt; {
+			const newRule = new RRule(value, intl);
+			newRule.count = countValue || null;
+			setRule(newRule);
+		},
+		[value, intl],
+	);
+
+	// If an option is selected, show the builder form
+	if (selectedOption) {
+		return (
+			&lt;div className={styles.Builder} data-qid-select-recurrence-builder&gt;
+				&lt;YStack spacing=&quot;md&quot;&gt;
+					&lt;XStack spacing=&quot;md&quot;&gt;
+						&lt;IconButton
+							size=&quot;sm&quot;
+							variant=&quot;gray&quot;
+							tooltip={intl.t(&#x27;input.selectRecurrence.custom.back&#x27;)}
+							icon=&quot;arrow-left&quot;
+							data-qid-recurrence-termination-back
+							onClick={() =&gt; setSelectedOption(null)}
+						/&gt;
+						&lt;Text font=&quot;200&quot; weight=&quot;strong&quot; color=&quot;gray-900&quot;&gt;
+							{intl.t(selectedOption.labelKey)}
+						&lt;/Text&gt;
+					&lt;/XStack&gt;
+
+					&lt;Form onSubmit={handleSaveRule}&gt;
+						{() =&gt; (
+							&lt;YStack spacing=&quot;md&quot;&gt;
+								{selectedOption.value === &#x27;until&#x27; &amp;&amp; (
+									&lt;XStack spacing=&quot;md&quot; width=&quot;full&quot;&gt;
+										&lt;Field
+											className={styles.date}
+											label={intl.t(&#x27;input.select-recurrence-termination.field.end-date&#x27;)}
+											input={({ id }) =&gt; (
+												&lt;SelectDate
+													id={id}
+													value={rule.untilDate}
+													onChange={handleUntilDateChange}
+													requirements={{ required: true }}
+													data-qid-recurrence-termination-date
+												/&gt;
+											)}
+										/&gt;
+										&lt;Field
+											className={styles.time}
+											label={intl.t(&#x27;input.select-recurrence-termination.field.end-time&#x27;)}
+											input={({ id }) =&gt; (
+												&lt;Input
+													id={id}
+													type=&quot;time&quot;
+													value={rule.untilTime ?? &#x27;&#x27;}
+													onChange={handleUntilTimeChange}
+													data-qid-recurrence-termination-time
+												/&gt;
+											)}
+										/&gt;
+									&lt;/XStack&gt;
+								)}
+
+								{selectedOption.value === &#x27;count&#x27; &amp;&amp; (
+									&lt;Field
+										label={intl.t(&#x27;input.select-recurrence-termination.field.number&#x27;)}
+										input={({ id }) =&gt; (
+											&lt;Input
+												id={id}
+												type=&quot;number&quot;
+												value={rule.count ?? &#x27;&#x27;}
+												onChange={handleCountChange}
+												requirements={{ required: true }}
+												data-qid-recurrence-termination-count
+											/&gt;
+										)}
+									/&gt;
+								)}
+
+								&lt;XStack spacing=&quot;md&quot; width=&quot;full&quot; className={styles.actions}&gt;
+									&lt;div style={{ flex: 1 }} /&gt;
+									&lt;Button variant=&quot;transparent&quot; data-qid-recurrence-termination-cancel onClick={onCancel}&gt;
+										{intl.t(&#x27;input.select-recurrence-termination.cancel&#x27;)}
+									&lt;/Button&gt;
+									&lt;Button type=&quot;submit&quot; variant=&quot;blue&quot; data-qid-recurrence-termination-save&gt;
+										{intl.t(&#x27;input.select-recurrence-termination.apply&#x27;)}
+									&lt;/Button&gt;
+								&lt;/XStack&gt;
+							&lt;/YStack&gt;
+						)}
+					&lt;/Form&gt;
+				&lt;/YStack&gt;
+			&lt;/div&gt;
+		);
+	}
+
+	// Show the option list
+	return (
+		&lt;Menu data-qid-select-recurrence-presets&gt;
+			{requirements?.required !== true &amp;&amp; (
+				&lt;Menu.Option
+					selected={!value}
+					data-qid-select-recurrence-termination-option=&quot;none&quot;
+					onClick={() =&gt; handleSelectOption(null)}
+				&gt;
+					{intl.t(&#x27;input.select-recurrence-termination.placeholder&#x27;)}
+				&lt;/Menu.Option&gt;
+			)}
+
+			{options.map((option) =&gt; (
+				&lt;Menu.Option
+					key={option.id}
+					selected={value === option.value}
+					data-qid-select-recurrence-termination-option={option.id}
+					onClick={() =&gt; handleSelectOption(option)}
+				&gt;
+					{intl.t(option.labelKey)}
+				&lt;/Menu.Option&gt;
+			))}
+		&lt;/Menu&gt;
+	);
+}
+
+export default SelectRecurrenceTerminationBuilder;
+</pre><div class="file-tab">select-recurrence-termination.tsx</div><pre class="language-typescript">import { type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { createDefaultIntl, type IntlLike, RRule } from &#x27;@soxhub/luna-utils/rrule&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type InputManagerOptions, useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { Button, type ButtonVariant } from &#x27;../button/button&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { InputError } from &#x27;../input-error/input-error&#x27;;
+import { type OnCloseSource, Popup, type PopupPlacement } from &#x27;../popup/popup&#x27;;
+import { TERMINATION_OPTIONS } from &#x27;../select-recurrence/const&#x27;;
+import { Spinner } from &#x27;../spinner/spinner&#x27;;
+
+import { SelectRecurrenceTerminationBuilder, type TerminationOption } from &#x27;./builder&#x27;;
+
+import styles from &#x27;./select-recurrence-termination.module.css&#x27;;
+
+export type SelectRecurrenceTerminationSize = &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface SelectRecurrenceTerminationProps {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** The full recurrence rule string */
+	value: string | null;
+	/** Called when termination changes */
+	onChange?: (value: string | null) =&gt; unknown;
+	/** Called when selection is cancelled */
+	onCancel?: (reason: string) =&gt; void;
+	/** Whether the trigger button appears active */
+	active?: boolean;
+	/** Placeholder text when no value is selected */
+	placeholder?: string;
+	/** Size of the trigger button */
+	size?: SelectRecurrenceTerminationSize;
+	/** Visual variant of the trigger button */
+	variant?: ButtonVariant;
+	/** Disable the input */
+	disabled?: boolean;
+	/** Custom ID for the trigger */
+	id?: string;
+	/** Input requirements for validation */
+	requirements?: {
+		required?: boolean;
+	};
+	/** Name for form submission */
+	name?: string;
+	/** Popup placement relative to trigger */
+	placement?: PopupPlacement;
+	/** @deprecated Use form validators instead */
+	serverErrors?: Array&lt;{ message?: string } | string&gt;;
+	/** ARIA label for the trigger */
+	ariaLabel?: string;
+	/** ARIA labelledby reference */
+	ariaLabelledBy?: string;
+	/** ARIA describedby reference */
+	ariaDescribedBy?: string;
+	/** Called after autosave completes */
+	didAutosave?: () =&gt; void;
+	/** Additional CSS class for the wrapper */
+	className?: string;
+	/** Custom termination options */
+	options?: TerminationOption[];
+	/** Optional custom intl implementation */
+	intl?: IntlLike;
+	/** Custom icon slot */
+	iconSlot?: ReactNode;
+	/** Custom trigger render function */
+	children?: (value: string | null) =&gt; ReactNode;
+}
+
+let nextInputId = 0;
+
+/**
+ * A component for selecting the termination details of a recurrence.
+ */
+export function SelectRecurrenceTermination(props: SelectRecurrenceTerminationProps) {
+	const {
+		ref,
+		value,
+		onChange,
+		onCancel,
+		active,
+		placeholder,
+		size = &#x27;md&#x27;,
+		variant = &#x27;white&#x27;,
+		disabled = false,
+		id: providedId,
+		requirements,
+		name,
+		placement = &#x27;bottom&#x27;,
+		serverErrors,
+		ariaLabel,
+		ariaLabelledBy,
+		ariaDescribedBy,
+		didAutosave,
+		className,
+		options = TERMINATION_OPTIONS,
+		intl: intlProp,
+		iconSlot,
+		children,
+	} = props;
+	const generatedId = useId();
+	const id = providedId ?? `luna-select-recurrence-termination-${nextInputId++}`;
+	const popupId = `${id}--popup`;
+
+	const formContext = useFormContext();
+	const triggerRef = useRef&lt;HTMLButtonElement&gt;(null);
+	const intl = useMemo(() =&gt; intlProp ?? createDefaultIntl(), [intlProp]);
+
+	// Parse the RRule when value changes
+	const [rule, setRule] = useState(() =&gt; new RRule(value, intl));
+
+	// Track popup visibility
+	const [showPopup, setShowPopup] = useState(false);
+
+	// Track internal selection
+	const [selection, setSelection] = useState&lt;string | null&gt;(value);
+
+	const valueIsUnchangedRef = useRef(true);
+
+	// Update rule when value prop changes
+	useEffect(() =&gt; {
+		setRule(new RRule(value, intl));
+	}, [value, intl]);
+
+	// Input manager for form integration
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		name,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		didAutosave: useCallback(() =&gt; {
+			valueIsUnchangedRef.current = true;
+			didAutosave?.();
+		}, [didAutosave]),
+		ariaDescribedBy: ariaDescribedBy ?? null,
+		value,
+		isDisabled: disabled,
+		requirements,
+		serverErrors,
+		formContext,
+		selectorIsVisible: showPopup,
+	} as InputManagerOptions);
+
+	// Computed
+	const triggerIsActive = active ?? showPopup;
+
+	const formattedSelection = useMemo(() =&gt; {
+		if (!value) return null;
+		if (rule.count || rule.until) {
+			return rule.localeTerminationString || null;
+		}
+		return intl.t(&#x27;input.select-recurrence-termination.placeholder&#x27;);
+	}, [value, rule, intl]);
+
+	// Handlers
+	const handleFocusIn = useCallback(() =&gt; {
+		manager.focusIn();
+	}, [manager]);
+
+	const handleOpen = useCallback(() =&gt; {
+		if (disabled) return;
+		setSelection(value);
+		valueIsUnchangedRef.current = true;
+		setShowPopup(true);
+	}, [disabled, value]);
+
+	const handleWillClose = useCallback(
+		async (source: OnCloseSource) =&gt; {
+			if (valueIsUnchangedRef.current) {
+				onCancel?.(source);
+				return;
+			}
+
+			await onChange?.(selection);
+			manager.onChange();
+		},
+		[selection, onCancel, onChange, manager],
+	);
+
+	const handleClose = useCallback(() =&gt; {
+		setShowPopup(false);
+	}, []);
+
+	const handleBuilderChange = useCallback(
+		(newValue: string | null) =&gt; {
+			valueIsUnchangedRef.current = false;
+			setSelection(newValue);
+			// Close popup and apply change
+			setShowPopup(false);
+			onChange?.(newValue);
+			manager.setValueIsUnchanged(false);
+			manager.onChange();
+		},
+		[onChange, manager],
+	);
+
+	const handleBuilderCancel = useCallback(() =&gt; {
+		setShowPopup(false);
+	}, []);
+
+	// Get computed aria-labelledby
+	const computedAriaLabelledBy = useMemo(() =&gt; {
+		if (ariaLabelledBy) return ariaLabelledBy;
+		if (!ariaLabel) {
+			return generatedId ? `${generatedId}-label` : undefined;
+		}
+		return undefined;
+	}, [ariaLabelledBy, ariaLabel, generatedId]);
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.SelectRecurrenceTermination, className)}
+			data-size={size}
+			data-disabled={disabled ? &#x27;true&#x27; : undefined}
+			data-qid-component-type=&quot;Luna::SelectRecurrence&quot;
+			data-focused={manager.inputHasFocus ? &#x27;true&#x27; : undefined}
+			data-errored={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+		&gt;
+			&lt;Button
+				ref={triggerRef}
+				id={id}
+				variant={variant}
+				size={size}
+				width=&quot;full&quot;
+				errored={manager.showErrorMessage}
+				disabled={disabled}
+				active={triggerIsActive}
+				role=&quot;combobox&quot;
+				aria-controls={popupId}
+				aria-expanded={showPopup}
+				aria-owns={popupId}
+				aria-haspopup=&quot;dialog&quot;
+				aria-required={requirements?.required ? &#x27;true&#x27; : &#x27;false&#x27;}
+				aria-label={ariaLabel}
+				aria-labelledby={computedAriaLabelledBy}
+				aria-describedby={manager.ariaDescribedBy}
+				aria-invalid={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+				onFocus={handleFocusIn}
+				onClick={handleOpen}
+			&gt;
+				{iconSlot ? &lt;div className={styles.preIcon}&gt;{iconSlot}&lt;/div&gt; : null}
+
+				&lt;div className={styles.label}&gt;
+					{children
+						? children(value)
+						: (formattedSelection ?? placeholder ?? intl.t(&#x27;input.select-recurrence-termination.placeholder&#x27;))}
+				&lt;/div&gt;
+
+				{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+					&lt;Spinner size=&quot;sm&quot; transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined} /&gt;
+				)}
+
+				&lt;Icon className={styles.icon} icon=&quot;chevron-down&quot; size=&quot;sm&quot; /&gt;
+			&lt;/Button&gt;
+
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+
+			{showPopup &amp;&amp; (
+				&lt;Popup
+					className={styles.popup}
+					id={popupId}
+					show={showPopup}
+					relativeTo={triggerRef}
+					placement={placement}
+					trapFocus
+					role=&quot;dialog&quot;
+					aria-label={!placeholder &amp;&amp; !value ? intl.t(&#x27;input.select-recurrence-termination.placeholder&#x27;) : undefined}
+					willClose={handleWillClose}
+					onClose={handleClose}
+				&gt;
+					&lt;SelectRecurrenceTerminationBuilder
+						value={value}
+						options={options}
+						requirements={requirements}
+						onChange={handleBuilderChange}
+						onCancel={handleBuilderCancel}
+						intl={intl}
+					/&gt;
+				&lt;/Popup&gt;
+			)}
+		&lt;/div&gt;
+	);
+}
+
+export default SelectRecurrenceTermination;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="select-recurrence-start-time.html" class="nav-btn">← select-recurrence-start-time</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="select-time.html" class="nav-btn">select-time →</a>
+  </div>
+</body>
+</html>

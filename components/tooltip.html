@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>tooltip — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>tooltip</h1>
+    <span class="badge badge-react">React only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>tooltip</strong> exists only in the React library. It has not yet been ported to Ember/Glimmer and may represent a newer pattern being introduced via the React migration.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">tooltip.tsx</div><pre class="language-typescript">import { useCallback } from &#x27;react&#x27;;
+
+import { Tooltip as BaseTooltip } from &#x27;@base-ui-components/react/tooltip&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./tooltip.module.css&#x27;;
+
+export type TooltipPlacement =
+	| &#x27;top&#x27;
+	| &#x27;top-start&#x27;
+	| &#x27;top-end&#x27;
+	| &#x27;bottom&#x27;
+	| &#x27;bottom-start&#x27;
+	| &#x27;bottom-end&#x27;
+	| &#x27;left&#x27;
+	| &#x27;left-start&#x27;
+	| &#x27;left-end&#x27;
+	| &#x27;right&#x27;
+	| &#x27;right-start&#x27;
+	| &#x27;right-end&#x27;;
+
+export interface TooltipProps {
+	/** Optional ref for the trigger element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLSpanElement&gt;;
+	/** The content to display in the tooltip */
+	content?: React.ReactNode;
+	/** The trigger element(s) for the tooltip */
+	children: React.ReactNode;
+	/** Where to place the tooltip relative to the trigger */
+	placement?: TooltipPlacement;
+	/** Whether the tooltip is disabled */
+	disabled?: boolean;
+	/** Callback when the tooltip is shown */
+	onShow?: () =&gt; void;
+	/** Callback when the tooltip is hidden */
+	onHide?: () =&gt; void;
+	/** How long to wait before showing the tooltip (ms). Default is 0ms. */
+	delay?: number;
+	/** How long to wait before hiding the tooltip (ms) */
+	closeDelay?: number;
+	/** Additional class name for the popup */
+	className?: string;
+	/** Test ID for the tooltip popup */
+	testId?: string;
+}
+
+/**
+ * Tooltip component that shows informative text when an element is hovered or focused.
+ *
+ * Uses Base UI&#x27;s Tooltip primitives under the hood for accessibility and positioning.
+ */
+export function Tooltip(props: TooltipProps) {
+	const {
+		ref,
+		content,
+		children,
+		placement = &#x27;top&#x27;,
+		disabled = false,
+		onShow,
+		onHide,
+		delay = 0,
+		closeDelay = 0,
+		className,
+		testId,
+	} = props;
+	const handleOpenChange = useCallback(
+		(open: boolean) =&gt; {
+			if (open) {
+				onShow?.();
+			} else {
+				onHide?.();
+			}
+		},
+		[onShow, onHide],
+	);
+
+	// If no content or disabled, render children without tooltip
+	if (!content || disabled) {
+		return &lt;&gt;{children}&lt;/&gt;;
+	}
+
+	return (
+		&lt;BaseTooltip.Provider delay={delay} closeDelay={closeDelay}&gt;
+			&lt;BaseTooltip.Root onOpenChange={handleOpenChange}&gt;
+				&lt;BaseTooltip.Trigger ref={ref} className={styles.trigger} render={&lt;span /&gt;}&gt;
+					{children}
+				&lt;/BaseTooltip.Trigger&gt;
+				&lt;BaseTooltip.Portal&gt;
+					&lt;BaseTooltip.Positioner side={placement.split(&#x27;-&#x27;)[0] as &#x27;top&#x27; | &#x27;bottom&#x27; | &#x27;left&#x27; | &#x27;right&#x27;} sideOffset={8}&gt;
+						&lt;BaseTooltip.Popup
+							className={cn(styles.Popup, className)}
+							data-test-tooltip
+							data-testid={testId}
+							data-qid-component-type=&quot;Luna::Tooltip&quot;
+						&gt;
+							&lt;BaseTooltip.Arrow className={styles.Arrow}&gt;
+								&lt;ArrowSvg /&gt;
+							&lt;/BaseTooltip.Arrow&gt;
+							&lt;div className={styles.content}&gt;{content}&lt;/div&gt;
+						&lt;/BaseTooltip.Popup&gt;
+					&lt;/BaseTooltip.Positioner&gt;
+				&lt;/BaseTooltip.Portal&gt;
+			&lt;/BaseTooltip.Root&gt;
+		&lt;/BaseTooltip.Provider&gt;
+	);
+}
+
+/** Arrow SVG component matching Luna&#x27;s dark popup arrow style */
+function ArrowSvg() {
+	return (
+		&lt;svg width=&quot;20&quot; height=&quot;10&quot; viewBox=&quot;0 0 20 10&quot; className={styles.arrowSvg}&gt;
+			&lt;path d=&quot;M0 10L10 0L20 10H0Z&quot; className={styles.arrowFill} /&gt;
+			&lt;path d=&quot;M0 10L10 0L20 10&quot; fill=&quot;none&quot; className={styles.arrowStroke} /&gt;
+		&lt;/svg&gt;
+	);
+}
+
+export default Tooltip;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="toggle.html" class="nav-btn">← toggle</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="ui-control-size.html" class="nav-btn">ui-control-size →</a>
+  </div>
+</body>
+</html>

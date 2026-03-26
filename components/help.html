@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>help — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>help</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>help</strong> implementations exist. The Ember version is 114 lines and the React version is 89 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">help.gts</div><pre class="language-typescript">import { fn, hash } from &#x27;@ember/helper&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { modifier } from &#x27;ember-modifier&#x27;;
+import { and, or } from &#x27;ember-truth-helpers&#x27;;
+
+import type { TooltipPlacement } from &#x27;../modifiers/tooltip.ts&#x27;;
+import tooltip from &#x27;../modifiers/tooltip.ts&#x27;;
+import type LunaAnnouncerService from &#x27;../services/announcer.ts&#x27;;
+import type AsyncService from &#x27;../services/async.ts&#x27;;
+import type TooltipService from &#x27;../services/tooltip.ts&#x27;;
+import announceOnInit from &#x27;./a11y-announcer/announce-on-init.ts&#x27;;
+import Trigger from &#x27;./help/trigger.gts&#x27;;
+import { Portal } from &#x27;./portal.gts&#x27;;
+
+export interface LunaHelpSignature {
+	Element: HTMLDivElement;
+	Args: {
+		tooltip?: string | null;
+		placement?: TooltipPlacement;
+		disabled?: boolean;
+		width?: &#x27;auto&#x27; | &#x27;full&#x27;;
+	};
+	Blocks: {
+		tooltip: [];
+		default: [
+			{
+				isDisabled: boolean | undefined;
+				isEnabled: boolean;
+			},
+		];
+	};
+}
+
+/**
+ * Adds advanced functionality for tooltips such as custom formatted tooltips.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/help.md)
+ */
+export default class Help extends Component&lt;LunaHelpSignature&gt; {
+	@service(&#x27;luna/announcer&#x27;) declare announcerService: LunaAnnouncerService;
+	@service(&#x27;luna/async&#x27;) declare async: AsyncService;
+	@tracked showTooltipBlock = false;
+
+	@service(&#x27;luna/tooltip&#x27;) declare tooltip: TooltipService;
+
+	@action
+	toggleTooltipBlock(value: boolean) {
+		this.showTooltipBlock = value;
+	}
+
+	get placement(): TooltipPlacement {
+		return this.args.placement ?? &#x27;top&#x27;;
+	}
+
+	get isEnabled() {
+		return !this.args.disabled;
+	}
+
+	/**
+	 * Resets the tooltip block visibility when the tooltip is destroyed.
+	 * Handles the case where the tooltip is hidden by mousing into and out of
+	 * the tooltip itself, which doesn&#x27;t trigger onHide on the tooltip modifier.
+	 */
+	listenForDestroy = modifier(() =&gt; {
+		if (!this.tooltip.currentTooltip) {
+			this.toggleTooltipBlock(false);
+		}
+	});
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;Help&quot;
+			data-luna-feature=&quot;meld&quot;
+			data-width={{or @width &quot;auto&quot;}}
+			data-qid-component-type=&quot;Luna::Help&quot;
+			...attributes
+			{{tooltip
+				@tooltip
+				isPortalled=(has-block &quot;tooltip&quot;)
+				disabled=@disabled
+				placement=this.placement
+				onShow=(fn this.toggleTooltipBlock true)
+				onHide=(fn this.toggleTooltipBlock false)
+			}}
+		&gt;
+			{{#if (has-block)}}
+				{{yield (hash isDisabled=@disabled isEnabled=this.isEnabled)}}
+			{{else}}
+				&lt;Trigger @tag=&quot;div&quot; /&gt;
+			{{/if}}
+
+			{{#if (and (has-block &quot;tooltip&quot;) this.showTooltipBlock)}}
+				&lt;Portal @to={{this.tooltip.tooltipId}}&gt;
+					&lt;span
+						{{this.listenForDestroy}}
+						aria-live=&quot;polite&quot;
+						{{announceOnInit
+							urgency=&quot;polite&quot;
+							announceOnInit=true
+							announcerService=this.announcerService
+							async=this.async
+						}}
+					&gt;
+						{{yield to=&quot;tooltip&quot;}}
+					&lt;/span&gt;
+				&lt;/Portal&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">help.tsx</div><pre class="language-typescript">import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Tooltip, type TooltipPlacement } from &#x27;../tooltip&#x27;;
+
+import styles from &#x27;./help.module.css&#x27;;
+
+interface HelpBaseProps {
+	/** Text content for the tooltip */
+	tooltip?: string | null;
+	/** Where to place the tooltip relative to the trigger */
+	placement?: TooltipPlacement;
+	/** Whether the tooltip is disabled */
+	disabled?: boolean;
+	/** Display width mode */
+	width?: &#x27;auto&#x27; | &#x27;full&#x27;;
+	/** Custom tooltip content (React node) */
+	tooltipSlot?: React.ReactNode;
+	/** Child content - renders inside the help container. When no children provided, shows default question mark icon */
+	children?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export type HelpProps = ComponentPropsWithRef&lt;HelpBaseProps, HTMLDivElement&gt;;
+
+/**
+ * Default trigger component - question mark icon in a circle
+ */
+function HelpTrigger() {
+	return (
+		&lt;div className={styles.Trigger} data-test-trigger&gt;
+			&lt;div className={styles.indicator}&gt;
+				&lt;svg className={styles.icon} xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 12 12&quot;&gt;
+					&lt;g fill=&quot;none&quot; fillRule=&quot;evenodd&quot; stroke=&quot;currentColor&quot; strokeLinecap=&quot;round&quot; strokeLinejoin=&quot;round&quot;&gt;
+						&lt;path
+							strokeWidth=&quot;1.5&quot;
+							d=&quot;M3.75 4S4 1.75 6 1.75 8.25 3 8.25 4c0 .751-.423 1.503-1.27 1.83C6.465 6.029 6 6.448 6 7v.25&quot;
+						/&gt;
+						&lt;path d=&quot;M6.5 10a.5.5 0 11-1 0 .5.5 0 011 0z&quot; /&gt;
+					&lt;/g&gt;
+				&lt;/svg&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+/**
+ * Help component that provides tooltip functionality for content.
+ *
+ * Can be used with a simple string tooltip, custom tooltip content via tooltipSlot,
+ * or with children that can access disabled state via render function.
+ *
+ * When no children are provided, renders a default question mark icon trigger.
+ */
+export function Help(props: HelpProps) {
+	const { ref, tooltip, placement = &#x27;top&#x27;, disabled = false, width = &#x27;auto&#x27;, tooltipSlot, children, className } = props;
+
+	// Use default trigger if no children provided
+	const content = children ?? &lt;HelpTrigger /&gt;;
+
+	// Determine tooltip content - tooltipSlot takes precedence over tooltip string
+	const tooltipContent = tooltipSlot ?? tooltip;
+
+	// If disabled or no tooltip content, render without tooltip wrapper
+	if (disabled || !tooltipContent) {
+		return (
+			&lt;div ref={ref} className={cn(styles.Help, className)} data-width={width} data-qid-component-type=&quot;Luna::Help&quot;&gt;
+				{content}
+			&lt;/div&gt;
+		);
+	}
+
+	// Wrap with Tooltip component
+	return (
+		&lt;Tooltip content={tooltipContent} placement={placement}&gt;
+			&lt;div
+				ref={ref}
+				className={cn(styles.Help, className)}
+				data-width={width}
+				data-qid-component-type=&quot;Luna::Help&quot;
+				tabIndex={0}
+			&gt;
+				{content}
+			&lt;/div&gt;
+		&lt;/Tooltip&gt;
+	);
+}
+
+export default Help;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="heading.html" class="nav-btn">← heading</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="help-with-popup.html" class="nav-btn">help-with-popup →</a>
+  </div>
+</body>
+</html>

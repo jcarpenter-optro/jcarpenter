@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>chart — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>chart</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>chart</strong> implementations exist. The Ember version is 188 lines and the React version is 536 lines. The React version is notably larger (536 vs 188 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">chart.gts</div><pre class="language-typescript">import type {
+	AgChartCaptionOptions,
+	AgChartInstance,
+	AgChartLegendOptions,
+	AgChartOptions,
+	AgChartTheme,
+} from &#x27;ag-charts-community&#x27;;
+import { AgCharts, AllCommunityModule, ModuleRegistry } from &#x27;ag-charts-community&#x27;;
+
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { concat } from &#x27;@ember/helper&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { modifier } from &#x27;ember-modifier&#x27;;
+
+import { color } from &#x27;../const/tokens.js&#x27;;
+import type { AgAxisConfig, AgSeriesUnion } from &#x27;../utils/chart.ts&#x27;;
+
+// SAFETY: ModuleRegistry types are not properly exported by ag-charts-community
+
+ModuleRegistry.registerModules([AllCommunityModule]);
+
+type ChartData = unknown[];
+
+interface LunaChartSignature {
+	Element: HTMLDivElement;
+	Args: {
+		axes?: AgAxisConfig;
+		data?: ChartData;
+		padding?: AgChartOptions[&#x27;padding&#x27;] | number;
+		legend?: AgChartLegendOptions;
+		series?: AgSeriesUnion[];
+		title?: AgChartCaptionOptions;
+		theme?: AgChartTheme;
+		type: &#x27;bar&#x27; | &#x27;line&#x27; | &#x27;donut&#x27; | &#x27;pie&#x27;;
+		minWidth?: number;
+		minHeight?: number;
+		width?: number;
+		height?: number;
+	};
+	Blocks: {
+		default?: [chart: AgChartInstance | null];
+	};
+}
+
+const DefaultChartLegendColors = [
+	color.red[500],
+	color.green[400],
+	color.orange[400],
+	color.orange[300],
+	color.blue[300],
+	color.blue[500],
+	color.gray[500],
+	color.gray[300],
+	color.gray[600],
+];
+
+const defaultTheme: AgChartTheme = {
+	palette: {
+		fills: DefaultChartLegendColors,
+	},
+};
+
+const PADDING_SIZE = 0;
+const PADDING_TOP = 5;
+const PADDING_BOTTOM = 5;
+const PADDING_LEFT = 15;
+const PADDING_RIGHT = 15;
+const MIN_CHART_WIDTH = 200; // Minimum width in pixels for the chart container
+const MIN_CHART_HEIGHT = 100; // Minimum height in pixels for the chart container
+
+/**
+ * Base chart component using AG Charts. Not intended to be used directly
+ */
+export default class Chart extends Component&lt;LunaChartSignature&gt; {
+	chartElement: HTMLElement | null = null;
+	@tracked _chart: AgChartInstance | null = null;
+
+	get chartId(): string {
+		return guidFor(this);
+	}
+
+	get padding(): AgChartOptions[&#x27;padding&#x27;] {
+		switch (typeof this.args.padding) {
+			case &#x27;number&#x27;:
+				return {
+					top: this.args.padding,
+					right: this.args.padding,
+					left: this.args.padding,
+					bottom: this.args.padding,
+				};
+			case &#x27;object&#x27;:
+				return this.args.padding;
+			default:
+				return {
+					top: PADDING_TOP,
+					right: PADDING_RIGHT,
+					left: PADDING_LEFT,
+					bottom: PADDING_BOTTOM,
+				};
+		}
+	}
+
+	get minHeight(): number {
+		return this.args.minHeight ?? MIN_CHART_HEIGHT;
+	}
+
+	get minWidth(): number {
+		return this.args.minWidth ?? MIN_CHART_WIDTH;
+	}
+
+	get theme(): AgChartTheme | undefined {
+		return this.args.theme ?? defaultTheme;
+	}
+
+	get type(): &#x27;bar&#x27; | &#x27;line&#x27; | &#x27;donut&#x27; | &#x27;pie&#x27; {
+		return this.args.type;
+	}
+
+	/**
+	 * Builds AgChart options from arguments
+	 */
+	get chartOptions(): AgChartOptions {
+		if (!this.chartElement) {
+			throw new Error(&#x27;Chart element not available&#x27;);
+		}
+
+		return {
+			container: this.chartElement,
+			minWidth: this.minWidth,
+			minHeight: this.minHeight,
+			seriesArea: {
+				clip: false,
+				padding: this.padding ?? PADDING_SIZE,
+			},
+			padding: this.padding,
+			theme: this.theme,
+			footnote: { enabled: false },
+			title: { enabled: false },
+			subtitle: { enabled: false },
+			...(this.args.axes &amp;&amp; { axes: this.args.axes }),
+			...(this.args.legend &amp;&amp; { legend: this.args.legend }),
+			...(this.args.data &amp;&amp; { data: this.args.data }),
+			...(this.args.series &amp;&amp; { series: this.args.series }),
+			...(this.args.width &amp;&amp; { width: this.args.width }),
+			...(this.args.height &amp;&amp; { height: this.args.height }),
+		} as AgChartOptions;
+	}
+
+	/**
+	 *  This run-once modifier is strictly for setting the container element
+	 * 	and setting up teardown handler
+	 */
+	setChartElement = modifier((element: HTMLElement) =&gt; {
+		if (this.chartElement) return;
+		this.chartElement = element;
+
+		this._chart = AgCharts.create(this.chartOptions);
+		// register destructor
+		registerDestructor(this, () =&gt; {
+			this._chart?.destroy();
+		});
+	});
+
+	/**
+	 * This modifier entangles the arguments and updates the chart if the arguments change
+	 */
+	onUpdate = modifier((_element: HTMLElement) =&gt; {
+		// Use void to handle async operations properly in modifiers
+		if (this._chart) {
+			void this._chart?.update(this.chartOptions);
+		}
+	});
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;container&quot;
+			data-qid-chart={{this.chartId}}
+			data-qid-component-type={{concat &quot;Luna::Chart-&quot; this.type}}
+			{{this.setChartElement}}
+			{{this.onUpdate}}
+			...attributes
+		/&gt;
+		{{yield this._chart}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">bar-chart.tsx</div><pre class="language-typescript">import type {
+	AgAxisConfig,
+	AxisOptionsUnion,
+	BarChartConfig,
+	CategoryAxisOptions,
+	LogAxisOptions,
+	NumberAxisOptions,
+} from &#x27;@soxhub/luna-charts&#x27;;
+import {
+	buildBarSeriesConfig,
+	buildCategoryAxisConfig,
+	buildHiddenAxisConfig,
+	buildLogAxisConfig,
+	buildNumberAxisConfig,
+} from &#x27;@soxhub/luna-charts&#x27;;
+import type { AgChartOptions } from &#x27;ag-charts-community&#x27;;
+
+import { Chart } from &#x27;./chart&#x27;;
+
+const DIMENSIONS: Record&lt;&#x27;grid&#x27; | &#x27;default&#x27;, { minWidth: number; minHeight: number }&gt; = {
+	default: { minWidth: 300, minHeight: 200 },
+	grid: { minWidth: 400, minHeight: 300 },
+};
+
+export interface BarChartProps {
+	/** Chart data */
+	data?: unknown[];
+	/** Bar chart configuration */
+	config: BarChartConfig;
+	/** Additional CSS class */
+	className?: string;
+}
+
+/**
+ * Dispatches to the correct axis builder based on the `type` field.
+ * Defaults to a number axis when no type is specified.
+ */
+function buildValueAxisConfig(options: AxisOptionsUnion) {
+	if (options.type === &#x27;log&#x27;) {
+		return buildLogAxisConfig(options as LogAxisOptions);
+	}
+	return buildNumberAxisConfig(options as NumberAxisOptions);
+}
+
+/** Whether the value axis uses a logarithmic scale. */
+function hasLogAxis(config: BarChartConfig): boolean {
+	const axes = config.axes;
+	if (!axes) return false;
+	const orientation = config.orientation ?? &#x27;vertical&#x27;;
+	const valueAxis = orientation === &#x27;horizontal&#x27; ? axes.x : axes.y;
+	return valueAxis?.type === &#x27;log&#x27;;
+}
+
+/**
+ * Sanitizes data for log axes by replacing zero values with undefined.
+ * AG Charts cannot render data with zeros on a log scale (log(0) is undefined).
+ */
+function sanitizeDataForLogAxis(data: unknown[], config: BarChartConfig): unknown[] {
+	const valueKeys = (config.items ?? []).map((item) =&gt; item.key).filter((key): key is string =&gt; Boolean(key));
+	if (valueKeys.length === 0) return data;
+
+	return data.map((datum) =&gt; {
+		const record = datum as Record&lt;string, unknown&gt;;
+		const hasZero = valueKeys.some((key) =&gt; record[key] === 0);
+		if (!hasZero) return datum;
+
+		const copy = { ...record };
+		for (const key of valueKeys) {
+			if (copy[key] === 0) {
+				copy[key] = undefined;
+			}
+		}
+		return copy;
+	});
+}
+
+function getBarChartAxes(config: BarChartConfig): AgAxisConfig | undefined {
+	const showAxis = typeof config.showAxis === &#x27;boolean&#x27; ? config.showAxis : true;
+	if (!showAxis) {
+		return buildHiddenAxisConfig();
+	}
+
+	const orientation = config.orientation ?? &#x27;vertical&#x27;;
+	const layout = config.layout ?? &#x27;default&#x27;;
+	const defaults = { direction: orientation as &#x27;horizontal&#x27; | &#x27;vertical&#x27;, layout };
+	const axesConfig = config.axes ?? {};
+	const xConfig = { ...defaults, ...(axesConfig.x ?? {}) } as AxisOptionsUnion;
+	const yConfig = { ...defaults, ...(axesConfig.y ?? {}) } as AxisOptionsUnion;
+
+	return orientation === &#x27;horizontal&#x27;
+		? {
+				x: buildValueAxisConfig(xConfig),
+				y: buildCategoryAxisConfig(yConfig as CategoryAxisOptions),
+			}
+		: {
+				x: buildCategoryAxisConfig(xConfig as CategoryAxisOptions),
+				y: buildValueAxisConfig(yConfig),
+			};
+}
+
+export function BarChart({ data = [], config, className }: BarChartProps): React.ReactElement {
+	const chartData = hasLogAxis(config) ? sanitizeDataForLogAxis(data, config) : data;
+	const series = buildBarSeriesConfig(config);
+	const axes = getBarChartAxes(config);
+	const layout = config.layout ?? &#x27;default&#x27;;
+	const legend = typeof config.showLegend === &#x27;boolean&#x27; &amp;&amp; !config.showLegend ? { enabled: false } : config.legend;
+
+	return (
+		&lt;Chart
+			type=&quot;bar&quot;
+			data={chartData}
+			series={series as AgChartOptions[&#x27;series&#x27;]}
+			axes={axes as unknown}
+			legend={legend}
+			minWidth={config.minWidth ?? DIMENSIONS[layout].minWidth}
+			minHeight={config.minHeight ?? DIMENSIONS[layout].minHeight}
+			padding={config.padding}
+			width={config.width}
+			height={config.height}
+			className={className}
+		/&gt;
+	);
+}
+</pre><div class="file-tab">chart.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useId, useRef } from &#x27;react&#x27;;
+
+import type {
+	AgChartCaptionOptions,
+	AgChartInstance,
+	AgChartLegendOptions,
+	AgChartOptions,
+	AgChartTheme,
+} from &#x27;ag-charts-community&#x27;;
+import { AgCharts, AllCommunityModule, ModuleRegistry } from &#x27;ag-charts-community&#x27;;
+
+// AG Charts v13 requires explicit module registration
+// SAFETY: ModuleRegistry types are not properly exported by ag-charts-community
+
+(ModuleRegistry as any).registerModules([AllCommunityModule]);
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./chart.module.css&#x27;;
+
+// Re-export chart utility types
+export type {
+	AgAxisUnion,
+	AgSeriesUnion,
+	BarChartConfig,
+	DonutChartConfig,
+	LineChartConfig,
+	PieChartConfig,
+} from &#x27;@soxhub/luna-charts&#x27;;
+export {
+	buildBarSeriesConfig,
+	buildCategoryAxisConfig,
+	buildDonutSeriesConfig,
+	buildHiddenAxisConfig,
+	buildLineSeriesConfig,
+	buildNumberAxisConfig,
+	buildPieSeriesConfig,
+	buildTimeAxisConfig,
+} from &#x27;@soxhub/luna-charts&#x27;;
+
+type ChartData = unknown[];
+
+export type ChartType = &#x27;bar&#x27; | &#x27;line&#x27; | &#x27;donut&#x27; | &#x27;pie&#x27;;
+
+interface ChartBaseProps {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Axis configuration (object with x/y for cartesian, or array) */
+	axes?: unknown;
+	/** Chart data */
+	data?: ChartData;
+	/** Padding around the chart (number for uniform, object for individual sides) */
+	padding?: AgChartOptions[&#x27;padding&#x27;] | number;
+	/** Legend configuration */
+	legend?: AgChartLegendOptions;
+	/** Series configuration */
+	series?: AgChartOptions[&#x27;series&#x27;];
+	/** Chart title configuration */
+	chartTitle?: AgChartCaptionOptions;
+	/** Chart theme */
+	theme?: AgChartTheme;
+	/** Chart type */
+	type: ChartType;
+	/** Minimum width in pixels */
+	minWidth?: number;
+	/** Minimum height in pixels */
+	minHeight?: number;
+	/** Fixed width in pixels */
+	width?: number;
+	/** Fixed height in pixels */
+	height?: number;
+	/** Render prop that receives the chart instance */
+	children?: (chart: AgChartInstance | null) =&gt; React.ReactNode;
+}
+
+export type ChartProps = ChartBaseProps &amp; Omit&lt;React.HTMLAttributes&lt;HTMLDivElement&gt;, keyof ChartBaseProps | &#x27;children&#x27;&gt;;
+
+// Default chart legend colors matching the Ember implementation
+const DefaultChartLegendColors = [
+	&#x27;#db3535&#x27;, // red-500
+	&#x27;#429f59&#x27;, // green-400
+	&#x27;#ea6706&#x27;, // orange-400
+	&#x27;#ffa94d&#x27;, // orange-300
+	&#x27;#9bc1f3&#x27;, // blue-300
+	&#x27;#3172e3&#x27;, // blue-500
+	&#x27;#64748b&#x27;, // gray-500
+	&#x27;#cbd5e1&#x27;, // gray-300
+	&#x27;#475569&#x27;, // gray-600
+];
+
+const defaultTheme: AgChartTheme = {
+	palette: {
+		fills: DefaultChartLegendColors,
+	},
+};
+
+const PADDING_TOP = 5;
+const PADDING_BOTTOM = 5;
+const PADDING_LEFT = 15;
+const PADDING_RIGHT = 15;
+const MIN_CHART_WIDTH = 200;
+const MIN_CHART_HEIGHT = 100;
+
+// TODO: Consider using ag-charts-react wrapper for declarative React integration.
+
+/**
+ * Base chart component using AG Charts.
+ *
+ * Provides a flexible charting solution supporting bar, line, donut, and pie charts.
+ *
+ * @example
+ * ```tsx
+ * &lt;Chart
+ *   type=&quot;bar&quot;
+ *   data={[
+ *     { category: &#x27;A&#x27;, value: 10 },
+ *     { category: &#x27;B&#x27;, value: 20 },
+ *   ]}
+ *   series={[{ type: &#x27;bar&#x27;, xKey: &#x27;category&#x27;, yKey: &#x27;value&#x27; }]}
+ * /&gt;
+ * ```
+ */
+export function Chart(props: ChartProps) {
+	const {
+		ref,
+		axes,
+		data,
+		padding: paddingProp,
+		legend,
+		series,
+		chartTitle: _chartTitle,
+		theme = defaultTheme,
+		type,
+		minWidth = MIN_CHART_WIDTH,
+		minHeight = MIN_CHART_HEIGHT,
+		width,
+		height,
+		className,
+		children,
+		...rest
+	} = props;
+
+	const chartId = useId();
+	const containerRef = useRef&lt;HTMLDivElement&gt;(null);
+	const chartRef = useRef&lt;AgChartInstance | null&gt;(null);
+
+	// Calculate padding
+	const padding = useCallback((): AgChartOptions[&#x27;padding&#x27;] =&gt; {
+		if (typeof paddingProp === &#x27;number&#x27;) {
+			return {
+				top: paddingProp,
+				right: paddingProp,
+				left: paddingProp,
+				bottom: paddingProp,
+			};
+		}
+		if (typeof paddingProp === &#x27;object&#x27;) {
+			return paddingProp;
+		}
+		return {
+			top: PADDING_TOP,
+			right: PADDING_RIGHT,
+			left: PADDING_LEFT,
+			bottom: PADDING_BOTTOM,
+		};
+	}, [paddingProp]);
+
+	// Build chart options
+	const getChartOptions = useCallback((): AgChartOptions | null =&gt; {
+		if (!containerRef.current) {
+			return null;
+		}
+
+		const options: AgChartOptions = {
+			container: containerRef.current,
+			minWidth,
+			minHeight,
+			seriesArea: {
+				clip: false,
+				padding: padding(),
+			},
+			padding: padding(),
+			theme,
+			footnote: { enabled: false },
+			title: { enabled: false },
+			subtitle: { enabled: false },
+		};
+
+		if (axes) {
+			// @ts-expect-error - AgChartOptions.axes type varies by chart type
+			options.axes = axes;
+		}
+		if (legend) {
+			options.legend = legend;
+		}
+		if (data) {
+			options.data = data;
+		}
+		if (series) {
+			options.series = series;
+		}
+		if (width) {
+			options.width = width;
+		}
+		if (height) {
+			options.height = height;
+		}
+
+		return options;
+	}, [axes, data, legend, series, theme, minWidth, minHeight, width, height, padding]);
+
+	// Create chart on mount
+	useEffect(() =&gt; {
+		const options = getChartOptions();
+		if (options &amp;&amp; !chartRef.current) {
+			chartRef.current = AgCharts.create(options);
+		}
+
+		return () =&gt; {
+			if (chartRef.current) {
+				chartRef.current.destroy();
+				chartRef.current = null;
+			}
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run on mount/unmount
+
+	// Update chart when props change
+	useEffect(() =&gt; {
+		const options = getChartOptions();
+		if (chartRef.current &amp;&amp; options) {
+			void chartRef.current.update(options);
+		}
+	}, [getChartOptions]);
+
+	const containerClassName = cn(styles.container, className);
+
+	return (
+		&lt;div
+			ref={(node) =&gt; {
+				containerRef.current = node;
+				if (typeof ref === &#x27;function&#x27;) {
+					ref(node);
+				} else if (ref &amp;&amp; typeof ref === &#x27;object&#x27;) {
+					(ref as React.MutableRefObject&lt;HTMLDivElement | null&gt;).current = node;
+				}
+			}}
+			className={containerClassName}
+			data-qid-chart={chartId}
+			data-qid-component-type={`Luna::Chart-${type}`}
+			{...rest}
+		&gt;
+			{children?.(chartRef.current)}
+		&lt;/div&gt;
+	);
+}
+
+export default Chart;
+</pre><div class="file-tab">donut-chart.tsx</div><pre class="language-typescript">import type { DonutChartConfig } from &#x27;@soxhub/luna-charts&#x27;;
+import { buildDonutSeriesConfig } from &#x27;@soxhub/luna-charts&#x27;;
+import type { AgChartOptions } from &#x27;ag-charts-community&#x27;;
+
+import { Chart } from &#x27;./chart&#x27;;
+
+const MIN_WIDTH = 300;
+const MIN_HEIGHT = 200;
+
+export interface DonutChartProps {
+	/** Chart data */
+	data?: unknown[];
+	/** Donut chart configuration */
+	config: DonutChartConfig;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export function DonutChart({ data = [], config, className }: DonutChartProps): React.ReactElement {
+	const series = buildDonutSeriesConfig(config);
+	const legend = typeof config.showLegend === &#x27;boolean&#x27; &amp;&amp; !config.showLegend ? { enabled: false } : config.legend;
+
+	return (
+		&lt;Chart
+			type=&quot;donut&quot;
+			data={data}
+			series={series as AgChartOptions[&#x27;series&#x27;]}
+			legend={legend}
+			minWidth={config.minWidth ?? MIN_WIDTH}
+			minHeight={config.minHeight ?? MIN_HEIGHT}
+			padding={config.padding}
+			width={config.width}
+			height={config.height}
+			className={className}
+		/&gt;
+	);
+}
+</pre><div class="file-tab">line-chart.tsx</div><pre class="language-typescript">import type {
+	AgAxisConfig,
+	AgAxisUnion,
+	LineChartConfig,
+	NumberAxisOptions,
+	TimeAxisOptions,
+} from &#x27;@soxhub/luna-charts&#x27;;
+import { buildLineSeriesConfig, buildNumberAxisConfig, buildTimeAxisConfig } from &#x27;@soxhub/luna-charts&#x27;;
+import type { AgChartOptions } from &#x27;ag-charts-community&#x27;;
+
+import { Chart } from &#x27;./chart&#x27;;
+
+const DIMENSIONS: Record&lt;&#x27;grid&#x27; | &#x27;default&#x27;, { minWidth: number; minHeight: number }&gt; = {
+	default: { minWidth: 300, minHeight: 200 },
+	grid: { minWidth: 400, minHeight: 300 },
+};
+
+export interface LineChartProps {
+	/** Chart data */
+	data?: unknown[];
+	/** Line chart configuration */
+	config: LineChartConfig;
+	/** Additional CSS class */
+	className?: string;
+}
+
+function getLineChartAxes(config: LineChartConfig): AgAxisConfig | undefined {
+	const axesConfig = config.axes ?? {};
+	const layout = config.layout ?? &#x27;default&#x27;;
+
+	const buildAxis = (options: unknown): AgAxisUnion | undefined =&gt; {
+		if (!options) return undefined;
+		const typed = options as Record&lt;string, unknown&gt; &amp; { type?: string };
+		const type = typed.type?.toLowerCase();
+		const configWithLayout = { ...typed, layout };
+
+		if (type === &#x27;number&#x27;) {
+			return buildNumberAxisConfig({
+				direction: &#x27;horizontal&#x27;,
+				position: &#x27;left&#x27;,
+				...configWithLayout,
+			} as NumberAxisOptions) as AgAxisUnion;
+		}
+		if (type === &#x27;time&#x27;) {
+			return buildTimeAxisConfig({
+				direction: &#x27;horizontal&#x27;,
+				position: &#x27;bottom&#x27;,
+				...configWithLayout,
+			} as TimeAxisOptions) as AgAxisUnion;
+		}
+		return undefined;
+	};
+
+	const result: AgAxisConfig = {};
+	if (axesConfig.y) result.y = buildAxis(axesConfig.y);
+	if (axesConfig.x) result.x = buildAxis(axesConfig.x);
+	return Object.keys(result).length &gt; 0 ? result : undefined;
+}
+
+export function LineChart({ data = [], config, className }: LineChartProps): React.ReactElement {
+	const series = buildLineSeriesConfig(config);
+	const axes = getLineChartAxes(config);
+	const layout = config.layout ?? &#x27;default&#x27;;
+	const legend = typeof config.showLegend === &#x27;boolean&#x27; &amp;&amp; !config.showLegend ? { enabled: false } : config.legend;
+
+	return (
+		&lt;Chart
+			type=&quot;line&quot;
+			data={data}
+			series={series as AgChartOptions[&#x27;series&#x27;]}
+			axes={axes as unknown}
+			legend={legend}
+			minWidth={config.minWidth ?? DIMENSIONS[layout].minWidth}
+			minHeight={config.minHeight ?? DIMENSIONS[layout].minHeight}
+			padding={config.padding}
+			width={config.width}
+			height={config.height}
+			className={className}
+		/&gt;
+	);
+}
+</pre><div class="file-tab">pie-chart.tsx</div><pre class="language-typescript">import type { PieChartConfig } from &#x27;@soxhub/luna-charts&#x27;;
+import { buildPieSeriesConfig } from &#x27;@soxhub/luna-charts&#x27;;
+import type { AgChartOptions } from &#x27;ag-charts-community&#x27;;
+
+import { Chart } from &#x27;./chart&#x27;;
+
+const MIN_WIDTH = 300;
+const MIN_HEIGHT = 200;
+
+export interface PieChartProps {
+	/** Chart data */
+	data?: unknown[];
+	/** Pie chart configuration */
+	config: PieChartConfig;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export function PieChart({ data = [], config, className }: PieChartProps): React.ReactElement {
+	const series = buildPieSeriesConfig(config);
+	const legend = typeof config.showLegend === &#x27;boolean&#x27; &amp;&amp; !config.showLegend ? { enabled: false } : config.legend;
+
+	return (
+		&lt;Chart
+			type=&quot;pie&quot;
+			data={data}
+			series={series as AgChartOptions[&#x27;series&#x27;]}
+			legend={legend}
+			minWidth={config.minWidth ?? MIN_WIDTH}
+			minHeight={config.minHeight ?? MIN_HEIGHT}
+			padding={config.padding}
+			width={config.width}
+			height={config.height}
+			className={className}
+		/&gt;
+	);
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="calendar.html" class="nav-btn">← calendar</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="checkbox.html" class="nav-btn">checkbox →</a>
+  </div>
+</body>
+</html>

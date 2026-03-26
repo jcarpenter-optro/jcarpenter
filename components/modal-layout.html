@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>modal-layout — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>modal-layout</h1>
+    <span class="badge badge-react">React only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>modal-layout</strong> exists only in the React library. It has not yet been ported to Ember/Glimmer and may represent a newer pattern being introduced via the React migration.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">modal-layout.tsx</div><pre class="language-typescript">import type { HTMLAttributes, ReactNode } from &#x27;react&#x27;;
+import { useRef } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { extractCompoundSlots } from &#x27;../../utils/extract-compound-slots&#x27;;
+import { Button } from &#x27;../button&#x27;;
+import { Heading } from &#x27;../heading&#x27;;
+import { Icon } from &#x27;../icon&#x27;;
+import { Text } from &#x27;../text&#x27;;
+import { XStack } from &#x27;../x-stack&#x27;;
+
+import styles from &#x27;./modal-layout.module.css&#x27;;
+
+const MODAL_LAYOUT_SLOT_MAP = {
+	&#x27;ModalLayout.Title&#x27;: &#x27;title&#x27;,
+	&#x27;ModalLayout.Intro&#x27;: &#x27;intro&#x27;,
+	&#x27;ModalLayout.Body&#x27;: &#x27;body&#x27;,
+	&#x27;ModalLayout.Sidebar&#x27;: &#x27;sidebar&#x27;,
+	&#x27;ModalLayout.Footer&#x27;: &#x27;footer&#x27;,
+} as const;
+
+export type ModalLayoutSize = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27; | &#x27;xl&#x27; | &#x27;full&#x27;;
+export type ModalLayoutPadding = &#x27;auto&#x27; | &#x27;none&#x27;;
+
+// ============================================================================
+// Title Subcomponent
+// ============================================================================
+
+export interface TitleProps {
+	children: ReactNode;
+}
+
+/**
+ * The title for the modal layout.
+ */
+export function Title({ children }: TitleProps) {
+	return &lt;&gt;{children}&lt;/&gt;;
+}
+
+Title.displayName = &#x27;ModalLayout.Title&#x27;;
+
+// ============================================================================
+// Intro Subcomponent
+// ============================================================================
+
+export interface IntroProps {
+	children: ReactNode;
+}
+
+/**
+ * Optional intro/description text for the modal.
+ */
+export function Intro({ children }: IntroProps) {
+	return &lt;&gt;{children}&lt;/&gt;;
+}
+
+Intro.displayName = &#x27;ModalLayout.Intro&#x27;;
+
+// ============================================================================
+// Body Subcomponent
+// ============================================================================
+
+export interface BodyProps {
+	children: ReactNode;
+}
+
+/**
+ * The main body content for the modal.
+ */
+export function Body({ children }: BodyProps) {
+	return &lt;&gt;{children}&lt;/&gt;;
+}
+
+Body.displayName = &#x27;ModalLayout.Body&#x27;;
+
+// ============================================================================
+// Sidebar Subcomponent
+// ============================================================================
+
+export interface SidebarProps {
+	children: ReactNode;
+}
+
+/**
+ * Optional sidebar content for the modal.
+ */
+export function Sidebar({ children }: SidebarProps) {
+	return &lt;&gt;{children}&lt;/&gt;;
+}
+
+Sidebar.displayName = &#x27;ModalLayout.Sidebar&#x27;;
+
+// ============================================================================
+// Footer Subcomponent
+// ============================================================================
+
+export interface FooterProps {
+	children: ReactNode;
+}
+
+/**
+ * Optional footer content (typically buttons) for the modal.
+ */
+export function Footer({ children }: FooterProps) {
+	return &lt;&gt;{children}&lt;/&gt;;
+}
+
+Footer.displayName = &#x27;ModalLayout.Footer&#x27;;
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+interface ModalLayoutBaseProps extends Omit&lt;HTMLAttributes&lt;HTMLDivElement&gt;, &#x27;title&#x27;&gt; {
+	/** Size variant */
+	size?: ModalLayoutSize;
+	/** Padding mode */
+	padding?: ModalLayoutPadding;
+	/** ID for the title element (for aria-labelledby) */
+	titleId?: string;
+	/** Children components - use ModalLayout.Title, ModalLayout.Body, etc. */
+	children: ReactNode;
+	/** Disable the close button */
+	disableCloseButton?: boolean;
+	/** Custom cancel handler */
+	onCancel?: () =&gt; void;
+	/** Close button aria-label */
+	closeButtonLabel?: string;
+}
+
+export type ModalLayoutProps = ComponentPropsWithRef&lt;ModalLayoutBaseProps, HTMLDivElement&gt;;
+
+/**
+ * Standard layout for modal content with title, body, optional sidebar, and footer.
+ *
+ * @example
+ * ```tsx
+ * &lt;Modal open onClose={handleClose}&gt;
+ *   &lt;ModalLayout onCancel={handleClose}&gt;
+ *     &lt;ModalLayout.Title&gt;Edit Item&lt;/ModalLayout.Title&gt;
+ *     &lt;ModalLayout.Intro&gt;Make changes to your item below.&lt;/ModalLayout.Intro&gt;
+ *     &lt;ModalLayout.Body&gt;
+ *       &lt;form&gt;...&lt;/form&gt;
+ *     &lt;/ModalLayout.Body&gt;
+ *     &lt;ModalLayout.Footer&gt;
+ *       &lt;Button variant=&quot;secondary&quot; onClick={handleClose}&gt;Cancel&lt;/Button&gt;
+ *       &lt;Button onClick={handleSave}&gt;Save&lt;/Button&gt;
+ *     &lt;/ModalLayout.Footer&gt;
+ *   &lt;/ModalLayout&gt;
+ * &lt;/Modal&gt;
+ * ```
+ */
+function ModalLayoutComponent({
+	ref,
+	size = &#x27;md&#x27;,
+	padding = &#x27;auto&#x27;,
+	titleId,
+	children,
+	disableCloseButton = false,
+	onCancel,
+	closeButtonLabel = &#x27;Close&#x27;,
+	className,
+	...rest
+}: ModalLayoutProps) {
+	const bodyRef = useRef&lt;HTMLDivElement&gt;(null);
+	const slots = extractCompoundSlots(children, MODAL_LAYOUT_SLOT_MAP);
+
+	const titleContent = slots.title;
+	const introContent = slots.intro;
+	const bodyContent = slots.body;
+	const sidebarContent = slots.sidebar;
+	const footerContent = slots.footer;
+	const hasSidebar = Boolean(sidebarContent);
+	const hasFooter = Boolean(footerContent);
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.container, className)}
+			data-size={size}
+			data-padding={padding}
+			data-has-sidebar={hasSidebar}
+			data-has-footer={hasFooter}
+			data-qid-component-type=&quot;Luna::Layout::Modal&quot;
+			{...rest}
+		&gt;
+			&lt;div className={styles.layout}&gt;
+				&lt;div className={styles.header}&gt;
+					&lt;Heading font=&quot;500&quot; weight=&quot;strong&quot; id={titleId}&gt;
+						{titleContent}
+					&lt;/Heading&gt;
+
+					{introContent &amp;&amp; (
+						&lt;Text font=&quot;400&quot; weight=&quot;weak&quot; color=&quot;gray-500&quot; tag=&quot;p&quot; className={styles.intro}&gt;
+							{introContent}
+						&lt;/Text&gt;
+					)}
+				&lt;/div&gt;
+
+				{hasSidebar ? (
+					&lt;div className={styles.splitLayout}&gt;
+						&lt;div className={styles.sidebar}&gt;{sidebarContent}&lt;/div&gt;
+						&lt;div ref={bodyRef} className={styles.body} data-scrollable-target tabIndex={-1}&gt;
+							{bodyContent}
+						&lt;/div&gt;
+					&lt;/div&gt;
+				) : (
+					&lt;div ref={bodyRef} className={styles.body} data-scrollable-target tabIndex={-1}&gt;
+						{bodyContent}
+					&lt;/div&gt;
+				)}
+
+				{hasFooter &amp;&amp; (
+					&lt;XStack spacing=&quot;md&quot; className={styles.footer}&gt;
+						{footerContent}
+					&lt;/XStack&gt;
+				)}
+			&lt;/div&gt;
+
+			&lt;Button
+				data-test-close-modal
+				size=&quot;sm&quot;
+				variant=&quot;transparent&quot;
+				disabled={disableCloseButton}
+				className={styles.closeButton}
+				aria-label={closeButtonLabel}
+				onClick={onCancel}
+			&gt;
+				&lt;Icon icon=&quot;close&quot; /&gt;
+			&lt;/Button&gt;
+		&lt;/div&gt;
+	);
+}
+
+// Attach subcomponents
+const ModalLayout = Object.assign(ModalLayoutComponent, {
+	Title,
+	Intro,
+	Body,
+	Sidebar,
+	Footer,
+});
+
+export { ModalLayout };
+
+export default ModalLayout;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="modal.html" class="nav-btn">← modal</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="navigation.html" class="nav-btn">navigation →</a>
+  </div>
+</body>
+</html>

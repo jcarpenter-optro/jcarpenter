@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>toggle — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>toggle</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>toggle</strong> implementations exist. The Ember version is 235 lines and the React version is 245 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">toggle.gts</div><pre class="language-typescript">import { dedupeTracked } from &#x27;tracked-toolbox&#x27;;
+
+import { warn } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { and, eq, or } from &#x27;ember-truth-helpers&#x27;;
+
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.gts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import Spacer from &#x27;./spacer.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+import XStack from &#x27;./x-stack.gts&#x27;;
+
+interface LunaToggleSignature&lt;V&gt; {
+	Element: HTMLDivElement;
+	Args: {
+		value: V;
+		disabled?: boolean;
+		class?: string;
+		size?: &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+		align?: &#x27;right&#x27; | &#x27;left&#x27; | &#x27;justify&#x27;;
+		onChange?: (value: boolean) =&gt; unknown;
+		id?: string;
+		requirements?: Requirements;
+		form?: LunaFormBlockValue;
+		name?: string;
+		/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+		serverErrors?: Array&lt;{ message?: string } | string&gt;;
+		ariaDescribedBy?: string | undefined;
+		didAutosave?: () =&gt; void;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+let nextInputId = 0;
+
+/**
+ * A component for creating a toggle switch input.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/toggle.md)
+ */
+export default class LunaToggle&lt;V&gt; extends Component&lt;LunaToggleSignature&lt;V&gt;&gt; {
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+	@consume(&#x27;luna-input-id&#x27;) inputId!: string;
+
+	labelId = `${guidFor(this)}--label`;
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: LunaToggleSignature&lt;V&gt;[&#x27;Args&#x27;]) {
+		super(owner, args);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			didAutosave: this.didAutosave.bind(this),
+			name: args.name,
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: this.args.ariaDescribedBy ?? null,
+
+			get value(): V {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get serverErrors() {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-toggle-${nextInputId++}`;
+	}
+
+	@dedupeTracked valueIsUnchanged = true;
+
+	@action
+	async toggle() {
+		if (this.args.disabled) {
+			return;
+		}
+
+		// This ensures a falsy undefined value goes to true on click
+		const value = typeof this.args.value === &#x27;boolean&#x27; ? !this.args.value : true;
+
+		this.valueIsUnchanged = false;
+		await this.args.onChange?.(value);
+		this.manager.onChange();
+	}
+
+	@action
+	onKeyUp(event: KeyboardEvent) {
+		if (event.key === KEYBOARD_KEYS.SPACE) {
+			event.preventDefault();
+			void this.toggle();
+		}
+	}
+
+	@action
+	didAutosave() {
+		this.valueIsUnchanged = true;
+		this.args.didAutosave?.();
+	}
+
+	get isChecked() {
+		const isBooleanCompatible =
+			typeof this.args.value === &#x27;boolean&#x27; ||
+			!this.args.value ||
+			this.args.value === &#x27;true&#x27; ||
+			this.args.value === &#x27;false&#x27;;
+
+		warn(
+			`Value of ${String(this.args.value)} provided to Luna Toggle can not be evaluated as boolean`,
+			isBooleanCompatible,
+			{
+				id: &#x27;luna.toggle.invalid-value&#x27;,
+			},
+		);
+
+		// Values passed in across the product are inconsistent so we need to handle them
+		if (!this.args.value || this.args.value === &#x27;false&#x27;) {
+			return false;
+		}
+		return true;
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+	&lt;template&gt;
+		{{! template-lint-disable require-presentational-children }}
+		&lt;div class=&quot;ToggleWrapper {{@class}}&quot; data-qid-component-type=&quot;Luna::Toggle&quot;&gt;
+			&lt;XStack
+				@spacing=&quot;md&quot;
+				id={{this.id}}
+				class=&quot;Toggle&quot;
+				tabindex=&quot;0&quot;
+				role=&quot;switch&quot;
+				aria-checked={{String this.isChecked}}
+				aria-disabled={{if @disabled &quot;true&quot;}}
+				aria-labelledby={{if (has-block) this.labelId}}
+				aria-describedby={{this.manager.ariaDescribedBy}}
+				aria-invalid={{if this.manager.showErrorMessage &quot;true&quot;}}
+				data-focused={{String this.manager.inputHasFocus}}
+				data-errored={{String this.manager.showErrorMessage}}
+				data-size={{or @size &quot;md&quot;}}
+				...attributes
+				{{on &quot;click&quot; this.toggle}}
+				{{on &quot;keyup&quot; this.onKeyUp}}
+			&gt;
+				{{#let (or @align &quot;left&quot;) as |align|}}
+					{{#if (and (eq align &quot;right&quot;) (has-block))}}
+						&lt;Spacer /&gt;
+					{{/if}}
+
+					{{#if (and (or (eq align &quot;right&quot;) (eq align &quot;justify&quot;)) (has-block))}}
+						&lt;div id={{this.labelId}}&gt;
+							{{yield}}
+						&lt;/div&gt;
+					{{/if}}
+
+					{{#if (and (eq align &quot;justify&quot;) (has-block))}}
+						&lt;Spacer /&gt;
+					{{/if}}
+
+					&lt;div class=&quot;toggle-element&quot;&gt;
+						&lt;div class=&quot;spacer&quot;&gt;&lt;/div&gt;
+						&lt;div class=&quot;handle&quot;&gt;
+							{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+								&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+							{{/if}}
+						&lt;/div&gt;
+					&lt;/div&gt;
+
+					{{#if (and (eq align &quot;left&quot;) (has-block))}}
+						&lt;div id={{this.labelId}}&gt;
+							{{yield}}
+						&lt;/div&gt;
+					{{/if}}
+				{{/let}}
+			&lt;/XStack&gt;
+
+			&lt;InputError
+				id={{this.manager.errorId}}
+				@showWhen={{this.manager.showErrorMessage}}
+				@align={{if (eq @align &quot;left&quot;) &quot;left&quot;}}
+			&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">toggle.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useId, useRef, useState } from &#x27;react&#x27;;
+
+import { Switch as BaseSwitch } from &#x27;@base-ui-components/react/switch&#x27;;
+import type { Requirements } from &#x27;@soxhub/luna-utils/validators&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { useFieldContext } from &#x27;../field/field-context&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { InputError } from &#x27;../input-error&#x27;;
+import { Spacer } from &#x27;../spacer&#x27;;
+import { Spinner } from &#x27;../spinner&#x27;;
+import { XStack } from &#x27;../x-stack&#x27;;
+
+import styles from &#x27;./toggle.module.css&#x27;;
+
+export type ToggleSize = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+export type ToggleAlign = &#x27;left&#x27; | &#x27;right&#x27; | &#x27;justify&#x27;;
+
+interface ToggleBaseProps {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	&#x27;ref&#x27;?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Toggle value (boolean or truthy/falsy) */
+	&#x27;value&#x27;: boolean | string | number | null | undefined;
+	/** Callback fired when value changes */
+	&#x27;onChange&#x27;?: (value: boolean) =&gt; void;
+	/** Toggle size */
+	&#x27;size&#x27;?: ToggleSize;
+	/** Label alignment */
+	&#x27;align&#x27;?: ToggleAlign;
+	/** Whether toggle is disabled */
+	&#x27;disabled&#x27;?: boolean;
+	/** Toggle ID (auto-generated if not provided) */
+	&#x27;id&#x27;?: string;
+	/** Toggle name */
+	&#x27;name&#x27;?: string;
+	/** ARIA described by */
+	&#x27;aria-describedby&#x27;?: string;
+	/** Additional CSS class */
+	&#x27;className&#x27;?: string;
+	/** Children (label content) */
+	&#x27;children&#x27;?: React.ReactNode;
+	/** Validation requirements */
+	&#x27;requirements&#x27;?: Requirements;
+	/** @deprecated Server errors (use externalErrorsFor on Form instead) */
+	&#x27;serverErrors&#x27;?: Array&lt;{ message?: string } | string&gt;;
+	/** Callback fired when autosave completes successfully */
+	&#x27;didAutosave&#x27;?: () =&gt; void;
+}
+
+type ToggleProps = ToggleBaseProps &amp; Omit&lt;React.HTMLAttributes&lt;HTMLDivElement&gt;, keyof ToggleBaseProps | &#x27;onChange&#x27;&gt;;
+
+/**
+ * A component for creating a toggle switch input.
+ *
+ * Matches the Luna::Toggle Ember component API and styling.
+ * Uses Base UI Switch as the foundation.
+ */
+export function Toggle(props: ToggleProps) {
+	const {
+		ref,
+		value,
+		onChange,
+		size = &#x27;md&#x27;,
+		align = &#x27;left&#x27;,
+		disabled = false,
+		&#x27;id&#x27;: providedId,
+		name,
+		&#x27;aria-describedby&#x27;: providedAriaDescribedBy,
+		className,
+		children,
+		requirements,
+		serverErrors,
+		didAutosave,
+		...rest
+	} = props;
+
+	const generatedId = useId();
+	const fieldContext = useFieldContext();
+	const id = providedId ?? fieldContext?.inputId ?? generatedId;
+	const labelId = fieldContext?.labelId ?? `${id}--label`;
+	const formContext = useFormContext();
+	const toggleRef = useRef&lt;HTMLDivElement&gt;(null);
+	const valueIsUnchangedRef = useRef(true);
+
+	const focusInput = useCallback(() =&gt; {
+		if (toggleRef.current) {
+			toggleRef.current.focus();
+		} else if (ref &amp;&amp; typeof ref === &#x27;object&#x27; &amp;&amp; ref.current) {
+			ref.current.focus();
+		}
+	}, [ref]);
+
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		serverErrors,
+		requirements,
+		name,
+		value,
+		isDisabled: disabled,
+		formContext,
+		ariaDescribedBy: providedAriaDescribedBy ?? null,
+		focus: focusInput,
+		didAutosave: () =&gt; {
+			valueIsUnchangedRef.current = true;
+			didAutosave?.();
+		},
+	});
+
+	// Register/unregister with form
+	const managerRef = useRef(manager);
+	managerRef.current = manager;
+
+	useEffect(() =&gt; {
+		if (formContext) {
+			formContext.actions.registerInputManager(managerRef.current);
+			return () =&gt; {
+				formContext.actions.unregisterInputManager(managerRef.current);
+			};
+		}
+	}, [formContext]);
+
+	const [focused, setFocused] = useState(false);
+	const focusedState = focused || manager.inputHasFocus;
+
+	// Convert value to boolean (similar to Ember&#x27;s isChecked getter)
+	const isChecked = Boolean(
+		typeof value === &#x27;boolean&#x27;
+			? value
+			: value === &#x27;true&#x27; || (value !== null &amp;&amp; value !== undefined &amp;&amp; value !== &#x27;false&#x27;),
+	);
+
+	const handleCheckedChange = useCallback(
+		(checked: boolean) =&gt; {
+			valueIsUnchangedRef.current = false;
+			manager.setValueIsUnchanged(false);
+			// When value is falsy/undefined, clicking should go to true
+			const newValue = typeof value === &#x27;boolean&#x27; ? checked : checked ? true : false;
+			onChange?.(newValue);
+			manager.onChange();
+		},
+		[onChange, value, manager],
+	);
+
+	const handleKeyUp = useCallback(
+		(event: React.KeyboardEvent) =&gt; {
+			if (event.key === &#x27; &#x27;) {
+				event.preventDefault();
+				handleCheckedChange(!isChecked);
+			}
+		},
+		[handleCheckedChange, isChecked],
+	);
+
+	const handleFocus = useCallback(() =&gt; {
+		setFocused(true);
+		manager.focusIn();
+	}, [manager]);
+
+	const handleBlur = useCallback(() =&gt; {
+		setFocused(false);
+		manager.focusOutAndTrySave(new Event(&#x27;blur&#x27;));
+	}, [manager]);
+
+	const wrapperClassName = cn(styles.ToggleWrapper, className);
+	const toggleClassName = cn(styles.Toggle, manager.showErrorMessage &amp;&amp; styles.errored);
+
+	const hasLabel = Boolean(children);
+
+	return (
+		&lt;div className={wrapperClassName} data-qid-component-type=&quot;Luna::Toggle&quot; ref={ref} {...rest}&gt;
+			&lt;BaseSwitch.Root
+				checked={isChecked}
+				disabled={disabled}
+				onCheckedChange={handleCheckedChange}
+				id={id}
+				render={(switchProps) =&gt; (
+					&lt;XStack
+						{...switchProps}
+						spacing=&quot;md&quot;
+						id={id}
+						className={toggleClassName}
+						tabIndex={disabled ? -1 : 0}
+						role=&quot;switch&quot;
+						aria-checked={isChecked}
+						aria-disabled={disabled ? &#x27;true&#x27; : undefined}
+						aria-labelledby={hasLabel ? labelId : undefined}
+						aria-describedby={manager.ariaDescribedBy ?? providedAriaDescribedBy}
+						aria-invalid={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+						data-focused={focusedState ? &#x27;true&#x27; : &#x27;false&#x27;}
+						data-errored={manager.showErrorMessage ? &#x27;true&#x27; : &#x27;false&#x27;}
+						data-size={size}
+						onClick={(e: React.MouseEvent) =&gt; {
+							switchProps.onClick?.(e);
+							if (!disabled) {
+								handleCheckedChange(!isChecked);
+							}
+						}}
+						onKeyUp={handleKeyUp}
+						onFocus={handleFocus}
+						onBlur={handleBlur}
+					&gt;
+						{align === &#x27;right&#x27; &amp;&amp; hasLabel &amp;&amp; &lt;Spacer /&gt;}
+						{(align === &#x27;right&#x27; || align === &#x27;justify&#x27;) &amp;&amp; hasLabel &amp;&amp; (
+							&lt;div id={labelId}&gt;
+								{children}
+								{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+									&lt;Spinner
+										size=&quot;sm&quot;
+										transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined}
+										className={styles.spinner}
+									/&gt;
+								)}
+							&lt;/div&gt;
+						)}
+						{align === &#x27;justify&#x27; &amp;&amp; hasLabel &amp;&amp; &lt;Spacer /&gt;}
+						&lt;div className={styles.toggleElement}&gt;
+							&lt;div className={styles.spacer}&gt;&lt;/div&gt;
+							&lt;div className={styles.handle} data-checked={isChecked ? &#x27;true&#x27; : &#x27;false&#x27;}&gt;&lt;/div&gt;
+						&lt;/div&gt;
+						{align === &#x27;left&#x27; &amp;&amp; hasLabel &amp;&amp; (
+							&lt;div id={labelId}&gt;
+								{children}
+								{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+									&lt;Spinner
+										size=&quot;sm&quot;
+										transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined}
+										className={styles.spinner}
+									/&gt;
+								)}
+							&lt;/div&gt;
+						)}
+					&lt;/XStack&gt;
+				)}
+			/&gt;
+
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage} align=&quot;left&quot;&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default Toggle;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="textarea.html" class="nav-btn">← textarea</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="tooltip.html" class="nav-btn">tooltip →</a>
+  </div>
+</body>
+</html>

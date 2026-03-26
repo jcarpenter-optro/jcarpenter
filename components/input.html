@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>input — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>input</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>input</strong> implementations exist. The Ember version is 295 lines and the React version is 298 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">input.gts</div><pre class="language-typescript">import type { AttrValue } from &#x27;@glint/template&#x27;;
+import { dedupeTracked } from &#x27;tracked-toolbox&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import requirementArg from &#x27;../helpers/requirement-arg.ts&#x27;;
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.ts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+
+export interface LunaInputSignature&lt;
+	V extends AttrValue = AttrValue,
+	IsTextarea extends boolean = false,
+	IsFake extends boolean = false,
+&gt; {
+	Element: IsFake extends true ? HTMLDivElement : IsTextarea extends true ? HTMLTextAreaElement : HTMLInputElement;
+	Args: {
+		class?: string;
+		size?: &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+		variant?: &#x27;default&#x27; | &#x27;transparent&#x27;;
+		onChange?: (value: string) =&gt; unknown;
+		didAutosave?: () =&gt; void;
+		rows?: IsTextarea extends true ? number : never;
+		value: V;
+		id?: string;
+		requirements?: Requirements;
+		ariaDescribedBy?: string;
+
+		/**
+		 * Whether the input should validate with every change.
+		 * Used in scenarios where immediate feedback is non-punishing, such as when
+		 * requiring a unique value, or when the form is already in its errored state
+		 * and the user is trying to fix it.
+		 */
+		shouldValidateEagerly?: boolean;
+
+		/**
+		 * Whether the input should validate on render.
+		 * Used in scenarios where a form might be re-rendered but we want to immediately display invalid state.
+		 */
+		shouldValidateOnRender?: boolean;
+
+		form?: LunaFormBlockValue;
+		name?: string;
+		disabled?: boolean;
+		/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+		serverErrors?: Array&lt;{ message?: string } | string&gt;;
+	};
+	Blocks: IsTextarea extends true
+		? Record&lt;string, never&gt;
+		: {
+				icon?: [];
+			};
+}
+
+let nextInputId = 0;
+
+/**
+ * A basic input for entering text.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/input.md)
+ */
+export default class LunaInput&lt;
+	V extends AttrValue,
+	IsTextarea extends boolean = false,
+	IsFake extends boolean = false,
+&gt; extends Component&lt;LunaInputSignature&lt;V, IsTextarea, IsFake&gt;&gt; {
+	@consume(&#x27;luna-input-id&#x27;) inputId!: string;
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+
+	manager: InputManager;
+
+	/**
+	 * The internally tracked value of the input.
+	 * Set by the local `onChange` function before saving calling the parent method.
+	 * Used by `onFocusOut` to re-call the `onChange` method if the value has whitespace.
+	 */
+	@tracked private _value = &#x27;&#x27;;
+
+	constructor(owner: Owner, args: LunaInputSignature&lt;V, IsTextarea, IsFake&gt;[&#x27;Args&#x27;]) {
+		super(owner, args);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;blur&#x27;,
+			focus: this.focusInput.bind(this),
+			didAutosave: this.didAutosave.bind(this),
+			shouldValidateEagerly: args.shouldValidateEagerly,
+			name: args.name,
+
+			ariaDescribedBy: args.ariaDescribedBy ?? null,
+
+			get value(): V {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get serverErrors() {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+
+			get valueIsUnchanged() {
+				return that.valueIsUnchanged;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		if (this.args.shouldValidateOnRender) {
+			this.manager.validate();
+		}
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-input-${nextInputId++}`;
+	}
+
+	// Set true in Fake subclasses
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get shouldRenderAsDiv(): IsTextarea {
+		// @ts-expect-error The way we&#x27;re doing subclassing here is confusing for TS.
+		return false;
+	}
+
+	// Set to true in Textarea subclass
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get textarea(): IsTextarea {
+		// @ts-expect-error The way we&#x27;re doing subclassing here is confusing for TS.
+		return false;
+	}
+
+	@dedupeTracked valueIsUnchanged = true;
+
+	@action
+	async onChange(eventOrString: Event | string) {
+		this.valueIsUnchanged = false;
+		let value: string;
+		if (typeof eventOrString === &#x27;string&#x27;) {
+			value = eventOrString;
+		} else {
+			assert(
+				&#x27;Expected event target&#x27;,
+				eventOrString.target instanceof (this.textarea ? HTMLTextAreaElement : HTMLInputElement),
+			);
+			value = eventOrString.target.value;
+		}
+		this._value = value;
+		await this.args.onChange?.(value);
+		this.manager.onChange();
+		if (this.args.shouldValidateEagerly) {
+			this.manager.validate();
+		}
+	}
+
+	onFocusOut = async (event: FocusEvent) =&gt; {
+		if (this.valueIsUnchanged || (event.target instanceof HTMLElement &amp;&amp; event.target.dataset.isEsc)) {
+			this.manager.focusOutAndTrySave(event);
+			return;
+		}
+
+		if (typeof this.args.value === &#x27;string&#x27;) {
+			assert(&#x27;value must exist&#x27;, event.target instanceof (this.textarea ? HTMLTextAreaElement : HTMLInputElement));
+
+			const value = event.target.value.trim();
+
+			if (value !== this._value) {
+				await this.onChange(value);
+			}
+		}
+
+		this.manager.focusOutAndTrySave(event);
+	};
+
+	@action
+	didAutosave() {
+		this.valueIsUnchanged = true;
+		this.args.didAutosave?.();
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+	&lt;template&gt;
+		{{! template-lint-disable data-qid-interactive }}
+		&lt;div
+			class=&quot;TextInput {{@class}}&quot;
+			data-variant={{or @variant &quot;default&quot;}}
+			data-size={{or @size &quot;md&quot;}}
+			data-textarea={{toString0 this.textarea}}
+			data-disabled={{toString0 @disabled}}
+			data-luna-feature=&quot;meld&quot;
+			data-qid-component-type=&quot;Luna::Input&quot;
+			data-focused={{toString0 this.manager.inputHasFocus}}
+			data-errored={{toString0 this.manager.showErrorState}}
+		&gt;
+
+			{{#unless this.textarea}}
+				{{#if (has-block &quot;icon&quot;)}}
+					&lt;div class=&quot;icon&quot; role=&quot;button&quot; {{on &quot;click&quot; this.focusInput}}&gt;
+						{{! @glint-expect-error Glint can&#x27;t determine that this only exists for textarea }}
+						{{yield to=&quot;icon&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+			{{/unless}}
+
+			{{#if this.shouldRenderAsDiv}}
+				&lt;div class=&quot;fake {{if this.textarea &#x27;textarea&#x27; &#x27;input&#x27;}}&quot; ...attributes&gt;
+					{{@value}}
+				&lt;/div&gt;
+			{{else}}
+				{{#if this.textarea}}
+
+					&lt;textarea
+						id={{this.id}}
+						aria-describedby={{this.manager.ariaDescribedBy}}
+						aria-invalid={{toString0 this.manager.showErrorMessage}}
+						aria-required={{if (requirementArg @requirements &quot;required&quot;) &quot;true&quot; &quot;false&quot;}}
+						rows={{or @rows &quot;5&quot;}}
+						{{on &quot;input&quot; this.onChange}}
+						{{on &quot;focusin&quot; this.manager.focusIn}}
+						{{on &quot;focusout&quot; this.onFocusOut}}
+						...attributes
+						value={{@value}}
+						readonly={{@disabled}}
+					&gt;&lt;/textarea&gt;
+				{{else}}
+
+					&lt;input
+						id={{this.id}}
+						aria-describedby={{this.manager.ariaDescribedBy}}
+						aria-invalid={{toString0 this.manager.showErrorMessage}}
+						aria-required={{if (requirementArg @requirements &quot;required&quot;) &quot;true&quot; &quot;false&quot;}}
+						min={{requirementArg @requirements &quot;min&quot;}}
+						max={{requirementArg @requirements &quot;max&quot;}}
+						{{on &quot;input&quot; this.onChange}}
+						{{on &quot;focusin&quot; this.manager.focusIn}}
+						{{on &quot;focusout&quot; this.onFocusOut}}
+						...attributes
+						value={{@value}}
+						disabled={{@disabled}}
+					/&gt;
+				{{/if}}
+
+				{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+					&lt;div class=&quot;suffix&quot;&gt;
+						&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+					&lt;/div&gt;
+				{{/if}}
+
+				&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}}&gt;
+					{{this.manager.errorMessageToDisplay}}
+				&lt;/InputError&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">input.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useId, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { Input as BaseInput } from &#x27;@base-ui-components/react/input&#x27;;
+import type { Requirements } from &#x27;@soxhub/luna-utils/validators&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { useOptionalClickToEditContext } from &#x27;../click-to-edit/click-to-edit&#x27;;
+import { useFieldContext } from &#x27;../field/field-context&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { InputError } from &#x27;../input-error&#x27;;
+import { Spinner } from &#x27;../spinner&#x27;;
+
+import styles from &#x27;./input.module.css&#x27;;
+
+export type InputSize = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+export type InputVariant = &#x27;default&#x27; | &#x27;transparent&#x27;;
+
+interface InputBaseProps {
+	/** Optional ref for the underlying input (React 19 ref-as-prop) */
+	&#x27;ref&#x27;?: React.Ref&lt;HTMLInputElement&gt;;
+	/** Input value */
+	&#x27;value&#x27;?: string;
+	/** Callback fired when value changes */
+	&#x27;onChange&#x27;?: (value: string) =&gt; void;
+	/** Input size */
+	&#x27;size&#x27;?: InputSize;
+	/** Visual variant */
+	&#x27;variant&#x27;?: InputVariant;
+	/** Whether input is disabled */
+	&#x27;disabled&#x27;?: boolean;
+	/** Input ID (auto-generated if not provided) */
+	&#x27;id&#x27;?: string;
+	/** Input name */
+	&#x27;name&#x27;?: string;
+	/** Placeholder text */
+	&#x27;placeholder&#x27;?: string;
+	/** Icon to display on the left */
+	&#x27;icon&#x27;?: React.ReactNode;
+	/** Whether input is in error state */
+	&#x27;errored&#x27;?: boolean;
+	/** Whether input is focused (controlled) */
+	&#x27;focused&#x27;?: boolean;
+	/** Additional CSS class */
+	&#x27;className&#x27;?: string;
+	/** ARIA described by */
+	&#x27;aria-describedby&#x27;?: string;
+	/** ARIA required */
+	&#x27;aria-required&#x27;?: boolean | &#x27;true&#x27; | &#x27;false&#x27;;
+	/** ARIA invalid */
+	&#x27;aria-invalid&#x27;?: boolean | &#x27;true&#x27; | &#x27;false&#x27;;
+	/** Validation requirements */
+	&#x27;requirements&#x27;?: Requirements;
+	/** Whether to validate eagerly on change */
+	&#x27;shouldValidateEagerly&#x27;?: boolean;
+	/** Whether to validate on render */
+	&#x27;shouldValidateOnRender&#x27;?: boolean;
+	/** @deprecated Server errors (use externalErrorsFor on Form instead) */
+	&#x27;serverErrors&#x27;?: Array&lt;{ message?: string } | string&gt;;
+	/** Callback fired when autosave completes successfully */
+	&#x27;didAutosave&#x27;?: () =&gt; void;
+}
+
+export type InputProps = InputBaseProps &amp;
+	Omit&lt;React.InputHTMLAttributes&lt;HTMLInputElement&gt;, keyof InputBaseProps | &#x27;onChange&#x27; | &#x27;value&#x27;&gt;;
+
+/**
+ * A basic input for entering text.
+ *
+ * Matches the Luna::Input Ember component API and styling.
+ * Uses Base UI Input as the foundation.
+ */
+export function Input(props: InputProps) {
+	const {
+		ref,
+		&#x27;value&#x27;: _value = &#x27;&#x27;,
+		onChange,
+		size = &#x27;md&#x27;,
+		variant = &#x27;default&#x27;,
+		disabled = false,
+		&#x27;id&#x27;: providedId,
+		name,
+		placeholder,
+		icon,
+		errored = false,
+		&#x27;focused&#x27;: controlledFocused,
+		className,
+		&#x27;aria-describedby&#x27;: providedAriaDescribedBy,
+		&#x27;aria-required&#x27;: ariaRequired,
+		&#x27;aria-invalid&#x27;: ariaInvalid,
+		requirements,
+		shouldValidateEagerly = false,
+		shouldValidateOnRender = false,
+		serverErrors,
+		didAutosave,
+		...rest
+	} = props;
+
+	const generatedId = useId();
+	const fieldContext = useFieldContext();
+	const formContextFromHook = useFormContext();
+	const clickToEditContext = useOptionalClickToEditContext();
+	const id = providedId ?? clickToEditContext?.id ?? fieldContext?.inputId ?? generatedId;
+	const formContext = clickToEditContext?.form ?? formContextFromHook;
+	const effectiveValue = clickToEditContext
+		? typeof clickToEditContext.value === &#x27;string&#x27;
+			? clickToEditContext.value
+			: String(clickToEditContext.value ?? &#x27;&#x27;)
+		: (_value ?? &#x27;&#x27;);
+	const effectiveOnChange: (value: string) =&gt; void = useMemo(
+		() =&gt;
+			clickToEditContext
+				? (v: string) =&gt; clickToEditContext.onChange(v as Parameters&lt;typeof clickToEditContext.onChange&gt;[0])
+				: (onChange ?? (() =&gt; {})),
+		[clickToEditContext, onChange],
+	);
+	const effectiveSize = clickToEditContext?.size ?? size;
+	const effectiveVariant = clickToEditContext?.variant ?? variant;
+	const effectivePlaceholder = clickToEditContext?.placeholder ?? placeholder;
+	const effectiveDidAutosave = clickToEditContext?.didAutosave ?? didAutosave;
+	const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+	const [_internalValue, setInternalValue] = useState(effectiveValue);
+	const valueIsUnchangedRef = useRef(true);
+
+	const focusInput = useCallback(() =&gt; {
+		if (inputRef.current) {
+			inputRef.current.focus();
+		} else if (ref &amp;&amp; typeof ref === &#x27;object&#x27; &amp;&amp; ref.current) {
+			ref.current.focus();
+		}
+	}, [ref]);
+
+	const manager = useInputManager({
+		mode: &#x27;blur&#x27;,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		serverErrors,
+		requirements,
+		name,
+		value: effectiveValue,
+		isDisabled: disabled,
+		shouldValidateEagerly,
+		formContext,
+		ariaDescribedBy: providedAriaDescribedBy ?? null,
+		focus: focusInput,
+		didAutosave: () =&gt; {
+			valueIsUnchangedRef.current = true;
+			effectiveDidAutosave?.();
+		},
+	});
+
+	// Register/unregister with form
+	// Use a ref to track the manager for registration
+	const managerRef = useRef(manager);
+	managerRef.current = manager;
+
+	useEffect(() =&gt; {
+		if (formContext) {
+			formContext.actions.registerInputManager(managerRef.current);
+			return () =&gt; {
+				formContext.actions.unregisterInputManager(managerRef.current);
+			};
+		}
+	}, [formContext]);
+
+	// Validate on render if requested
+	useEffect(() =&gt; {
+		if (shouldValidateOnRender) {
+			manager.validate();
+		}
+	}, [shouldValidateOnRender, manager]);
+
+	// Sync internal value with prop
+	useEffect(() =&gt; {
+		setInternalValue(effectiveValue);
+	}, [effectiveValue]);
+
+	const [internalFocused, setInternalFocused] = useState(false);
+	const focused = controlledFocused !== undefined ? controlledFocused : internalFocused || manager.inputHasFocus;
+
+	const inputClassName = cn(styles.TextInput, className);
+
+	const handleChange = useCallback(
+		async (newValue: string) =&gt; {
+			valueIsUnchangedRef.current = false;
+			manager.setValueIsUnchanged(false);
+			setInternalValue(newValue);
+			await effectiveOnChange?.(newValue);
+			manager.onChange();
+		},
+		[effectiveOnChange, manager],
+	);
+
+	const handleFocus = useCallback(
+		(_event: React.FocusEvent&lt;HTMLInputElement&gt;) =&gt; {
+			setInternalFocused(true);
+			manager.focusIn();
+		},
+		[manager],
+	);
+
+	const handleBlur = useCallback(
+		async (event: React.FocusEvent&lt;HTMLInputElement&gt;) =&gt; {
+			setInternalFocused(false);
+
+			// Check for Esc key first
+			if (event.target instanceof HTMLElement &amp;&amp; event.target.dataset.isEsc) {
+				manager.focusOutAndTrySave(event.nativeEvent);
+				return;
+			}
+
+			// Handle value trimming and updating
+			if (typeof effectiveValue === &#x27;string&#x27;) {
+				const trimmedValue = event.target.value.trim();
+
+				// Compare against prop value to catch all changes
+				if (trimmedValue !== effectiveValue) {
+					await handleChange(trimmedValue);
+				}
+			}
+
+			// Always try to save on blur (autosave logic will check if value changed)
+			manager.focusOutAndTrySave(event.nativeEvent);
+		},
+		[manager, effectiveValue, handleChange],
+	);
+
+	const handleIconClick = useCallback(() =&gt; {
+		focusInput();
+	}, [focusInput]);
+
+	// showErrorState controls the error ring (validation errors only)
+	// showErrorMessage controls whether the error message is displayed (includes serverErrors)
+	const showErrorRing = errored || manager.showErrorState;
+	const ariaDescribedBy = manager.ariaDescribedBy ?? providedAriaDescribedBy;
+	const ariaInvalidAttr = ariaInvalid ?? (manager.showErrorMessage ? &#x27;true&#x27; : undefined);
+	const ariaRequiredAttr =
+		(ariaRequired ?? requirements?.required) ? (requirements?.required === true ? &#x27;true&#x27; : &#x27;false&#x27;) : undefined;
+
+	const { &#x27;data-testid&#x27;: dataTestId, ...inputRest } = rest as React.InputHTMLAttributes&lt;HTMLInputElement&gt; &amp; {
+		&#x27;data-testid&#x27;?: string;
+	};
+
+	return (
+		&lt;div
+			className={inputClassName}
+			data-variant={effectiveVariant}
+			data-size={effectiveSize}
+			data-textarea=&quot;false&quot;
+			data-disabled={disabled ? &#x27;true&#x27; : &#x27;false&#x27;}
+			data-luna-feature=&quot;meld&quot;
+			data-qid-component-type=&quot;Luna::Input&quot;
+			data-focused={focused ? &#x27;true&#x27; : &#x27;false&#x27;}
+			data-errored={showErrorRing ? &#x27;true&#x27; : &#x27;false&#x27;}
+			data-testid={dataTestId}
+		&gt;
+			{icon &amp;&amp; (
+				&lt;div className={styles.icon} role=&quot;button&quot; onClick={handleIconClick}&gt;
+					{icon}
+				&lt;/div&gt;
+			)}
+
+			&lt;BaseInput
+				ref={(node) =&gt; {
+					inputRef.current = node;
+					if (typeof ref === &#x27;function&#x27;) {
+						ref(node);
+					} else if (ref &amp;&amp; typeof ref === &#x27;object&#x27;) {
+						(ref as React.MutableRefObject&lt;HTMLInputElement | null&gt;).current = node;
+					}
+				}}
+				id={id}
+				name={name}
+				value={effectiveValue}
+				onValueChange={handleChange}
+				onFocus={handleFocus}
+				onBlur={handleBlur}
+				placeholder={effectivePlaceholder}
+				disabled={disabled}
+				aria-describedby={ariaDescribedBy}
+				aria-required={ariaRequiredAttr}
+				aria-invalid={ariaInvalidAttr}
+				render={(inputProps) =&gt; &lt;input {...inputProps} className={styles.input} {...inputRest} /&gt;}
+			/&gt;
+
+			{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+				&lt;div className={styles.suffix}&gt;
+					&lt;Spinner size=&quot;sm&quot; transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined} /&gt;
+				&lt;/div&gt;
+			)}
+
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default Input;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="illustration.html" class="nav-btn">← illustration</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="input-error.html" class="nav-btn">input-error →</a>
+  </div>
+</body>
+</html>

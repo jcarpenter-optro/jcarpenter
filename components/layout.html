@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>layout — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>layout</h1>
+    <span class="badge badge-ember">Ember only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>layout</strong> exists only in the Ember/Glimmer library and has not yet been ported to React. It should be considered part of the React migration backlog.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">modal.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import detectScrollable from &#x27;../../modifiers/detect-scrollable.ts&#x27;;
+import Button from &#x27;../button.gts&#x27;;
+import Heading from &#x27;../heading.gts&#x27;;
+import Icon from &#x27;../icon.gts&#x27;;
+import type { ModalHandle } from &#x27;../modal.gts&#x27;;
+import Text from &#x27;../text.gts&#x27;;
+import XStack from &#x27;../x-stack.gts&#x27;;
+
+export interface LunaLayoutModalSignature {
+	Element: HTMLDivElement;
+	Args: {
+		size?: string;
+		padding?: string;
+		modal: ModalHandle;
+		disableCloseButton?: boolean;
+		onCancel?: () =&gt; void;
+	};
+	Blocks: {
+		body: [];
+		title: [];
+		intro?: [];
+		sidebar?: [];
+		footer?: [];
+	};
+}
+
+const LunaLayoutModal: TOC&lt;LunaLayoutModalSignature&gt; = &lt;template&gt;
+	&lt;div
+		class=&quot;container&quot;
+		data-size={{or @size &quot;md&quot;}}
+		data-padding={{or @padding &quot;auto&quot;}}
+		data-named-blocks=&quot;
+    {{if (has-block &#x27;intro&#x27;) &#x27;intro&#x27;}}
+    {{if (has-block &#x27;sidebar&#x27;) &#x27;sidebar&#x27;}}
+    {{if (has-block &#x27;footer&#x27;) &#x27;footer&#x27;}}
+  &quot;
+		...attributes
+		{{detectScrollable target=&quot;[data-scrollable-target]&quot;}}
+	&gt;
+		&lt;div class=&quot;layout&quot;&gt;
+			&lt;div class=&quot;header&quot;&gt;
+				&lt;Heading @font=&quot;500&quot; @weight=&quot;strong&quot; id={{@modal.titleId}}&gt;
+					{{yield to=&quot;title&quot;}}
+				&lt;/Heading&gt;
+
+				{{#if (has-block &quot;intro&quot;)}}
+					&lt;Text @font=&quot;400&quot; @weight=&quot;weak&quot; @color=&quot;gray-500&quot; @tag=&quot;p&quot; class=&quot;intro&quot;&gt;
+						{{yield to=&quot;intro&quot;}}
+					&lt;/Text&gt;
+				{{/if}}
+			&lt;/div&gt;
+
+			{{#if (has-block &quot;sidebar&quot;)}}
+				&lt;div class=&quot;split-layout&quot;&gt;
+					&lt;div class=&quot;sidebar&quot;&gt;
+						{{yield to=&quot;sidebar&quot;}}
+					&lt;/div&gt;
+
+					&lt;div class=&quot;body&quot; data-scrollable-target&gt;
+						{{yield to=&quot;body&quot;}}
+					&lt;/div&gt;
+				&lt;/div&gt;
+
+			{{else}}
+				&lt;div class=&quot;body&quot; data-scrollable-target&gt;
+					{{yield to=&quot;body&quot;}}
+				&lt;/div&gt;
+			{{/if}}
+
+			{{#if (has-block &quot;footer&quot;)}}
+				&lt;XStack @spacing=&quot;md&quot; class=&quot;footer&quot;&gt;
+					{{yield to=&quot;footer&quot;}}
+				&lt;/XStack&gt;
+			{{/if}}
+		&lt;/div&gt;
+
+		&lt;Button
+			data-test-close-modal
+			@size=&quot;sm&quot;
+			@variant=&quot;transparent&quot;
+			@disabled={{@disableCloseButton}}
+			class=&quot;x&quot;
+			aria-label={{t &quot;layout.modal.cancel&quot;}}
+			{{on &quot;click&quot; (or @onCancel @modal.cancel)}}
+		&gt;
+			&lt;Icon @icon=&quot;close&quot; /&gt;
+		&lt;/Button&gt;
+	&lt;/div&gt;
+&lt;/template&gt;;
+
+export default LunaLayoutModal;
+</pre><div class="file-tab">navigation.gts</div><pre class="language-typescript">import { hash } from &#x27;@ember/helper&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import element_ from &#x27;ember-element-helper/helpers/element&#x27;;
+
+import a11yMenu from &#x27;../../modifiers/a11y-menu.ts&#x27;;
+import type { ElementFromTagName, OptionalTagAttr, OptionalTagName } from &#x27;../../types.ts&#x27;;
+import YStack from &#x27;../y-stack.gts&#x27;;
+import NavigationLink from &#x27;./navigation/link.gts&#x27;;
+import NavigationSection from &#x27;./navigation/section.gts&#x27;;
+
+export interface LunaLayoutNavigationSignature&lt;TagName extends OptionalTagName&gt; {
+	Element: ElementFromTagName&lt;TagName, HTMLElement&gt;;
+	Args: OptionalTagAttr&lt;TagName&gt;;
+	Blocks: {
+		default: [
+			{
+				Section: typeof NavigationSection;
+				Link: typeof NavigationLink;
+			},
+		];
+	};
+}
+
+export default class LunaLayoutNavigation&lt;TagName extends OptionalTagName&gt; extends Component&lt;
+	LunaLayoutNavigationSignature&lt;TagName&gt;
+&gt; {
+	NavigationLink = NavigationLink;
+	NavigationSection = NavigationSection;
+
+	get tagName(): keyof HTMLElementTagNameMap {
+		return this.args.tag ?? &#x27;nav&#x27;;
+	}
+	&lt;template&gt;
+		{{#let (element_ this.tagName) as |Tag|}}
+			&lt;Tag class=&quot;focus-container&quot; ...attributes&gt;
+				&lt;YStack @tag=&quot;ul&quot; @spacing=&quot;sm&quot; class=&quot;stack&quot; {{a11yMenu memorize=true}}&gt;
+					{{yield (hash Section=this.NavigationSection Link=this.NavigationLink)}}
+				&lt;/YStack&gt;
+			&lt;/Tag&gt;
+		{{/let}}
+	&lt;/template&gt;
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="label.html" class="nav-btn">← label</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="legacy-compat-this-should-be-luna-field.html" class="nav-btn">legacy-compat-this-should-be-luna-field →</a>
+  </div>
+</body>
+</html>

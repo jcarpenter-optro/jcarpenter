@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>navigation — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>navigation</h1>
+    <span class="badge badge-react">React only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>navigation</strong> exists only in the React library. It has not yet been ported to Ember/Glimmer and may represent a newer pattern being introduced via the React migration.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">navigation.tsx</div><pre class="language-typescript">import type { ElementType, HTMLAttributes, KeyboardEvent, ReactNode } from &#x27;react&#x27;;
+import { createContext, useCallback, useContext, useMemo, useRef } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { Heading } from &#x27;../heading&#x27;;
+import { YStack } from &#x27;../y-stack&#x27;;
+
+import styles from &#x27;./navigation.module.css&#x27;;
+
+// ============================================================================
+// Navigation Context
+// ============================================================================
+
+interface NavigationContextValue {
+	/** Current active href/path for highlighting */
+	currentPath?: string;
+	/** Callback when a link is activated */
+	onNavigate?: (href: string) =&gt; void;
+}
+
+const NavigationContext = createContext&lt;NavigationContextValue&gt;({});
+
+// ============================================================================
+// NavigationLink
+// ============================================================================
+
+export interface NavigationLinkProps extends Omit&lt;HTMLAttributes&lt;HTMLElement&gt;, &#x27;children&#x27;&gt; {
+	ref?: React.Ref&lt;HTMLElement&gt;;
+	/** The destination URL */
+	href?: string;
+	/** Explicitly set active state (overrides currentPath check) */
+	active?: boolean;
+	/** Route names to check for active state */
+	currentWhen?: string[];
+	/** URLs to check for active state */
+	currentWhenUrls?: string[];
+	/** Link content */
+	children?: ReactNode;
+}
+
+/**
+ * Navigation link component that renders as an anchor or button.
+ */
+export function NavigationLink({
+	href,
+	active,
+	currentWhen,
+	currentWhenUrls,
+	children,
+	className,
+	onClick,
+	ref,
+	...rest
+}: NavigationLinkProps): React.ReactElement {
+	const { currentPath, onNavigate } = useContext(NavigationContext);
+
+	// Determine if this link is active
+	const isActive = useMemo(() =&gt; {
+		// Explicit active prop takes precedence
+		if (typeof active === &#x27;boolean&#x27;) {
+			return active;
+		}
+
+		// Check currentWhenUrls
+		if (currentWhenUrls &amp;&amp; currentPath) {
+			return currentWhenUrls.includes(currentPath);
+		}
+
+		// Check currentWhen (route names - simplified implementation)
+		if (currentWhen &amp;&amp; currentPath) {
+			return currentWhen.some((route) =&gt; currentPath.startsWith(route));
+		}
+
+		// Check if href matches current path
+		if (href &amp;&amp; currentPath) {
+			return href === currentPath;
+		}
+
+		return false;
+	}, [active, currentWhenUrls, currentWhen, href, currentPath]);
+
+	const handleClick = useCallback(
+		(e: React.MouseEvent&lt;HTMLElement&gt;) =&gt; {
+			onClick?.(e);
+			if (href &amp;&amp; onNavigate &amp;&amp; !e.defaultPrevented) {
+				onNavigate(href);
+			}
+		},
+		[href, onClick, onNavigate],
+	);
+
+	const commonProps = {
+		&#x27;className&#x27;: cn(styles.Link, className),
+		&#x27;data-active&#x27;: String(isActive),
+		&#x27;onClick&#x27;: handleClick,
+		...rest,
+	};
+
+	if (href) {
+		return (
+			&lt;li&gt;
+				&lt;a ref={ref as React.Ref&lt;HTMLAnchorElement&gt;} href={href} {...commonProps}&gt;
+					{children}
+				&lt;/a&gt;
+			&lt;/li&gt;
+		);
+	}
+
+	return (
+		&lt;li&gt;
+			&lt;button ref={ref as React.Ref&lt;HTMLButtonElement&gt;} type=&quot;button&quot; {...commonProps}&gt;
+				{children}
+			&lt;/button&gt;
+		&lt;/li&gt;
+	);
+}
+
+// ============================================================================
+// NavigationSection
+// ============================================================================
+
+export interface NavigationSectionProps extends HTMLAttributes&lt;HTMLLIElement&gt; {
+	ref?: React.Ref&lt;HTMLLIElement&gt;;
+	/** Optional section title */
+	title?: string;
+	/** Section content (NavigationLinks) */
+	children?: ReactNode;
+}
+
+/**
+ * Groups navigation links with an optional heading.
+ */
+export function NavigationSection({
+	title,
+	children,
+	className,
+	ref,
+	...rest
+}: NavigationSectionProps): React.ReactElement {
+	return (
+		&lt;li ref={ref} className={cn(styles.Section, className)} {...rest}&gt;
+			{title &amp;&amp; (
+				&lt;Heading level={3} font=&quot;50&quot; className={styles.sectionHeading}&gt;
+					{title}
+				&lt;/Heading&gt;
+			)}
+			&lt;ul className={styles.sectionList}&gt;{children}&lt;/ul&gt;
+		&lt;/li&gt;
+	);
+}
+
+// ============================================================================
+// Navigation
+// ============================================================================
+
+type NavigationTag = &#x27;nav&#x27; | &#x27;div&#x27; | &#x27;aside&#x27;;
+
+export interface NavigationProps extends Omit&lt;HTMLAttributes&lt;HTMLElement&gt;, &#x27;children&#x27;&gt; {
+	ref?: React.Ref&lt;HTMLElement&gt;;
+	/** HTML element to render as */
+	tag?: NavigationTag;
+	/** Current active path for link highlighting */
+	currentPath?: string;
+	/** Callback when navigation link is clicked */
+	onNavigate?: (href: string) =&gt; void;
+	/** Navigation content */
+	children?: ReactNode;
+}
+
+/**
+ * Container for navigation links with keyboard navigation support.
+ *
+ * Provides context for child NavigationLink and NavigationSection components.
+ *
+ * @example
+ * ```tsx
+ * &lt;Navigation currentPath=&quot;/dashboard&quot;&gt;
+ *   &lt;Navigation.Section title=&quot;Main&quot;&gt;
+ *     &lt;Navigation.Link href=&quot;/dashboard&quot;&gt;Dashboard&lt;/Navigation.Link&gt;
+ *     &lt;Navigation.Link href=&quot;/settings&quot;&gt;Settings&lt;/Navigation.Link&gt;
+ *   &lt;/Navigation.Section&gt;
+ * &lt;/Navigation&gt;
+ * ```
+ */
+function NavigationRoot({
+	tag: Tag = &#x27;nav&#x27;,
+	currentPath,
+	onNavigate,
+	children,
+	className,
+	ref,
+	...rest
+}: NavigationProps): React.ReactElement {
+	const containerRef = useRef&lt;HTMLElement&gt;(null);
+
+	// Keyboard navigation for arrow keys
+	const handleKeyDown = useCallback((e: KeyboardEvent&lt;HTMLElement&gt;) =&gt; {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const links = Array.from(container.querySelectorAll&lt;HTMLElement&gt;(`.${styles.Link}`));
+		const currentIndex = links.findIndex((link) =&gt; link === document.activeElement);
+
+		let nextIndex = -1;
+
+		switch (e.key) {
+			case &#x27;ArrowDown&#x27;:
+				e.preventDefault();
+				nextIndex = currentIndex &lt; links.length - 1 ? currentIndex + 1 : 0;
+				break;
+			case &#x27;ArrowUp&#x27;:
+				e.preventDefault();
+				nextIndex = currentIndex &gt; 0 ? currentIndex - 1 : links.length - 1;
+				break;
+			case &#x27;Home&#x27;:
+				e.preventDefault();
+				nextIndex = 0;
+				break;
+			case &#x27;End&#x27;:
+				e.preventDefault();
+				nextIndex = links.length - 1;
+				break;
+		}
+
+		if (nextIndex &gt;= 0 &amp;&amp; links[nextIndex]) {
+			links[nextIndex]?.focus();
+		}
+	}, []);
+
+	const contextValue = useMemo&lt;NavigationContextValue&gt;(
+		() =&gt; ({
+			currentPath,
+			onNavigate,
+		}),
+		[currentPath, onNavigate],
+	);
+
+	// Merge refs
+	const mergedRef = useCallback(
+		(node: HTMLElement | null) =&gt; {
+			(containerRef as React.MutableRefObject&lt;HTMLElement | null&gt;).current = node;
+			if (typeof ref === &#x27;function&#x27;) {
+				ref(node);
+			} else if (ref) {
+				ref.current = node;
+			}
+		},
+		[ref],
+	);
+
+	const Component = Tag as ElementType;
+
+	return (
+		&lt;NavigationContext.Provider value={contextValue}&gt;
+			&lt;Component
+				ref={mergedRef}
+				className={cn(styles.focusContainer, className)}
+				onKeyDown={handleKeyDown}
+				data-qid-component-type=&quot;Luna::Layout::Navigation&quot;
+				{...rest}
+			&gt;
+				&lt;YStack tag=&quot;ul&quot; spacing=&quot;sm&quot; className={styles.stack}&gt;
+					{children}
+				&lt;/YStack&gt;
+			&lt;/Component&gt;
+		&lt;/NavigationContext.Provider&gt;
+	);
+}
+
+export const Navigation = Object.assign(NavigationRoot, {
+	Link: NavigationLink,
+	Section: NavigationSection,
+});
+
+export default Navigation;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="modal-layout.html" class="nav-btn">← modal-layout</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="notice.html" class="nav-btn">notice →</a>
+  </div>
+</body>
+</html>

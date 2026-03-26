@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>calendar — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>calendar</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>calendar</strong> implementations exist. The Ember version is 800 lines and the React version is 377 lines. The Ember version is notably larger (800 vs 377 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">calendar.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports */
+import { isTesting } from &#x27;@embroider/macros&#x27;;
+import type { ModifierLike } from &#x27;@glint/template&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { isDestroyed, isDestroying } from &#x27;@ember/destroyable&#x27;;
+import { fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import { next } from &#x27;@ember/runloop&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { task, timeout } from &#x27;ember-concurrency&#x27;;
+import formatDate from &#x27;ember-intl/helpers/format-date&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { modifier } from &#x27;ember-modifier&#x27;;
+import eq from &#x27;ember-truth-helpers/helpers/eq&#x27;;
+import lt from &#x27;ember-truth-helpers/helpers/lt&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import eqDate from &#x27;../helpers/eq-date.ts&#x27;;
+import eqMonth from &#x27;../helpers/eq-month.ts&#x27;;
+import inDateRange from &#x27;../helpers/in-date-range.ts&#x27;;
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import type { DayOfWeekValue } from &#x27;../utils/date.ts&#x27;;
+import {
+	addDays,
+	addMonths,
+	createDate,
+	endOfMonth,
+	endOfYear,
+	firstDayOfWeek,
+	getDaysOfWeek,
+	getViewOfMonth,
+	isEqual,
+	isEqualMonth,
+	printISODate,
+	setMonth,
+	setYear,
+	startOfYear,
+} from &#x27;../utils/date.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import Spacer from &#x27;./spacer.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+import XStack from &#x27;./x-stack.gts&#x27;;
+
+const ADJUSTMENTS = {
+	PREVIOUS_DAY: -1,
+	NEXT_DAY: 1,
+	PREVIOUS_WEEK: -7,
+	NEXT_WEEK: 7,
+	PREVIOUS_MONTH: -1,
+	NEXT_MONTH: 1,
+	PREVIOUS_YEAR: -1,
+	NEXT_YEAR: 1,
+};
+
+function noOp() {
+	// No-op
+}
+
+export interface LunaCalendarSignature {
+	Element: HTMLDivElement;
+	Args: {
+		firstDayOfWeek?: DayOfWeekValue;
+		// TODO: selectionType and value should be linked
+		selectionType?: &#x27;range&#x27; | &#x27;single&#x27;;
+		value: string | { start?: string; end?: string } | null | undefined;
+		min?: string;
+		max?: string;
+		disableDate?: (date: Date) =&gt; boolean;
+		onChange?: (value: string | { start?: string; end?: string } | null) =&gt; void;
+	};
+}
+
+/**
+ * The core component to choose a single date or date range. The Calendar is used most commonly within the [Select Date](https://docs.auditboardteam.com/Luna/component/components/select-date) component.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/calendar.md)
+ */
+export default class LunaCalendar extends Component&lt;LunaCalendarSignature&gt; {
+	// Instead of using bang we should defined the dependent properties in a constructor
+	@service intl!: IntlService;
+
+	monthTableId = `${guidFor(this)}--table`;
+
+	today = new Date();
+
+	@tracked currentMonth = this.startDate ?? this.today;
+	private _lastSyncedStartDate: Date | undefined = this.startDate;
+	private _lastSyncedEndDate: Date | undefined = this.endDate;
+
+	/**
+	 * Modifier that syncs the displayed month when the value changes externally
+	 * to a different month.
+	 */
+	syncMonthToValue = modifier(() =&gt; {
+		const startDate = this.startDate;
+		const endDate = this.endDate;
+
+		// Check if start date changed to a different month
+		const startDateMonthChanged = startDate &amp;&amp; !isEqualMonth(startDate, this._lastSyncedStartDate);
+		// Check if end date changed to a different month
+		const endDateMonthChanged = endDate &amp;&amp; !isEqualMonth(endDate, this._lastSyncedEndDate);
+
+		// Prefer syncing to the date that changed; if both changed, prefer end date (most recent edit)
+		if (endDateMonthChanged) {
+			this._lastSyncedStartDate = startDate;
+			this._lastSyncedEndDate = endDate;
+			this.adjustMonthTo(endDate);
+		} else if (startDateMonthChanged) {
+			this._lastSyncedStartDate = startDate;
+			this._lastSyncedEndDate = endDate;
+			this.adjustMonthTo(startDate);
+		}
+	});
+
+	firstDayOfWeek = this.args.firstDayOfWeek ?? firstDayOfWeek(this.intl.primaryLocale);
+	@tracked monthView = getViewOfMonth(this.currentMonth, this.firstDayOfWeek);
+	headerView = getDaysOfWeek(this.firstDayOfWeek);
+
+	@tracked focusableDate = this.startDate ?? this.today;
+
+	@tracked announcementText = &#x27;&#x27;;
+
+	get minDate() {
+		const now = this.today;
+		// Default to 20 years ago
+		const defaultDate = startOfYear(setYear(now, now.getFullYear() - 20));
+
+		return createDate(this.args.min) ?? defaultDate;
+	}
+
+	get maxDate() {
+		const now = this.today;
+		// Default to 10 years from now
+		const defaultDate = endOfYear(setYear(now, now.getFullYear() + 10));
+
+		return createDate(this.args.max) ?? defaultDate;
+	}
+
+	/**
+	 * Whether dates should be clamped to the min and max values.
+	 * Redeclared and bound in the instance initializer of the consuming app.
+	 * See `client/app/initializers/luna.ts` for example implementation.
+	 */
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get shouldClampDates() {
+		return false;
+	}
+
+	/**
+	 * Clamps a date to the min/max bounds. If the date is outside the bounds,
+	 * returns the nearest boundary date.
+	 */
+	private clampToMinOrMax(date: Date): Date {
+		if (date &lt; this.minDate) {
+			return this.minDate;
+		}
+		if (date &gt; this.maxDate) {
+			return this.maxDate;
+		}
+		return date;
+	}
+
+	get months() {
+		const { minDate, maxDate } = this;
+		const months = [];
+
+		for (let i = 0; i &lt; 12; i++) {
+			const startOfMonth = new Date(this.currentMonth.getFullYear(), i, 1);
+			const endOfMonthDate = endOfMonth(startOfMonth);
+			const disabled = endOfMonthDate &lt; minDate || startOfMonth &gt; maxDate;
+			months.push({
+				index: i,
+				label: this.intl.formatDate(new Date(2020, i, 15), { month: &#x27;long&#x27; }),
+				disabled,
+			});
+		}
+		return months;
+	}
+
+	get years() {
+		const years = [];
+		const minYear = this.minDate.getFullYear();
+		const maxYear = this.maxDate.getFullYear();
+
+		for (let step = minYear; step &lt;= maxYear; step++) {
+			years.push(step);
+		}
+		return years;
+	}
+
+	get currentMonthIndex() {
+		return this.currentMonth.getMonth();
+	}
+
+	get currentMonthYear() {
+		return this.currentMonth.getFullYear();
+	}
+
+	get weekView() {
+		const days = this.monthView;
+		const chunks = [];
+		let index = 0;
+
+		while (index &lt; days.length) {
+			chunks.push(days.slice(index, 7 + index));
+			index += 7;
+		}
+		return chunks;
+	}
+
+	get isRangeSelection() {
+		return this.args.selectionType === &#x27;range&#x27;;
+	}
+
+	get startDate() {
+		let value;
+		if (this.isRangeSelection) {
+			// Handle case where value might be a string in range mode
+			if (typeof this.args.value === &#x27;string&#x27;) {
+				value = this.args.value;
+			} else {
+				value = this.args.value?.start;
+			}
+		} else if (typeof this.args.value === &#x27;object&#x27; &amp;&amp; this.args.value !== null) {
+			// Handle case where value might be an object in single mode
+			value = (this.args.value as { start?: string }).start;
+		} else {
+			value = this.args.value;
+		}
+
+		const date = createDate(value);
+
+		if (date &amp;&amp; this.shouldClampDates) {
+			return this.clampToMinOrMax(date);
+		}
+
+		return date;
+	}
+
+	get endDate() {
+		let value;
+		if (typeof this.args.value === &#x27;object&#x27; &amp;&amp; this.args.value !== null) {
+			value = this.args.value.end;
+		} else {
+			value = undefined;
+		}
+		const date = createDate(value);
+
+		if (date &amp;&amp; this.shouldClampDates) {
+			return this.clampToMinOrMax(date);
+		}
+
+		return date;
+	}
+
+	get isPreviousMonthDisabled() {
+		const previousMonth = addMonths(this.currentMonth, -1);
+		return previousMonth &lt; this.minDate;
+	}
+
+	get isNextMonthDisabled() {
+		const nextMonth = addMonths(this.currentMonth, 1);
+		return nextMonth &gt; this.maxDate;
+	}
+
+	/**
+	 * Adjusts the focusable date by a number of days
+	 *
+	 * @param adjustment Amount of days to adjust the current date by
+	 * @param event Key event that triggered this adjustment
+	 */
+	adjustFocusableDay(adjustment: number, kind = &#x27;day&#x27;, event: KeyboardEvent) {
+		event.preventDefault();
+
+		if (kind === &#x27;day&#x27;) {
+			this.focusableDate = addDays(this.focusableDate, adjustment);
+
+			const isInCurrentMonthView = this.monthView.find((day) =&gt; isEqual(day, this.focusableDate));
+
+			if (!isInCurrentMonthView) {
+				this.adjustMonthTo(this.focusableDate);
+			}
+
+			void this.synchronizeFocus();
+			return;
+		}
+
+		if (kind === &#x27;month&#x27;) {
+			this.focusableDate = addMonths(this.focusableDate, adjustment);
+			this.adjustMonthTo(this.focusableDate);
+			void this.synchronizeFocus();
+		}
+
+		if (kind === &#x27;year&#x27;) {
+			this.focusableDate = addMonths(this.focusableDate, adjustment * 12);
+			this.adjustMonthTo(this.focusableDate);
+			void this.synchronizeFocus();
+		}
+	}
+
+	/**
+	 * Set the current month being viewed to a different one
+	 */
+	adjustMonthTo(date: Date) {
+		this.currentMonth = date;
+		this.monthView = getViewOfMonth(date, this.firstDayOfWeek);
+	}
+
+	/**
+	 * Ensures that the current month view has a date that can be focused. If
+	 * there is none then we update the focusableDate to a day inside the
+	 * current view.
+	 */
+	ensureFocusableDateExists() {
+		if (this.monthView.find((day) =&gt; isEqual(day, this.focusableDate))) {
+			return;
+		}
+
+		const selectedDate = this.monthView.find((day) =&gt; isEqual(day, this.startDate));
+
+		if (selectedDate) {
+			this.focusableDate = selectedDate;
+			void this.synchronizeFocus();
+			return;
+		}
+
+		const theFirst = this.monthView.find((day) =&gt; day.getDate() === 1);
+		assert(&#x27;Expected the first of the month to exist&#x27;, theFirst);
+
+		this.focusableDate = theFirst;
+		void this.synchronizeFocus();
+	}
+
+	@action
+	isDisabled(day: Date) {
+		const isOutOfRange = day &lt; this.minDate || day &gt; this.maxDate;
+		return this.args.disableDate?.(day) ?? isOutOfRange;
+	}
+
+	@action
+	onKeyDown(event: KeyboardEvent) {
+		switch (event.key) {
+			case KEYBOARD_KEYS.LEFT_ARROW:
+				this.adjustFocusableDay(ADJUSTMENTS.PREVIOUS_DAY, &#x27;day&#x27;, event);
+				break;
+
+			case KEYBOARD_KEYS.RIGHT_ARROW:
+				this.adjustFocusableDay(ADJUSTMENTS.NEXT_DAY, &#x27;day&#x27;, event);
+				break;
+
+			case KEYBOARD_KEYS.UP_ARROW:
+				this.adjustFocusableDay(ADJUSTMENTS.PREVIOUS_WEEK, &#x27;day&#x27;, event);
+				break;
+
+			case KEYBOARD_KEYS.DOWN_ARROW:
+				this.adjustFocusableDay(ADJUSTMENTS.NEXT_WEEK, &#x27;day&#x27;, event);
+				break;
+
+			case KEYBOARD_KEYS.PAGE_UP:
+				if (event.shiftKey) {
+					this.adjustFocusableDay(ADJUSTMENTS.PREVIOUS_YEAR, &#x27;year&#x27;, event);
+				} else {
+					this.adjustFocusableDay(ADJUSTMENTS.PREVIOUS_MONTH, &#x27;month&#x27;, event);
+				}
+				break;
+
+			case KEYBOARD_KEYS.PAGE_DOWN:
+				if (event.shiftKey) {
+					this.adjustFocusableDay(ADJUSTMENTS.NEXT_YEAR, &#x27;year&#x27;, event);
+				} else {
+					this.adjustFocusableDay(ADJUSTMENTS.NEXT_MONTH, &#x27;month&#x27;, event);
+				}
+				break;
+		}
+	}
+
+	tableElement: HTMLTableElement | undefined;
+	registerTable: ModifierLike&lt;{ Element: HTMLTableElement }&gt; = modifier((element: HTMLTableElement) =&gt; {
+		this.tableElement = element;
+	});
+
+	/**
+	 * Ensures the focusableElement has the focus as the user navigates
+	 * around with the keyboard.
+	 */
+	@action
+	async synchronizeFocus() {
+		await /**
+		 * TODO: don&#x27;t use did-update
+		 *
+		 * This causes set-during-render situation with {{on &#x27;focusin&#x27; announceEntry}}
+		 * (because focus events are synchronous)
+		 * announceEntry (reads focusableDate)
+		 * -&gt; adjustFocusableDay
+		 *  -&gt; focusableDate = someDate
+		 */
+		// @ts-expect-error - we are using an instance-safe version of next()
+		// eslint-disable-next-line ember/no-runloop
+		await new Promise((resolve) =&gt; next(() =&gt; resolve()));
+
+		if (isDestroyed(this) || isDestroying(this)) {
+			return;
+		}
+
+		if (!this.tableElement) {
+			return;
+		}
+
+		const element = this.tableElement;
+		/**
+		 * If the user changes the month the view re-renders and the focus gets
+		 * forced back onto the body as the focused element gets removed. In
+		 * that case we force it back to the view.
+		 *
+		 * Otherwise we only force it if the focus is already inside the month view.
+		 */
+		if (document.body === document.activeElement || element.contains(document.activeElement)) {
+			const button: Element | null = element.querySelector(&#x27;button[tabindex=&quot;0&quot;]&#x27;);
+			assert(&#x27;Expected a button&#x27;, button instanceof HTMLButtonElement);
+			button.focus();
+		}
+	}
+
+	@action
+	onChangeSelection(value: Date) {
+		this.focusableDate = value;
+		void this.synchronizeFocus();
+
+		let newValue: { start: string; end: string } | string;
+
+		// Range selection
+		if (this.isRangeSelection) {
+			let startDate;
+			let endDate;
+
+			startDate = this.startDate ?? value;
+			endDate = this.startDate ? value : null;
+
+			if (this.startDate &amp;&amp; this.endDate) {
+				startDate = value;
+				endDate = null;
+			} else if (this.startDate) {
+				endDate = value;
+			}
+
+			const newValueTmp = {
+				start: startDate,
+				end: endDate,
+			};
+
+			// Ensure startDate is always before endDate
+			if (endDate &amp;&amp; endDate &lt; startDate) {
+				newValueTmp.start = endDate;
+				newValueTmp.end = startDate;
+			}
+
+			newValue = {
+				start: printISODate(newValueTmp.start),
+				end: printISODate(newValueTmp.end),
+			};
+		} else {
+			// Single selection
+			if (!isEqualMonth(value, this.currentMonth)) {
+				this.adjustMonthTo(value);
+			}
+
+			newValue = printISODate(value);
+		}
+
+		// Single date selection
+		this.args.onChange?.(newValue);
+
+		if (this.selectionString) {
+			void this.announce.perform(this.selectionString);
+		}
+	}
+
+	@action
+	nextMonth() {
+		if (this.isNextMonthDisabled) {
+			return;
+		}
+		this.adjustMonthTo(addMonths(this.currentMonth, 1));
+		this.ensureFocusableDateExists();
+		this.announceMonthChange();
+	}
+
+	@action
+	previousMonth() {
+		if (this.isPreviousMonthDisabled) {
+			return;
+		}
+		this.adjustMonthTo(addMonths(this.currentMonth, -1));
+		this.ensureFocusableDateExists();
+		this.announceMonthChange();
+	}
+
+	@action
+	onChangeMonth(select: Event) {
+		assert(&#x27;Expected a select element&#x27;, select.target instanceof HTMLSelectElement);
+		const newMonth = setMonth(this.currentMonth, Number(select.target.value));
+		this.adjustMonthTo(newMonth);
+		this.ensureFocusableDateExists();
+		this.announceMonthChange();
+	}
+
+	@action
+	onChangeYear(select: Event) {
+		assert(&#x27;Expected a select element&#x27;, select.target instanceof HTMLSelectElement);
+		const newMonth = setYear(this.currentMonth, Number(select.target.value));
+		this.adjustMonthTo(newMonth);
+		this.ensureFocusableDateExists();
+		this.announceMonthChange();
+	}
+
+	/**
+	 * Announces changes via the screen reader.
+	 *
+	 * TODO: Convert this to a service that can be used by any component
+	 */
+	announce = task({ keepLatest: true }, async (text: string) =&gt; {
+		this.announcementText = text;
+		await timeout(isTesting() ? 0 : 200);
+		this.announcementText = &#x27;&#x27;;
+	});
+
+	/**
+	 * Announcement that happens when the user focuses inside the calendar view
+	 * providing them with instructions on how to navigate it.
+	 */
+	@action
+	async announceEntry(event: FocusEvent) {
+		await Promise.resolve();
+		void this.synchronizeFocus();
+
+		if (
+			event.relatedTarget instanceof Node &amp;&amp;
+			document.querySelector(`#${this.monthTableId}`)?.contains(event.relatedTarget)
+		) {
+			return;
+		}
+
+		const selectableDate = this.intl.formatDate(this.focusableDate, { day: &#x27;numeric&#x27;, month: &#x27;long&#x27; });
+		const instructions = this.intl.t(&#x27;input.calendar.keys&#x27;);
+		const currentFocus = this.intl.t(&#x27;input.calendar.focus&#x27;, { date: selectableDate });
+
+		void this.announce.perform(`${this.selectionString} ${currentFocus} ${instructions}`);
+	}
+
+	/**
+	 * Announcement that happens when the user uses the year or month selects to
+	 * jump around the month view.
+	 */
+	announceMonthChange() {
+		const currentMonth = this.intl.formatDate(this.currentMonth, { month: &#x27;long&#x27;, year: &#x27;numeric&#x27; });
+		void this.announce.perform(currentMonth);
+	}
+
+	/**
+	 * Whether the currently selected date(s) are out of range.
+	 * When true, shows an out-of-range message instead of the calendar.
+	 */
+	get dateIsOutOfRange() {
+		if (this.shouldClampDates) {
+			return false;
+		}
+
+		return (
+			(this.startDate &amp;&amp; (this.startDate &lt; this.minDate || this.startDate &gt; this.maxDate)) ||
+			(this.endDate &amp;&amp; (this.endDate &lt; this.minDate || this.endDate &gt; this.maxDate))
+		);
+	}
+
+	/**
+	 * Calculates the text that best describes the user&#x27;s current selected.
+	 */
+	get selectionString() {
+		const startDate = this.startDate &amp;&amp; this.intl.formatDate(this.startDate, { day: &#x27;numeric&#x27;, month: &#x27;long&#x27; });
+		const endDate = this.endDate &amp;&amp; this.intl.formatDate(this.endDate, { day: &#x27;numeric&#x27;, month: &#x27;long&#x27; });
+
+		let selectedValue;
+
+		if (this.isRangeSelection) {
+			if (startDate &amp;&amp; endDate) {
+				selectedValue = this.intl.t(&#x27;input.calendar.selection.range&#x27;, { start: startDate, end: endDate });
+			} else if (startDate) {
+				selectedValue = this.intl.t(&#x27;input.calendar.selection.range-start-only&#x27;, { start: startDate });
+			} else {
+				selectedValue = this.intl.t(&#x27;input.calendar.selection.range-none&#x27;);
+			}
+		} else if (startDate) {
+			selectedValue = this.intl.t(&#x27;input.calendar.selection.single&#x27;, { date: startDate });
+		} else {
+			selectedValue = this.intl.t(&#x27;input.calendar.selection.single-none&#x27;);
+		}
+
+		return selectedValue;
+	}
+	&lt;template&gt;
+		{{! template-lint-disable data-qid-interactive }}
+		&lt;div class=&quot;Calendar&quot; data-qid-component-type=&quot;Luna::Calendar&quot; {{this.syncMonthToValue}} ...attributes&gt;
+			&lt;XStack @spacing=&quot;xs&quot;&gt;
+				&lt;XStack @spacing=&quot;sm&quot;&gt;
+					&lt;div class=&quot;select&quot;&gt;
+						&lt;div class=&quot;label&quot; aria-hidden=&quot;true&quot;&gt;
+							{{formatDate this.currentMonth month=&quot;short&quot;}}
+						&lt;/div&gt;
+						&lt;div class=&quot;icon&quot;&gt;
+							&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+								&lt;path
+									fill=&quot;currentColor&quot;
+									d=&quot;M8 10.15l5.27-5.27 1.48 1.49-5.27 5.26L8 13.12l-1.48-1.49-5.27-5.26 1.48-1.49z&quot;
+								&gt;&lt;/path&gt;
+							&lt;/svg&gt;
+						&lt;/div&gt;
+						&lt;select
+							aria-label={{t &quot;input.calendar.month&quot;}}
+							class=&quot;input&quot;
+							data-test-select=&quot;month&quot;
+							{{on &quot;change&quot; this.onChangeMonth}}
+						&gt;
+							{{#each this.months as |month|}}
+								&lt;option
+									value={{month.index}}
+									selected={{eq month.index this.currentMonthIndex}}
+									disabled={{month.disabled}}
+								&gt;
+									{{month.label}}
+								&lt;/option&gt;
+							{{/each}}
+						&lt;/select&gt;
+					&lt;/div&gt;
+
+					&lt;div class=&quot;select&quot;&gt;
+						&lt;div class=&quot;label&quot; aria-hidden=&quot;true&quot;&gt;
+							{{formatDate this.currentMonth year=&quot;numeric&quot;}}
+						&lt;/div&gt;
+						&lt;div class=&quot;icon&quot;&gt;
+							&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+								&lt;path
+									fill=&quot;currentColor&quot;
+									d=&quot;M8 10.15l5.27-5.27 1.48 1.49-5.27 5.26L8 13.12l-1.48-1.49-5.27-5.26 1.48-1.49z&quot;
+								&gt;&lt;/path&gt;
+							&lt;/svg&gt;
+						&lt;/div&gt;
+						&lt;select
+							aria-label={{t &quot;input.calendar.year&quot;}}
+							class=&quot;input&quot;
+							data-test-select=&quot;year&quot;
+							{{on &quot;change&quot; this.onChangeYear}}
+						&gt;
+							{{#each this.years as |year|}}
+								&lt;option value={{year}} selected={{eq year this.currentMonthYear}}&gt;
+									{{year}}
+								&lt;/option&gt;
+							{{/each}}
+						&lt;/select&gt;
+					&lt;/div&gt;
+				&lt;/XStack&gt;
+
+				&lt;Spacer /&gt;
+
+				&lt;Button
+					@size=&quot;sm&quot;
+					@variant=&quot;transparent&quot;
+					aria-label={{t &quot;input.calendar.previous-month&quot;}}
+					data-test-previous-month
+					disabled={{this.isPreviousMonthDisabled}}
+					{{on &quot;click&quot; this.previousMonth}}
+				&gt;
+					&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+						&lt;path
+							fill=&quot;currentColor&quot;
+							d=&quot;M6.85 8l5.27 5.27-1.49 1.48-5.26-5.27L3.88 8l1.49-1.48 5.26-5.27 1.49 1.48z&quot;
+						&gt;&lt;/path&gt;
+					&lt;/svg&gt;
+				&lt;/Button&gt;
+
+				&lt;Button
+					@size=&quot;sm&quot;
+					@variant=&quot;transparent&quot;
+					aria-label={{t &quot;input.calendar.next-month&quot;}}
+					data-test-next-month
+					disabled={{this.isNextMonthDisabled}}
+					{{on &quot;click&quot; this.nextMonth}}
+				&gt;
+					&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+						&lt;path
+							fill=&quot;currentColor&quot;
+							d=&quot;M3.88 2.73l1.49-1.48 5.26 5.27L12.12 8l-1.49 1.48-5.26 5.27-1.49-1.48L9.15 8z&quot;
+						&gt;&lt;/path&gt;
+					&lt;/svg&gt;
+				&lt;/Button&gt;
+			&lt;/XStack&gt;
+
+			{{#if this.dateIsOutOfRange}}
+				&lt;div data-qid-out-of-range-date class=&quot;out-of-range-date&quot;&gt;
+					{{! TODO: add this date }}
+					&lt;Text @font=&quot;400&quot; @color=&quot;gray-500&quot; @align=&quot;center&quot;&gt;
+						{{t &quot;input.calendar.out-of-range&quot;}}
+					&lt;/Text&gt;
+				&lt;/div&gt;
+			{{else}}
+
+				{{! template-lint-disable no-invalid-interactive }}
+				&lt;table
+					class=&quot;month&quot;
+					data-test-month={{formatDate this.currentMonth month=&quot;long&quot; year=&quot;numeric&quot;}}
+					id={{this.monthTableId}}
+					{{this.registerTable}}
+					{{on &quot;keydown&quot; this.onKeyDown}}
+					{{on &quot;focusin&quot; this.announceEntry}}
+				&gt;
+					&lt;thead&gt;
+						&lt;tr class=&quot;header&quot;&gt;
+							{{#each this.headerView as |day|}}
+								&lt;th abbr={{day.long}}&gt;
+									{{day.short}}
+								&lt;/th&gt;
+							{{/each}}
+						&lt;/tr&gt;
+					&lt;/thead&gt;
+					&lt;tbody&gt;
+						{{#each this.weekView as |week|}}
+							&lt;tr class=&quot;week&quot;&gt;
+								{{#each week as |day index|}}
+									{{#let (this.isDisabled day) as |isDisabled|}}
+										&lt;td
+											class=&quot;day-cell&quot;
+											data-current-day={{toString0 (eqDate day this.today)}}
+											data-current-month={{toString0 (eqMonth day this.currentMonth)}}
+										&gt;
+											&lt;div
+												class=&quot;highlight&quot;
+												data-in-range={{toString0 (inDateRange day this.startDate this.endDate)}}
+												data-disabled={{isDisabled}}
+												data-day-index={{index}}
+											&gt;
+												&lt;button
+													class=&quot;day-button&quot;
+													type=&quot;button&quot;
+													tabindex={{if (eqDate day this.focusableDate) &quot;0&quot; &quot;-1&quot;}}
+													aria-label={{formatDate day day=&quot;numeric&quot; month=&quot;long&quot;}}
+													aria-pressed={{toString0 (or (eqDate day this.startDate) (eqDate day this.endDate))}}
+													aria-disabled={{toString0 isDisabled}}
+													aria-current={{if (eqDate day this.today) &quot;date&quot;}}
+													data-test-day
+													{{on &quot;click&quot; (if isDisabled noOp (fn this.onChangeSelection day))}}
+												&gt;
+													{{formatDate day day=&quot;numeric&quot;}}
+												&lt;/button&gt;
+											&lt;/div&gt;
+										&lt;/td&gt;
+									{{/let}}
+								{{/each}}
+							&lt;/tr&gt;
+						{{/each}}
+
+						{{#if (lt this.weekView.length 5)}}
+							&lt;tr class=&quot;week&quot; aria-hidden=&quot;true&quot;&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+							&lt;/tr&gt;
+						{{/if}}
+
+						{{#if (lt this.weekView.length 6)}}
+							&lt;tr class=&quot;week&quot; aria-hidden=&quot;true&quot;&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+								&lt;td class=&quot;day-cell&quot;&gt;&amp;nbsp;&lt;/td&gt;
+							&lt;/tr&gt;
+						{{/if}}
+					&lt;/tbody&gt;
+				&lt;/table&gt;
+			{{/if}}
+
+			{{! Announcer }}
+			&lt;div class=&quot;visually-hidden&quot; aria-live=&quot;polite&quot;&gt;
+				{{this.announcementText}}
+			&lt;/div&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">calendar.tsx</div><pre class="language-typescript">import { useCallback, useMemo, useState } from &#x27;react&#x27;;
+import { type DateRange, DayPicker } from &#x27;react-day-picker&#x27;;
+
+import {
+	addYears,
+	endOfYear,
+	format,
+	setMonth as dateFnsSetMonth,
+	setYear as dateFnsSetYear,
+	startOfDay,
+	startOfYear,
+	subYears,
+} from &#x27;date-fns&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./calendar.module.css&#x27;;
+
+// Custom formatter for 3-letter weekday names to match Ember
+const formatWeekdayName = (date: Date): string =&gt; {
+	return format(date, &#x27;EEE&#x27;).toUpperCase();
+};
+
+export type SelectionType = &#x27;single&#x27; | &#x27;range&#x27;;
+
+// Value can be a string (ISO date), Date, or range object
+export type CalendarSingleValue = string | Date | null | undefined;
+export type CalendarRangeValue = { start?: string; end?: string } | DateRange | null | undefined;
+export type CalendarValue = CalendarSingleValue | CalendarRangeValue;
+
+export interface CalendarProps {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** First day of the week (0 = Sunday, 1 = Monday, etc.) */
+	firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+	/** Selection type: single date or date range */
+	selectionType?: SelectionType;
+	/** Currently selected value */
+	value?: CalendarValue;
+	/** Minimum selectable date (ISO string) */
+	min?: string;
+	/** Maximum selectable date (ISO string) */
+	max?: string;
+	/** Function to disable specific dates */
+	disableDate?: (date: Date) =&gt; boolean;
+	/** Whether to highlight today&#x27;s date (default: true) */
+	showToday?: boolean;
+	/** Called when the selection changes */
+	onChange?: (value: string | { start: string; end: string } | null) =&gt; void;
+	/** Additional CSS class */
+	className?: string;
+	/** Test ID */
+	testId?: string;
+}
+
+/**
+ * Parses a date value to a Date object
+ */
+function parseDate(value: string | Date | undefined | null): Date | undefined {
+	if (!value) return undefined;
+	if (value instanceof Date) return value;
+	// Parse ISO date string as local date (not UTC)
+	// ISO date strings like &quot;2024-01-15&quot; are parsed as UTC by new Date(),
+	// which causes timezone issues (selecting wrong day). Parse components manually.
+	const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+	if (match) {
+		const [, year, month, day] = match;
+		return new Date(Number(year), Number(month) - 1, Number(day));
+	}
+	const date = new Date(value);
+	return isNaN(date.getTime()) ? undefined : date;
+}
+
+/**
+ * Formats a Date to ISO string (YYYY-MM-DD)
+ */
+function toISODateString(date: Date): string {
+	return format(date, &#x27;yyyy-MM-dd&#x27;);
+}
+
+/**
+ * Calendar component for selecting dates.
+ * Used by SelectDate and can be used standalone.
+ */
+export function Calendar({
+	ref,
+	firstDayOfWeek = 0,
+	selectionType = &#x27;single&#x27;,
+	value,
+	min,
+	max,
+	disableDate,
+	showToday = true,
+	onChange,
+	className,
+	testId,
+}: CalendarProps) {
+	const today = useMemo(() =&gt; startOfDay(new Date()), []);
+
+	// Parse min/max dates with defaults
+	const minDate = useMemo(() =&gt; {
+		return parseDate(min) ?? startOfYear(subYears(today, 20));
+	}, [min, today]);
+
+	const maxDate = useMemo(() =&gt; {
+		return parseDate(max) ?? endOfYear(addYears(today, 10));
+	}, [max, today]);
+
+	// Parse current value
+	const { startDate, endDate } = useMemo(() =&gt; {
+		if (!value) return { startDate: undefined, endDate: undefined };
+
+		if (typeof value === &#x27;string&#x27; || value instanceof Date) {
+			return { startDate: parseDate(value), endDate: undefined };
+		}
+
+		// Range value
+		if (&#x27;from&#x27; in value) {
+			// DateRange format from react-day-picker
+			return { startDate: value.from, endDate: value.to };
+		}
+
+		// Our custom format { start, end }
+		return {
+			startDate: parseDate(value.start),
+			endDate: parseDate(value.end),
+		};
+	}, [value]);
+
+	// Track the currently displayed month
+	const [month, setMonth] = useState&lt;Date&gt;(() =&gt; startDate ?? today);
+
+	// Generate month options
+	const months = useMemo(() =&gt; {
+		const result = [];
+		for (let i = 0; i &lt; 12; i++) {
+			const monthDate = new Date(month.getFullYear(), i, 1);
+			const disabled = monthDate &lt; minDate || monthDate &gt; maxDate;
+			result.push({
+				value: i,
+				label: format(new Date(2020, i, 15), &#x27;MMMM&#x27;),
+				disabled,
+			});
+		}
+		return result;
+	}, [month, minDate, maxDate]);
+
+	// Generate year options
+	const years = useMemo(() =&gt; {
+		const minYear = minDate.getFullYear();
+		const maxYear = maxDate.getFullYear();
+		const result = [];
+		for (let year = minYear; year &lt;= maxYear; year++) {
+			result.push(year);
+		}
+		return result;
+	}, [minDate, maxDate]);
+
+	// Handle month select change
+	const handleMonthChange = useCallback(
+		(e: React.ChangeEvent&lt;HTMLSelectElement&gt;) =&gt; {
+			const newMonth = dateFnsSetMonth(month, Number(e.target.value));
+			setMonth(newMonth);
+		},
+		[month],
+	);
+
+	// Handle year select change
+	const handleYearChange = useCallback(
+		(e: React.ChangeEvent&lt;HTMLSelectElement&gt;) =&gt; {
+			const newMonth = dateFnsSetYear(month, Number(e.target.value));
+			setMonth(newMonth);
+		},
+		[month],
+	);
+
+	// Disable dates outside range or custom disabled
+	const isDateDisabled = useCallback(
+		(date: Date): boolean =&gt; {
+			if (date &lt; minDate || date &gt; maxDate) return true;
+			return disableDate?.(date) ?? false;
+		},
+		[minDate, maxDate, disableDate],
+	);
+
+	// Handle single date selection
+	const handleSingleSelect = useCallback(
+		(date: Date | undefined) =&gt; {
+			if (date &amp;&amp; !isDateDisabled(date)) {
+				onChange?.(toISODateString(date));
+			}
+		},
+		[onChange, isDateDisabled],
+	);
+
+	// Handle range selection
+	const handleRangeSelect = useCallback(
+		(range: DateRange | undefined) =&gt; {
+			if (!range) {
+				onChange?.(null);
+				return;
+			}
+
+			// Build the range value
+			const result: { start: string; end: string } = {
+				start: range.from ? toISODateString(range.from) : &#x27;&#x27;,
+				end: range.to ? toISODateString(range.to) : &#x27;&#x27;,
+			};
+
+			// Only emit if at least start is set
+			if (result.start) {
+				onChange?.(result);
+			}
+		},
+		[onChange],
+	);
+
+	// Navigation disabled states
+	const isPrevMonthDisabled = useMemo(() =&gt; {
+		const prevMonth = new Date(month.getFullYear(), month.getMonth() - 1, 1);
+		return prevMonth &lt; minDate;
+	}, [month, minDate]);
+
+	const isNextMonthDisabled = useMemo(() =&gt; {
+		const nextMonth = new Date(month.getFullYear(), month.getMonth() + 1, 1);
+		return nextMonth &gt; maxDate;
+	}, [month, maxDate]);
+
+	// Common DayPicker props - match Ember: variable row count (no extra grey rows)
+	const commonProps = {
+		month,
+		onMonthChange: setMonth,
+		weekStartsOn: firstDayOfWeek,
+		disabled: isDateDisabled,
+		showOutsideDays: true,
+		fixedWeeks: false,
+		hideNavigation: true,
+		formatters: {
+			formatWeekdayName,
+		},
+		classNames: {
+			root: styles.dayPicker,
+			months: styles.months,
+			month: styles.month,
+			month_caption: styles.monthCaption,
+			weekdays: styles.weekdays,
+			weekday: styles.weekday,
+			weeks: styles.weeks,
+			week: styles.week,
+			day: styles.day,
+			day_button: styles.dayButton,
+			outside: styles.outside,
+			disabled: styles.disabled,
+			today: showToday ? styles.today : undefined,
+			selected: styles.selected,
+			range_start: styles.rangeStart,
+			range_end: styles.rangeEnd,
+			range_middle: styles.rangeMiddle,
+		},
+	};
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.Calendar, className)}
+			data-qid-component-type=&quot;Luna::Calendar&quot;
+			data-testid={testId}
+		&gt;
+			{/* Custom navigation header */}
+			&lt;div className={styles.header}&gt;
+				&lt;div className={styles.selects}&gt;
+					{/* Month select */}
+					&lt;div className={styles.selectWrapper}&gt;
+						&lt;div className={styles.selectLabel} aria-hidden=&quot;true&quot;&gt;
+							{format(month, &#x27;MMM&#x27;)}
+						&lt;/div&gt;
+						&lt;div className={styles.selectIcon}&gt;
+							&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+								&lt;path
+									fill=&quot;currentColor&quot;
+									d=&quot;M8 10.15l5.27-5.27 1.48 1.49-5.27 5.26L8 13.12l-1.48-1.49-5.27-5.26 1.48-1.49z&quot;
+								/&gt;
+							&lt;/svg&gt;
+						&lt;/div&gt;
+						&lt;select
+							className={styles.selectInput}
+							value={month.getMonth()}
+							onChange={handleMonthChange}
+							aria-label=&quot;Month&quot;
+							data-test-select=&quot;month&quot;
+						&gt;
+							{months.map((m) =&gt; (
+								&lt;option key={m.value} value={m.value} disabled={m.disabled}&gt;
+									{m.label}
+								&lt;/option&gt;
+							))}
+						&lt;/select&gt;
+					&lt;/div&gt;
+
+					{/* Year select */}
+					&lt;div className={styles.selectWrapper}&gt;
+						&lt;div className={styles.selectLabel} aria-hidden=&quot;true&quot;&gt;
+							{format(month, &#x27;yyyy&#x27;)}
+						&lt;/div&gt;
+						&lt;div className={styles.selectIcon}&gt;
+							&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+								&lt;path
+									fill=&quot;currentColor&quot;
+									d=&quot;M8 10.15l5.27-5.27 1.48 1.49-5.27 5.26L8 13.12l-1.48-1.49-5.27-5.26 1.48-1.49z&quot;
+								/&gt;
+							&lt;/svg&gt;
+						&lt;/div&gt;
+						&lt;select
+							className={styles.selectInput}
+							value={month.getFullYear()}
+							onChange={handleYearChange}
+							aria-label=&quot;Year&quot;
+							data-test-select=&quot;year&quot;
+						&gt;
+							{years.map((year) =&gt; (
+								&lt;option key={year} value={year}&gt;
+									{year}
+								&lt;/option&gt;
+							))}
+						&lt;/select&gt;
+					&lt;/div&gt;
+				&lt;/div&gt;
+
+				&lt;div className={styles.spacer} /&gt;
+
+				{/* Navigation buttons */}
+				&lt;button
+					type=&quot;button&quot;
+					className={styles.navButton}
+					onClick={() =&gt; setMonth((m) =&gt; new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+					disabled={isPrevMonthDisabled}
+					aria-label=&quot;Previous month&quot;
+					data-test-previous-month
+				&gt;
+					&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+						&lt;path fill=&quot;currentColor&quot; d=&quot;M6.85 8l5.27 5.27-1.49 1.48-5.26-5.27L3.88 8l1.49-1.48 5.26-5.27 1.49 1.48z&quot; /&gt;
+					&lt;/svg&gt;
+				&lt;/button&gt;
+
+				&lt;button
+					type=&quot;button&quot;
+					className={styles.navButton}
+					onClick={() =&gt; setMonth((m) =&gt; new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+					disabled={isNextMonthDisabled}
+					aria-label=&quot;Next month&quot;
+					data-test-next-month
+				&gt;
+					&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;&gt;
+						&lt;path
+							fill=&quot;currentColor&quot;
+							d=&quot;M3.88 2.73l1.49-1.48 5.26 5.27L12.12 8l-1.49 1.48-5.26 5.27-1.49-1.48L9.15 8z&quot;
+						/&gt;
+					&lt;/svg&gt;
+				&lt;/button&gt;
+			&lt;/div&gt;
+
+			{/* DayPicker calendar - conditionally render based on selection type */}
+			{selectionType === &#x27;single&#x27; ? (
+				&lt;DayPicker mode=&quot;single&quot; selected={startDate} onSelect={handleSingleSelect} {...commonProps} /&gt;
+			) : (
+				&lt;DayPicker
+					mode=&quot;range&quot;
+					selected={{ from: startDate, to: endDate }}
+					onSelect={handleRangeSelect}
+					{...commonProps}
+				/&gt;
+			)}
+		&lt;/div&gt;
+	);
+}
+
+export default Calendar;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="button-with-popup.html" class="nav-btn">← button-with-popup</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="chart.html" class="nav-btn">chart →</a>
+  </div>
+</body>
+</html>

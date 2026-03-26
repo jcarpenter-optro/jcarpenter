@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>button-with-menu — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>button-with-menu</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>button-with-menu</strong> implementations exist. The Ember version is 68 lines and the React version is 320 lines. The React version is notably larger (320 vs 68 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">button-with-menu.gts</div><pre class="language-typescript">import type { WithBoundArgs } from &#x27;@glint/template&#x27;;
+
+import { concat, hash } from &#x27;@ember/helper&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import setHelper from &#x27;ember-set-helper/helpers/set&#x27;;
+
+import MenuButton from &#x27;./button-with-menu/button.gts&#x27;;
+import Menu from &#x27;./button-with-menu/menu.gts&#x27;;
+
+interface ButtonWithMenuSignature {
+	Blocks: {
+		default: [
+			{
+				Button: WithBoundArgs&lt;typeof MenuButton, &#x27;id&#x27; | &#x27;popupId&#x27; | &#x27;isOpen&#x27; | &#x27;showMenu&#x27;&gt;;
+				Popup: WithBoundArgs&lt;typeof Menu, &#x27;popupId&#x27; | &#x27;isOpen&#x27; | &#x27;relativeTo&#x27; | &#x27;hideMenu&#x27;&gt;;
+				popupIsOpen: boolean;
+				showMenu: (event: Event) =&gt; void;
+				hideMenu: () =&gt; void;
+			},
+		];
+	};
+}
+
+/**
+ * A button used to show a menu of options to the user. The menu closes once the user selects an option.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/button-with-menu.md)
+ */
+export default class ButtonWithMenu extends Component&lt;ButtonWithMenuSignature&gt; {
+	targetId = `${guidFor(this)}--target`;
+	popupId = `${guidFor(this)}--popup`;
+
+	@tracked showMenu = false;
+
+	@action
+	openMenu(event: Event) {
+		/**
+		 * This shouldn&#x27;t be necessary, but in our app we unfortunately nest
+		 * clickable elements right now so clicking the button would also
+		 * trigger another action we don&#x27;t want to.
+		 */
+		event.stopPropagation();
+
+		this.showMenu = true;
+	}
+
+	&lt;template&gt;
+		{{yield
+			(hash
+				Button=(component MenuButton id=this.targetId popupId=this.popupId isOpen=this.showMenu showMenu=this.openMenu)
+				Popup=(component
+					Menu
+					popupId=this.popupId
+					isOpen=this.showMenu
+					relativeTo=(concat &quot;#&quot; this.targetId)
+					hideMenu=(setHelper this &quot;showMenu&quot; false)
+				)
+				popupIsOpen=this.showMenu
+				showMenu=this.openMenu
+				hideMenu=(setHelper this &quot;showMenu&quot; false)
+			)
+		}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">button-with-menu.tsx</div><pre class="language-typescript">import {
+	Children,
+	createContext,
+	type MutableRefObject,
+	type ReactElement,
+	type ReactNode,
+	type Ref,
+	type RefObject,
+	useCallback,
+	useContext,
+	useId,
+	useRef,
+	useState,
+} from &#x27;react&#x27;;
+
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Button, type ButtonProps } from &#x27;../button&#x27;;
+import { Menu } from &#x27;../menu&#x27;;
+import { Option, type OptionProps } from &#x27;../option&#x27;;
+import { OptionHeading } from &#x27;../option-heading&#x27;;
+import { Popup, type PopupPlacement, usePopupContext } from &#x27;../popup&#x27;;
+
+import styles from &#x27;./button-with-menu.module.css&#x27;;
+
+/**
+ * Context for sharing menu state between ButtonWithMenu and its subcomponents
+ */
+interface ButtonWithMenuContextValue {
+	/** Whether the menu is currently open */
+	isOpen: boolean;
+	/** Open the menu */
+	showMenu: (event?: React.MouseEvent) =&gt; void;
+	/** Close the menu */
+	hideMenu: () =&gt; void;
+	/** ID of the trigger button */
+	buttonId: string;
+	/** ID of the popup menu */
+	popupId: string;
+	/** Ref to the trigger button element */
+	buttonRef: RefObject&lt;HTMLButtonElement | null&gt;;
+}
+
+const ButtonWithMenuContext = createContext&lt;ButtonWithMenuContextValue | null&gt;(null);
+
+function useButtonWithMenuContext() {
+	const context = useContext(ButtonWithMenuContext);
+	if (!context) {
+		throw new Error(&#x27;ButtonWithMenu subcomponents must be used within ButtonWithMenu&#x27;);
+	}
+	return context;
+}
+
+/**
+ * Hook to access the ButtonWithMenu control functions and state from within menu content or button children
+ */
+export function useButtonWithMenuHandle(): {
+	showMenu: (event?: React.MouseEvent) =&gt; void;
+	hideMenu: () =&gt; void;
+	popupIsOpen: boolean;
+} {
+	const context = useButtonWithMenuContext();
+	return { showMenu: context.showMenu, hideMenu: context.hideMenu, popupIsOpen: context.isOpen };
+}
+
+// ============================================================================
+// MenuButton Subcomponent
+// ============================================================================
+
+type ButtonOnlyProps = Extract&lt;ButtonProps, { href?: undefined }&gt;;
+
+type MenuButtonBaseProps = Omit&lt;ButtonOnlyProps, &#x27;active&#x27; | &#x27;aria-haspopup&#x27; | &#x27;aria-expanded&#x27; | &#x27;aria-controls&#x27;&gt;;
+
+export type MenuButtonProps = ComponentPropsWithRef&lt;MenuButtonBaseProps, HTMLButtonElement&gt;;
+
+/**
+ * The trigger button for ButtonWithMenu.
+ * Automatically handles ARIA attributes and active state.
+ */
+export function MenuButton(props: MenuButtonProps) {
+	const { ref, children, onClick, ...buttonProps } = props;
+	const { isOpen, showMenu, buttonId, popupId, buttonRef } = useButtonWithMenuContext();
+
+	type ButtonClickEvent = Parameters&lt;NonNullable&lt;MenuButtonProps[&#x27;onClick&#x27;]&gt;&gt;[0];
+
+	const handleClick = useCallback(
+		(event: ButtonClickEvent) =&gt; {
+			event.stopPropagation();
+			showMenu(event);
+			onClick?.(event);
+		},
+		[showMenu, onClick],
+	);
+
+	// Merge refs
+	const setRef = useCallback(
+		(el: HTMLButtonElement | null) =&gt; {
+			(buttonRef as MutableRefObject&lt;HTMLButtonElement | null&gt;).current = el;
+			if (typeof ref === &#x27;function&#x27;) {
+				ref(el);
+			} else if (ref) {
+				(ref as MutableRefObject&lt;HTMLButtonElement | null&gt;).current = el;
+			}
+		},
+		[buttonRef, ref],
+	);
+
+	return (
+		&lt;Button
+			ref={setRef}
+			id={buttonId}
+			active={isOpen}
+			aria-haspopup=&quot;menu&quot;
+			aria-expanded={isOpen}
+			aria-controls={popupId}
+			data-qid-luna-button-with-menu-button
+			onClick={handleClick}
+			{...buttonProps}
+		&gt;
+			{children}
+		&lt;/Button&gt;
+	);
+}
+
+MenuButton.displayName = &#x27;ButtonWithMenu.Button&#x27;;
+MenuButton.$$lunaBwmButton = true as const;
+
+// ============================================================================
+// MenuPopup Subcomponent
+// ============================================================================
+
+interface MenuPopupBaseProps {
+	/** Popup placement relative to the button */
+	placement?: PopupPlacement;
+	/** Whether to show an arrow */
+	enableArrow?: boolean;
+	/** Children content - use ButtonWithMenu.Option for menu items */
+	children?: ReactNode;
+	/** Additional class name */
+	className?: string;
+}
+
+export type MenuPopupProps = MenuPopupBaseProps;
+
+/**
+ * The popup menu for ButtonWithMenu.
+ * Automatically positions relative to the trigger button and closes on option click.
+ */
+export function MenuPopup({ placement = &#x27;bottom-start&#x27;, enableArrow, children, className }: MenuPopupProps) {
+	const { isOpen, hideMenu, buttonId: _buttonId, popupId, buttonRef } = useButtonWithMenuContext();
+
+	return (
+		&lt;Popup
+			id={popupId}
+			show={isOpen}
+			trapFocus={true}
+			onClose={hideMenu}
+			relativeTo={buttonRef}
+			enableArrow={enableArrow}
+			placement={placement}
+			className={className}
+			initialFocusSelector=&quot;[role=menuitem]&quot;
+			data-qid-luna-button-with-menu-menu
+		&gt;
+			&lt;div className={styles.overflow}&gt;
+				&lt;Menu&gt;{children}&lt;/Menu&gt;
+			&lt;/div&gt;
+		&lt;/Popup&gt;
+	);
+}
+
+MenuPopup.displayName = &#x27;ButtonWithMenu.Menu&#x27;;
+MenuPopup.$$lunaBwmMenu = true as const;
+
+// ============================================================================
+// MenuOption Subcomponent
+// ============================================================================
+
+export interface MenuOptionProps extends OptionProps {
+	/** Forwarded ref to the underlying option element */
+	ref?: Ref&lt;HTMLButtonElement | HTMLAnchorElement&gt;;
+	/** Children content */
+	children?: React.ReactNode;
+}
+
+/**
+ * An option within the ButtonWithMenu popup.
+ * Automatically closes the menu when clicked.
+ */
+export function MenuOption(props: MenuOptionProps) {
+	const { ref, onClick, children, ...optionProps } = props;
+	const popupContext = usePopupContext();
+
+	const handleClick = useCallback(() =&gt; {
+		onClick?.();
+		// Close the popup after the option action
+		popupContext?.close(&#x27;manual&#x27;);
+	}, [onClick, popupContext]);
+
+	return (
+		&lt;Option ref={ref} onClick={handleClick} {...optionProps}&gt;
+			{children}
+		&lt;/Option&gt;
+	);
+}
+
+MenuOption.displayName = &#x27;ButtonWithMenu.Option&#x27;;
+MenuOption.$$lunaBwmOption = true as const;
+
+// Re-export OptionHeading for use in menus
+export { OptionHeading };
+
+// ============================================================================
+// Slot Extraction
+// ============================================================================
+
+/**
+ * Extract button and menu slots from children
+ */
+function extractButtonWithMenuSlots(children: ReactNode): {
+	buttonSlot: ReactElement | null;
+	menuSlot: ReactElement | null;
+	otherChildren: ReactNode[];
+} {
+	let buttonSlot: ReactElement | null = null;
+	let menuSlot: ReactElement | null = null;
+	const otherChildren: ReactNode[] = [];
+
+	Children.forEach(children, (child) =&gt; {
+		if (!child || typeof child !== &#x27;object&#x27; || !(&#x27;type&#x27; in child)) {
+			otherChildren.push(child);
+			return;
+		}
+
+		const element = child as ReactElement &amp; {
+			type: { $$lunaBwmButton?: boolean; $$lunaBwmMenu?: boolean };
+		};
+
+		if (element.type?.$$lunaBwmButton) {
+			buttonSlot = element;
+		} else if (element.type?.$$lunaBwmMenu) {
+			menuSlot = element;
+		} else {
+			otherChildren.push(child);
+		}
+	});
+
+	return { buttonSlot, menuSlot, otherChildren };
+}
+
+// ============================================================================
+// ButtonWithMenu Main Component
+// ============================================================================
+
+export interface ButtonWithMenuProps {
+	/** Children components - use ButtonWithMenu.Button and ButtonWithMenu.Menu */
+	children: ReactNode;
+}
+
+/**
+ * A button used to show a menu of options to the user.
+ * The menu closes once the user selects an option.
+ *
+ * @example
+ * ```tsx
+ * &lt;ButtonWithMenu&gt;
+ *   &lt;ButtonWithMenu.Button&gt;Options&lt;/ButtonWithMenu.Button&gt;
+ *   &lt;ButtonWithMenu.Menu&gt;
+ *     &lt;ButtonWithMenu.Option onClick={() =&gt; console.log(&#x27;Edit&#x27;)}&gt;Edit&lt;/ButtonWithMenu.Option&gt;
+ *     &lt;ButtonWithMenu.Option onClick={() =&gt; console.log(&#x27;Delete&#x27;)}&gt;Delete&lt;/ButtonWithMenu.Option&gt;
+ *   &lt;/ButtonWithMenu.Menu&gt;
+ * &lt;/ButtonWithMenu&gt;
+ * ```
+ */
+function ButtonWithMenuComponent({ children }: ButtonWithMenuProps) {
+	const id = useId();
+	const buttonId = `${id}--target`;
+	const popupId = `${id}--popup`;
+	const buttonRef = useRef&lt;HTMLButtonElement | null&gt;(null);
+
+	const [isOpen, setIsOpen] = useState(false);
+
+	const showMenu = useCallback((event?: React.MouseEvent) =&gt; {
+		event?.stopPropagation();
+		setIsOpen(true);
+	}, []);
+
+	const hideMenu = useCallback(() =&gt; {
+		setIsOpen(false);
+	}, []);
+
+	const contextValue: ButtonWithMenuContextValue = {
+		isOpen,
+		showMenu,
+		hideMenu,
+		buttonId,
+		popupId,
+		buttonRef,
+	};
+
+	const { buttonSlot, menuSlot } = extractButtonWithMenuSlots(children);
+
+	return (
+		&lt;ButtonWithMenuContext.Provider value={contextValue}&gt;
+			{buttonSlot}
+			{menuSlot}
+		&lt;/ButtonWithMenuContext.Provider&gt;
+	);
+}
+
+// Attach subcomponents
+const ButtonWithMenu = Object.assign(ButtonWithMenuComponent, {
+	Button: MenuButton,
+	Menu: MenuPopup,
+	Option: MenuOption,
+	Heading: OptionHeading,
+});
+
+export { ButtonWithMenu };
+
+export default ButtonWithMenu;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="button.html" class="nav-btn">← button</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="button-with-popup.html" class="nav-btn">button-with-popup →</a>
+  </div>
+</body>
+</html>

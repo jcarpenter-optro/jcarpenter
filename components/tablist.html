@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>tablist — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>tablist</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>tablist</strong> implementations exist. The Ember version is 1518 lines and the React version is 961 lines. The Ember version is notably larger (1518 vs 961 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">tablist.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports, ember/no-runloop */
+import { TrackedMap } from &#x27;tracked-built-ins&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { concat, fn, hash } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type RouterService from &#x27;@ember/routing/router-service&#x27;;
+import type Transition from &#x27;@ember/routing/transition&#x27;;
+import { later, next, schedule } from &#x27;@ember/runloop&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import { buildWaiter } from &#x27;@ember/test-waiters&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { cached, tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { element as elementHelper } from &#x27;ember-element-helper&#x27;;
+import formatMessage from &#x27;ember-intl/helpers/format-message&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { modifier as templateModifier } from &#x27;ember-modifier&#x27;;
+import sortableGroup from &#x27;ember-sortable/modifiers/sortable-group&#x27;;
+import sortableItem from &#x27;ember-sortable/modifiers/sortable-item&#x27;;
+import { and, eq, not, or } from &#x27;ember-truth-helpers&#x27;;
+
+import a11yFocusLayer from &#x27;../modifiers/a11y-focus-layer.ts&#x27;;
+import onClickOutside from &#x27;../modifiers/on-click-outside.ts&#x27;;
+import onResize from &#x27;../modifiers/on-resize.ts&#x27;;
+import tooltip from &#x27;../modifiers/tooltip.ts&#x27;;
+import type AnnouncerService from &#x27;../services/announcer.ts&#x27;;
+import { decodeEntities } from &#x27;../utils/encoding.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import ButtonWithMenu from &#x27;./button-with-menu.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+
+const testWaiter = buildWaiter(&#x27;luna:tablist&#x27;);
+
+export const OVERFLOW_MENU_BUTTON_WIDTH = 44;
+export const COMPACT_PINNED_TAB_WIDTH = 44;
+export const MIN_BALANCED_TAB_WIDTH = 90;
+export const MAX_BALANCED_TAB_WIDTH = 220;
+
+export interface TablistGroup&lt;V&gt; {
+	id: string;
+	tabs: Array&lt;TablistTab&lt;V&gt;&gt;;
+	/**
+	 * Whether the tabs in this group should be locked from reordering or closing,
+	 * even when the onReorder or onDelete actions are passed in.
+	 */
+	isLocked?: boolean;
+}
+
+export interface TablistTabMenuItem {
+	label: string;
+	action?: (option: TablistTab&lt;string&gt;) =&gt; void;
+	href?: string;
+}
+
+export interface TablistTab&lt;V&gt; {
+	value: V;
+	href?: string;
+	action?: () =&gt; void;
+	label?: string;
+	/**
+	 * Whether the tab is pinned and always visible.
+	 * When true, the tab will be condensed.
+	 */
+	isPinned?: boolean;
+	count?: number;
+	currentWhenUrls?: string[];
+	tooltip?: string;
+	width?: number;
+	icon?: string;
+	menuItems?: TablistTabMenuItem[];
+	/**
+	 * Optional override to the &quot;Tablist__Link&quot; data-qid attribute.
+	 * Used by `soxhub-navtab` to exclude utility tabs otherwise easily
+	 * targeting link tabs by data-qid.
+	 */
+	qid?: string;
+}
+
+type TablistOptionArg&lt;V&gt; = TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;;
+
+/**
+ * Extracts the correct yield type based on the option type:
+ * - When options are tabs (or extended tabs), preserves the original type
+ * - When options are groups, yields TablistTab&lt;V&gt;
+ */
+type TabYieldType&lt;V, O extends TablistOptionArg&lt;V&gt;&gt; = O extends TablistGroup&lt;V&gt; ? TablistTab&lt;V&gt; : O;
+
+interface LunaTablistSignature&lt;V, O extends TablistOptionArg&lt;V&gt;&gt; {
+	Element: HTMLDivElement;
+	Args: {
+		value?: V | null;
+		variant?: &#x27;default&#x27; | &#x27;unstyled&#x27;;
+		size?: &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+		options: O[];
+		activeTab?: TablistTab&lt;V&gt;;
+		direction?: &#x27;x&#x27;;
+		/**
+		 * A private argument used by `soxhub-navtabs` to explicitly avoid the `tablist`
+		 * role that could be assigned when no tabs are present. Role is otherwise deduced
+		 * by the presence of tabs with an `href` attribute.
+		 */
+		roleIsNav?: boolean;
+		context?: { fullUrlPathName: string; isQuickView?: boolean };
+		shouldBalanceTabs?: boolean;
+		shouldUseCompactPinnedTabs?: boolean;
+		onItemClick?: (tab?: TablistTab&lt;V&gt;) =&gt; void;
+		onReorder?: (value: unknown[]) =&gt; unknown;
+		onChange?: (value: V | null) =&gt; unknown;
+		onDelete?: (value: V) =&gt; unknown;
+		onSelectOption?: (value: V) =&gt; unknown;
+	};
+	Blocks: {
+		&#x27;before&#x27;: [];
+		&#x27;default&#x27;: [option: TabYieldType&lt;V, O&gt;];
+		&#x27;menu-option&#x27;: [option: TabYieldType&lt;V, O&gt;];
+	};
+}
+
+/**
+ * A component for creating a tabbed interface.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/tablist.md)
+ */
+export default class LunaTablist&lt;V extends string, O extends TablistOptionArg&lt;V&gt;&gt; extends Component&lt;
+	LunaTablistSignature&lt;V, O&gt;
+&gt; {
+	@service declare router: RouterService;
+	@service declare intl: IntlService;
+	@service(&#x27;luna/announcer&#x27;) declare announcer: AnnouncerService;
+
+	/**
+	 * The element containing all tab groups. Registered on render;
+	 * used in querySelector calls and for measuring the space available for tabs.
+	 */
+	@tracked tablistElement: HTMLElement | null = null;
+
+	/**
+	 * The before-block element. Registered and measured on render; remeasured on resize.
+	 * Used for measuring the space available for tabs.
+	 */
+	@tracked beforeBlockElement: HTMLElement | null = null;
+
+	/**
+	 * The element containing the overflow menu button. Used in focus calls
+	 * when navigating using the keyboard.
+	 */
+	@tracked tabOverflowButton: HTMLElement | null = null;
+
+	/**
+	 * Whether the user is reordering tabs using the keyboard. True when the
+	 * user presses space on a focused tab. When true, determines how keyboard
+	 * navigation behaves.
+	 */
+	@tracked isReorderingViaKeyboard = false;
+
+	/**
+	 * Width of the container holding all the tabs in px. This will get
+	 * updated if the element changes size for any reason.
+	 */
+	@tracked tablistWidth?: number;
+
+	/**
+	 * Width of the before block in px. Used to determine how many tabs can fit
+	 * on the screen before truncation. Captured on render; updated on resize.
+	 */
+	@tracked beforeBlockWidth?: number;
+
+	/**
+	 * The API for the tab menu, registered on button render.
+	 * Used to programmatically toggle the menu in cases where the mnu
+	 * is not focusable, such as in a tab&#x27;s action menu.
+	 */
+	@tracked
+	tablistMenuApi: {
+		menuIsShown: boolean;
+		showMenu: (_event: Event) =&gt; void;
+		hideMenu: (_event: Event) =&gt; void;
+	} | null = null;
+
+	/**
+	 * For the purpose of calculating how many tabs we can show and how many should go
+	 * into the overflow menu, we store the width of each tab.
+	 */
+	tabWidths = new TrackedMap&lt;V, number&gt;();
+
+	/**
+	 * Keeps track of which of the tabs is focusable. When the user tabs off and back onto
+	 * Tablist the same tab should receive focus. It is not necessarily the same tab
+	 * as the one that is selected.
+	 */
+	// Allowing nullish because this can actually be a string
+	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+	@tracked _focusableTabValue: V | null = (this.activeTab?.value || this.sortedAllTabs[0]?.value) ?? null;
+
+	/**
+	 * The key of the tab that is being closed. Set on close; used by
+	 * `getTabTooltipIsDisabled` to disable the tooltip before its anchor is removed
+	 * from the DOM, preventing the tooltip from getting stuck in the top left corner.
+	 */
+	@tracked keyOfTabBeingClosed: string | null = null;
+
+	/**
+	 * The key of the tab being opened. Set on open; used by `getTabTooltipIsDisabled`
+	 * to disable the tooltip when a tab is activated by the keyboard.
+	 * (The tooltip modifier handles this automatically on click.)
+	 */
+	@tracked keyOfTabBeingOpened: string | null = null;
+
+	/**
+	 * The option format to save when the onReorder action is called.
+	 * Determined by the format of the options passed in.
+	 */
+	get optionTypeToSave(): &#x27;group&#x27; | &#x27;tab&#x27; {
+		if (this.args.options[0] &amp;&amp; &#x27;tabs&#x27; in this.args.options[0]) {
+			return &#x27;group&#x27;;
+		}
+		return &#x27;tab&#x27;;
+	}
+
+	get pinnedTabs() {
+		return this.allTabs.filter((tab) =&gt; tab.isPinned);
+	}
+
+	get unpinnedTabs() {
+		return this.allTabs.filter((tab) =&gt; !tab.isPinned);
+	}
+
+	/**
+	 * Whether to use the `tablist`/`tab` semantics which require the use of
+	 * corresponding `tabpanel`s. True for simple, button-based tablists unless
+	 * explicitly overridden by the `roleIsNav` argument.
+	 */
+	get roleIsTablist() {
+		return (
+			!this.args.onDelete &amp;&amp;
+			!this.sortedAllTabs.some((tab) =&gt; tab.menuItems?.length) &amp;&amp;
+			this.args.roleIsNav !== true &amp;&amp;
+			!!this.sortedAllTabs.length &amp;&amp;
+			this.sortedAllTabs.every((tab) =&gt; tab.href === undefined)
+		);
+	}
+
+	/**
+	 * Whether the role of the tablist is essentially a nav.
+	 * When true, the `tablist`/`tab` roles are omitted, and the aria attribute
+	 * designating the active tab will be slightly different.
+	 */
+	get roleIsNav() {
+		return this.roleIsTablist === false;
+	}
+
+	/**
+	 * A TablistTab-shaped representation of the overflow tab.
+	 * Used for overflow-button attributes and in focusedTab targeting.
+	 */
+	get overflowTab(): TablistTab&lt;V&gt; {
+		return {
+			value: `tablist-overflow-button-${guidFor(this)}` as V,
+			label: this.intl.t(&#x27;input.tablist.overflow.button&#x27;),
+		};
+	}
+
+	/**
+	 * Whether the overflow menu button is focused. Used to determine
+	 * where focus should move when navigating using the keyboard.
+	 */
+	get tabOverflowButtonIsFocused() {
+		return this._focusableTabValue === this.overflowTab.value;
+	}
+
+	/**
+	 * The tab groups to loop through. If the options are groups, we use them.
+	 * Otherwise, we assign a default group, with pinned tabs in a separate &quot;pinned&quot; group.
+	 * Pinned tabs are moved to the front of their respective groups.
+	 */
+	get tabGroups() {
+		const { options } = this.args;
+
+		if (this.optionTypeToSave === &#x27;group&#x27;) {
+			const groups = options as Array&lt;TablistGroup&lt;V&gt;&gt;;
+			return groups.map((group) =&gt; ({
+				...group,
+				tabs: this.sortTabsWithPinnedFirst(group.tabs),
+			}));
+		}
+
+		const groups: Array&lt;TablistGroup&lt;V&gt;&gt; = [];
+
+		// If there are pinned tabs, create a separate &quot;pinned&quot; group
+		if (this.pinnedTabs.length &gt; 0) {
+			groups.push({
+				id: &#x27;pinned&#x27;,
+				tabs: this.pinnedTabs,
+			});
+		}
+
+		// Create the default group for unpinned tabs
+		if (this.unpinnedTabs.length &gt; 0) {
+			groups.push({
+				id: &#x27;default&#x27;,
+				tabs: this.unpinnedTabs,
+			});
+		}
+
+		return groups;
+	}
+
+	/**
+	 * Sorts tabs to put pinned tabs first, maintaining the original order within each category.
+	 */
+	sortTabsWithPinnedFirst(tabs: Array&lt;TablistTab&lt;V&gt;&gt;): Array&lt;TablistTab&lt;V&gt;&gt; {
+		return [...tabs].sort((a, b) =&gt; {
+			if (a.isPinned === b.isPinned) {
+				return 0;
+			}
+
+			return a.isPinned ? -1 : 1;
+		});
+	}
+
+	set focusableTab(tab: TablistTab&lt;V&gt; | undefined) {
+		this._focusableTabValue = tab?.value ?? null;
+	}
+
+	@cached
+	get focusableTab(): TablistTab&lt;V&gt; | undefined {
+		if (this.tabOverflowButtonIsFocused) {
+			return this.overflowTab;
+		}
+
+		let focusableTab = this.sortedAllTabs.find((tab) =&gt; tab.value === this._focusableTabValue);
+
+		if (!focusableTab) {
+			const activeTabValue = this.activeTab?.value;
+			if (activeTabValue) {
+				focusableTab = this.sortedAllTabs.find((tab) =&gt; tab.value === activeTabValue);
+			}
+		}
+
+		return focusableTab;
+	}
+
+	/**
+	 * A flatted array of all tabs passed in via the `options` arg.
+	 * Used by the pinnedTabs and unpinnedTabs getters.
+	 */
+	get allTabs(): Array&lt;TablistTab&lt;V&gt;&gt; {
+		const { options } = this.args;
+
+		let tabs: Array&lt;TablistTab&lt;V&gt;&gt; = [];
+
+		for (const option of options) {
+			if (&#x27;tabs&#x27; in option) {
+				// It&#x27;s a group; push its tabs into the array.
+				tabs = tabs.concat(option.tabs);
+			} else {
+				// It&#x27;s a tab; push it into the array.
+				tabs.push(option);
+			}
+		}
+		return tabs;
+	}
+	/**
+	 * A flatted array of all tabs, ordered by group and pinned status.
+	 * Looped through or filtered when determining overflowTabs and keyboard navigation.
+	 */
+	get sortedAllTabs(): Array&lt;TablistTab&lt;V&gt;&gt; {
+		return this.tabGroups.flatMap((group) =&gt; group.tabs);
+	}
+
+	/**
+	 * Tabs that live within the overflow menu. Looped through by ButtonWithMenu,
+	 * and used in some keyboard-navigation scenarios.
+	 */
+	@cached
+	get overflowTabs() {
+		return this.sortedAllTabs.filter((tab) =&gt; !this.visibleTabs.includes(tab));
+	}
+
+	/**
+	 * The visible tabs as determined by available space in the tablistElement.
+	 * Any tabs that don&#x27;t fit are moved to the overflow menu.
+	 * Pinned tabs are always visible and never moved to overflow.
+	 */
+	@cached
+	get visibleTabs() {
+		const { activeTab, focusableTab, tabWidths } = this;
+		const visibleTabs: Array&lt;TablistTab&lt;V&gt;&gt; = [];
+
+		let widthAvailable = this.tablistWidth
+			? this.tablistWidth - OVERFLOW_MENU_BUTTON_WIDTH - (this.beforeBlockWidth ?? 0)
+			: 0;
+
+		visibleTabs.push(...this.pinnedTabs);
+
+		// Reserve space for selected tab if it&#x27;s not pinned and not already counted
+		if (activeTab &amp;&amp; !activeTab.isPinned) {
+			visibleTabs.push(activeTab);
+			widthAvailable -= this.args.shouldBalanceTabs ? MIN_BALANCED_TAB_WIDTH : (tabWidths.get(activeTab.value) ?? 0);
+		}
+
+		// Reserve space for focusable tab if it&#x27;s different from selected and not pinned
+		if (
+			focusableTab &amp;&amp;
+			focusableTab !== activeTab &amp;&amp;
+			!focusableTab.isPinned &amp;&amp;
+			focusableTab.value !== this.overflowTab.value
+		) {
+			visibleTabs.push(focusableTab);
+			widthAvailable -= this.args.shouldBalanceTabs ? MIN_BALANCED_TAB_WIDTH : (tabWidths.get(focusableTab.value) ?? 0);
+		}
+
+		const notYetVisibleUnpinnedTabs = this.unpinnedTabs.filter((tab) =&gt; !visibleTabs.includes(tab));
+
+		if (this.args.shouldBalanceTabs) {
+			widthAvailable -=
+				(this.args.shouldUseCompactPinnedTabs ? COMPACT_PINNED_TAB_WIDTH : MIN_BALANCED_TAB_WIDTH) *
+				this.pinnedTabs.length;
+
+			notYetVisibleUnpinnedTabs.forEach((tab) =&gt; {
+				if (widthAvailable &gt;= MIN_BALANCED_TAB_WIDTH) {
+					widthAvailable -= MIN_BALANCED_TAB_WIDTH;
+					visibleTabs.push(tab);
+				}
+			});
+		} else {
+			// Calculate reserved width for pinned tabs
+			const pinnedTabsWidth = this.pinnedTabs.reduce((total, tab) =&gt; {
+				return (
+					total + (tabWidths.get(tab.value) ?? (this.args.shouldUseCompactPinnedTabs ? COMPACT_PINNED_TAB_WIDTH : 0))
+				);
+			}, 0);
+			// Calculate width available for non-pinned tabs
+			// Reserve space for overflow button and selected/focusable tabs if they&#x27;re not pinned
+			widthAvailable -= pinnedTabsWidth;
+
+			this.unpinnedTabs.forEach((tab) =&gt; {
+				// Skip tabs that are already guaranteed to be visible (selected/focusable)
+				if (tab === activeTab || tab === focusableTab) {
+					if (!visibleTabs.includes(tab)) {
+						visibleTabs.push(tab);
+					}
+					return;
+				}
+
+				// Check if this tab fits in the available space
+				const tabWidth = tabWidths.get(tab.value) ?? 0;
+				if (widthAvailable &gt;= tabWidth) {
+					widthAvailable -= tabWidth;
+					if (!visibleTabs.includes(tab)) {
+						visibleTabs.push(tab);
+					}
+				}
+			});
+		}
+
+		/**
+		 * Use `allTabs` as the basis since it preserves the order
+		 * Pinned tabs will always be included since they&#x27;re added first and never removed
+		 */
+		return this.sortedAllTabs.filter((tab) =&gt; visibleTabs.includes(tab));
+	}
+
+	/**
+	 * Whether reordering is enabled for tablist groups. True if an `onReorder`
+	 * function was passed in, unless the group is specifically marked `isLocked`.
+	 */
+	get reorderingIsEnabled() {
+		return Boolean(this.args.onReorder);
+	}
+
+	/**
+	 * The current URL, used for determining the selected tab. When the url matches
+	 * the href of the tab, that tab will be shown as active.
+	 */
+	@cached
+	get currentUrl(): string {
+		const { context } = this.args;
+
+		if (context) {
+			return context.fullUrlPathName || &#x27;&#x27;;
+		}
+
+		if (!this.router.currentURL) {
+			return &#x27;&#x27;;
+		}
+
+		const url = new URL(this.router.currentURL, window.location.origin);
+		return url.pathname || &#x27;&#x27;;
+	}
+
+	/**
+	 * The currently selected tab. Determined by the activeTab argument if provided,
+	 * otherwise by matching the current URL to the href of a tab. Always visible.
+	 */
+	get activeTab(): TablistTab&lt;V&gt; | undefined {
+		if (this.args.activeTab) return this.args.activeTab;
+
+		const { currentUrl } = this;
+
+		return this.sortedAllTabs?.find((tab) =&gt; {
+			if (tab.currentWhenUrls) {
+				return tab.currentWhenUrls.includes(currentUrl);
+			} else if (tab.href) {
+				// Check both exact match and pathname-only match for tabs with query params
+				if (currentUrl === tab.href) {
+					return true;
+				}
+
+				// Extract pathname from tab.href to compare with currentUrl (which is pathname-only)
+				try {
+					const tabUrl = new URL(tab.href, window.location.origin);
+					return currentUrl === tabUrl.pathname;
+				} catch {
+					// If tab.href is already a pathname, compare directly
+					const tabPathname = tab.href.split(&#x27;?&#x27;)[0];
+					return currentUrl === tabPathname;
+				}
+			}
+			return tab.value === this.args.value;
+		});
+	}
+
+	/**
+	 * Custom properties passed to CSS via the style attribute of the container.
+	 */
+	get cssCustomProperties() {
+		const styles: string[] = [`--tablist-overflow-menu-button-width: ${OVERFLOW_MENU_BUTTON_WIDTH}px;`];
+
+		if (this.args.shouldUseCompactPinnedTabs) {
+			styles.push(`--tablist-compact-pinned-tab-width: ${COMPACT_PINNED_TAB_WIDTH}px;`);
+		}
+
+		if (this.args.shouldBalanceTabs) {
+			styles.push(`--tablist-balanced-tab-width: ${this.balancedTabWidth}px;`);
+		}
+
+		return styles.join(&#x27; &#x27;);
+	}
+
+	/**
+	 * Moves focus to the tab associated with the key pressed.
+	 * If the user is reordering tabs via keyboard,
+	 * moves the tab within its group.
+	 */
+	moveTabOrChangeFocus(event: KeyboardEvent) {
+		const acceptedKeys: string[] = [
+			KEYBOARD_KEYS.LEFT_ARROW,
+			KEYBOARD_KEYS.RIGHT_ARROW,
+			KEYBOARD_KEYS.HOME,
+			KEYBOARD_KEYS.END,
+		];
+
+		if (!acceptedKeys.includes(event.key)) {
+			return;
+		}
+
+		event.stopPropagation();
+		event.preventDefault();
+
+		const { visibleTabs } = this;
+
+		switch (event.key) {
+			case KEYBOARD_KEYS.LEFT_ARROW:
+				this.onLeftArrow();
+				break;
+
+			case KEYBOARD_KEYS.RIGHT_ARROW:
+				this.onRightArrow();
+				break;
+
+			case KEYBOARD_KEYS.HOME:
+				this.focusableTab = visibleTabs[0];
+				break;
+
+			case KEYBOARD_KEYS.END:
+				if (this.overflowTabs.length) {
+					this.focusTabOverflowButton();
+				} else {
+					this.focusableTab = visibleTabs[visibleTabs.length - 1];
+				}
+				break;
+		}
+
+		if (this.tabOverflowButtonIsFocused) {
+			assert(&#x27;tabOverflowButton must exist&#x27;, this.tabOverflowButton);
+			this.tabOverflowButton.focus();
+		} else {
+			this.focusFocusableTab(event.key);
+		}
+	}
+
+	/**
+	 * The action used when moving a tab via keyboard arrows.
+	 * Constrains tab movement within its group and respects pinned tab boundaries.
+	 */
+	moveTabWithinGroup(direction: &#x27;left&#x27; | &#x27;right&#x27;) {
+		if (!this.isReorderingViaKeyboard || !this.focusableTab) {
+			return;
+		}
+
+		// Find which group contains the focusable tab
+		const focusableTab = this.focusableTab;
+		const groupContainingTab = this.getGroupContainingTab(focusableTab);
+
+		if (!groupContainingTab) {
+			return;
+		}
+
+		const groupTabs = groupContainingTab.tabs;
+		const currentIndex = groupTabs.indexOf(focusableTab);
+		const isMovingLeft = direction === &#x27;left&#x27;;
+		const targetIndex = isMovingLeft ? currentIndex - 1 : currentIndex + 1;
+
+		// Check bounds
+		if (targetIndex &lt; 0 || targetIndex &gt;= groupTabs.length) {
+			return;
+		}
+
+		const targetTab = groupTabs[targetIndex];
+
+		// Check if target tab exists and prevent moving pinned tabs past unpinned tabs and vice versa
+		if (!targetTab || focusableTab.isPinned !== targetTab.isPinned) {
+			return;
+		}
+
+		// Create new array with the tab moved
+		const newGroupTabs = [...groupTabs];
+		const [movedTab] = newGroupTabs.splice(currentIndex, 1);
+
+		if (movedTab) {
+			newGroupTabs.splice(targetIndex, 0, movedTab);
+
+			this.announcer.announce(
+				this.intl.t(&#x27;tablist.moved&#x27;, {
+					tabLabel: movedTab.label || movedTab.value,
+					position: targetIndex + 1,
+					total: newGroupTabs.length,
+				}),
+				{ urgency: &#x27;polite&#x27; },
+			); // Call onReorder with the group&#x27;s tabs as both old and new order
+			// The onReorder method will handle updating the group and calling the callback
+			this.onReorder(groupTabs, newGroupTabs, focusableTab);
+		}
+	}
+
+	/**
+	 * The action to move focus or a grabbed tab left.
+	 */
+	onLeftArrow() {
+		const { visibleTabs } = this;
+		if (this.isReorderingViaKeyboard &amp;&amp; this.focusableTab) {
+			this.moveTabWithinGroup(&#x27;left&#x27;);
+		} else if (this.tabOverflowButtonIsFocused) {
+			this.focusableTab = visibleTabs[visibleTabs.length - 1];
+		} else {
+			const indexOfFocusableTab = this.focusableTab ? visibleTabs.indexOf(this.focusableTab) : -1;
+
+			if (indexOfFocusableTab &gt; 0) {
+				this.focusableTab = visibleTabs[indexOfFocusableTab - 1];
+			}
+		}
+	}
+
+	/**
+	 * The action to move focus or a grabbed tab right.
+	 */
+	onRightArrow() {
+		const { visibleTabs } = this;
+		if (this.isReorderingViaKeyboard &amp;&amp; this.focusableTab) {
+			this.moveTabWithinGroup(&#x27;right&#x27;);
+		} else {
+			if (this.tabOverflowButtonIsFocused) {
+				return;
+			}
+
+			const indexOfFocusableTab = this.focusableTab ? visibleTabs.indexOf(this.focusableTab) : -1;
+
+			if (indexOfFocusableTab === visibleTabs.length - 1 &amp;&amp; this.overflowTabs.length) {
+				this.focusTabOverflowButton();
+			} else if (indexOfFocusableTab &lt; visibleTabs.length - 1) {
+				this.focusableTab = visibleTabs[indexOfFocusableTab + 1];
+			}
+		}
+	}
+
+	/**
+	 * Returns the group that contains a given tab. Used as a utility when determining
+	 * reorder boundaries and when moving an overflow tab into the visible tablist.
+	 */
+	getGroupContainingTab = (tab: TablistTab&lt;V&gt; | undefined) =&gt; {
+		if (!tab) return;
+		return this.tabGroups.find((group) =&gt; group.tabs.includes(tab));
+	};
+
+	/**
+	 * The action to focus the &quot;focusable&quot; tab. Finds the tab by its
+	 * value-associated element and focuses it. Called after a selection or reorder action.
+	 */
+	focusFocusableTab(key?: string) {
+		const { tablistElement, focusableTab } = this;
+
+		if (focusableTab &amp;&amp; tablistElement) {
+			const selector = `[data-tab=&quot;${focusableTab.value}&quot;]`;
+			const tabElement = tablistElement.querySelector(selector);
+			if (tabElement) {
+				assert(&#x27;Expected selected tab to be an HTMLElement&#x27;, tabElement instanceof HTMLElement);
+				tabElement.focus();
+
+				// If we&#x27;re focusing due to keyboard navigation, dispatch a synthetic keyup event
+				// to trigger tooltip behavior, since the tooltip modifier expects a keyup event
+				// on the newly focused element to determine if it should show a tooltip
+				if (key) {
+					const keyupEvent = new KeyboardEvent(&#x27;keyup&#x27;, {
+						key,
+						bubbles: true,
+						cancelable: true,
+					});
+					tabElement.dispatchEvent(keyupEvent);
+				}
+			}
+		}
+	}
+
+	/**
+	 * The action to close a tab and move focus to the next logical tab.
+	 * Called when the close button is clicked or on delete/backspace on a focused tab.
+	 */
+	closeTab = (tab: TablistTab&lt;V&gt;, event?: Event) =&gt; {
+		assert(&#x27;[BUG] Expected onDelete to be set&#x27;, this.args.onDelete);
+
+		if (this.getGroupContainingTab(tab)?.isLocked) return;
+
+		this.keyOfTabBeingClosed = tab.value;
+		schedule(&#x27;afterRender&#x27;, () =&gt; (this.keyOfTabBeingClosed = null));
+
+		if (event) {
+			event.stopPropagation();
+			event.preventDefault();
+		}
+
+		const { sortedAllTabs } = this;
+		const currentTabIndex = sortedAllTabs.indexOf(tab);
+
+		// Determine which tab should receive focus after deletion
+		let nextFocusableTab: TablistTab&lt;V&gt; | undefined;
+
+		if (sortedAllTabs.length === 1) {
+			// If we&#x27;re closing the absolutely last tab, there are no tabs to focus
+			nextFocusableTab = undefined;
+		} else if (currentTabIndex !== 0) {
+			// Focus the previous tab if one exists
+			nextFocusableTab = sortedAllTabs[currentTabIndex - 1];
+		} else {
+			// Otherwise, focus the next tab
+			nextFocusableTab = sortedAllTabs[currentTabIndex + 1];
+		}
+
+		// Update selection if we&#x27;re deleting the selected tab
+		if (tab === this.activeTab) {
+			this.onTabClick(nextFocusableTab, &#x27;close&#x27;);
+		}
+
+		this.focusableTab = nextFocusableTab;
+
+		// Focus the next tab before deleting the current one to avoid focus jumping to body
+		if (nextFocusableTab &amp;&amp; this.tablistElement) {
+			const selector = `[data-tab=&quot;${nextFocusableTab.value}&quot;]`;
+			const tabElement = this.tablistElement.querySelector(selector);
+
+			if (tabElement instanceof HTMLElement) {
+				tabElement.focus();
+			} else if (this.overflowTabs.length) {
+				assert(&#x27;tabOverflowButton must exist&#x27;, this.tabOverflowButton);
+				this.tabOverflowButton.focus();
+			}
+		}
+
+		// Now delete the tab
+		this.args.onDelete?.(tab.value);
+	};
+
+	/**
+	 * Event that triggers this option selection and updates the focusable tab.
+	 */
+	onTabClick = (tab?: TablistTab&lt;V&gt;, event?: Event | &#x27;close&#x27;) =&gt; {
+		if (!tab) return;
+
+		this.keyOfTabBeingOpened = tab.value;
+		schedule(&#x27;afterRender&#x27;, () =&gt; (this.keyOfTabBeingOpened = null));
+
+		if (event instanceof Event) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			if (
+				event.target instanceof Element &amp;&amp;
+				event.target.closest(&#x27;[data-qid-tablist-tab-wrapper]&#x27;)?.classList.contains(&#x27;is-dropping&#x27;)
+			) {
+				// Prevent dragged tabs from being considered clicked
+				return;
+			}
+		}
+
+		const isCloseEvent = event === &#x27;close&#x27;;
+
+		if (tab.href) {
+			if (event &amp;&amp; event instanceof PointerEvent &amp;&amp; (event.metaKey || event.ctrlKey)) {
+				// Unfortunately, keyboard PointerEvents don&#x27;t capture metaKey/ctrLKey
+				window.open(tab.href, &#x27;_blank&#x27;);
+				return;
+			}
+			this.handleTransition(tab, () =&gt; this.processTabClick(tab, { isCloseEvent }));
+		} else {
+			this.processTabClick(tab, { isCloseEvent });
+		}
+	};
+
+	/**
+	 * A transition handler used `onTabClick` to handle cases where route interruptions
+	 * occur, such as when showing an &quot;Are you sure you want to navigate away?&quot; modal.
+	 * Allows us to stay aware of which tab to focus after interruption concludes.
+	 */
+	handleTransition = (tab: TablistTab&lt;V&gt;, action: () =&gt; void) =&gt; {
+		let transition: Transition;
+
+		next(this, () =&gt; {
+			if (this.args.context?.isQuickView) {
+				transition = this.router.transitionTo(this.router.currentRouteName, { queryParams: { view: tab.href } });
+			} else {
+				transition = this.router.transitionTo(tab.href);
+			}
+			if (
+				transition.isAborted &amp;&amp;
+				&#x27;isCausedByVerifyingTransitionWithUser&#x27; in transition &amp;&amp;
+				transition.isCausedByVerifyingTransitionWithUser
+			) {
+				const originalRetry = transition.retry;
+				transition.retry = () =&gt; {
+					action();
+					return originalRetry.call(transition);
+				};
+				return;
+			}
+
+			action();
+		});
+	};
+
+	/**
+	 * A utility to call a tab&#x27;s menu action while ensuring its menu closes.
+	 * Handles quirks in the ButtonWithMenu component that sometimes cause the menu
+	 * to remain open after an action is selected.
+	 */
+	handleTabItemAction = (tab: TablistTab&lt;V&gt;, item: TablistTabMenuItem, hideMenu: () =&gt; void) =&gt; {
+		item.action?.(tab);
+		hideMenu();
+	};
+
+	/**
+	 * Processes a valid tab click after being triaged by `onTabClick`. Runs immediately
+	 * on for tab buttons; called after the transition is handled on href-driven tabs.
+	 */
+	processTabClick = (tab: TablistTab&lt;V&gt;, { isCloseEvent = false } = {}) =&gt; {
+		if (!isCloseEvent) {
+			tab?.action?.();
+			this.args.onItemClick?.(tab);
+		}
+
+		this.args.onChange?.(tab?.value ?? null);
+		this.focusableTab = tab;
+		this.focusFocusableTab();
+	};
+
+	/**
+	 * The action that runs when an overflow tab is clicked. Differs from `onTabClick`
+	 * in that it also closes the overflow menu and conditionally calls the onReorder
+	 * action to preserve the tab order when an overflow tab moves into the tablist.
+	 */
+	onOverflowTabClick = (tab: TablistTab&lt;V&gt;, event: Event) =&gt; {
+		this.args.onChange?.(tab?.value ?? null);
+		this.focusableTab = tab;
+
+		assert(&#x27;tablistMenuApi must exist&#x27;, this.tablistMenuApi);
+
+		this.tablistMenuApi.hideMenu(event);
+
+		schedule(&#x27;afterRender&#x27;, () =&gt; {
+			this.focusFocusableTab();
+
+			if (this.args.onReorder) {
+				const groupContainingTab = this.getGroupContainingTab(tab);
+
+				if (groupContainingTab) {
+					const originalGroupTabs = groupContainingTab.tabs;
+					const visibleTabsInGroup = this.visibleTabs.filter((t) =&gt; originalGroupTabs.includes(t));
+					const lastVisibleTabInGroup = visibleTabsInGroup[visibleTabsInGroup.length - 1];
+
+					// Insert the clicked tab after the last visible tab in its group
+					const newGroupTabOrder = [...originalGroupTabs];
+					const clickedTabIndex = newGroupTabOrder.indexOf(tab);
+
+					if (lastVisibleTabInGroup &amp;&amp; clickedTabIndex !== -1) {
+						// Remove the clicked tab from its current position
+						newGroupTabOrder.splice(clickedTabIndex, 1);
+
+						// Find where to insert it (after the last visible tab)
+						const insertionIndex = newGroupTabOrder.indexOf(lastVisibleTabInGroup) + 1;
+						newGroupTabOrder.splice(insertionIndex, 0, tab);
+					}
+
+					// Call onReorder with the group&#x27;s tabs in their new order
+					this.onReorder(originalGroupTabs, newGroupTabOrder, tab);
+				}
+			}
+		});
+	};
+
+	/**
+	 * Triages key presses while the tablist or its overflow menu is focused.
+	 */
+	onKeydown = (tab: TablistTab&lt;V&gt; | null, event: KeyboardEvent) =&gt; {
+		if (event.key === KEYBOARD_KEYS.ESC) {
+			this.isReorderingViaKeyboard = false;
+
+			if (this.tablistMenuApi?.menuIsShown) {
+				this.tablistMenuApi.hideMenu(event);
+				const asyncTestToken = testWaiter.beginAsync();
+				requestAnimationFrame(() =&gt; {
+					this.focusTabOverflowButton();
+					testWaiter.endAsync(asyncTestToken);
+				});
+			}
+			return;
+		}
+
+		if (event.key === KEYBOARD_KEYS.SPACE) {
+			// For overflow menu button, allow default space behavior
+			if (tab === null) {
+				return;
+			}
+
+			// For tabs in locked groups, allow default space behavior
+			const group = this.getGroupContainingTab(tab);
+			if (group?.isLocked) {
+				return;
+			}
+
+			// For unlocked tabs, preserve existing reordering behavior
+			event.preventDefault();
+			if (this.args.onReorder) {
+				const wasReordering = this.isReorderingViaKeyboard;
+				this.isReorderingViaKeyboard = !this.isReorderingViaKeyboard;
+
+				if (this.isReorderingViaKeyboard) {
+					this.announcer.announce(
+						this.intl.t(&#x27;tablist.grabbed&#x27;, {
+							tabLabel: tab.label || tab.value,
+						}),
+						{ urgency: &#x27;assertive&#x27; },
+					);
+				} else if (wasReordering) {
+					this.announcer.announce(this.intl.t(&#x27;tablist.dropped&#x27;, { tabLabel: tab.label || tab.value }), {
+						urgency: &#x27;assertive&#x27;,
+					});
+				}
+			}
+
+			return;
+		}
+
+		if (event.key === KEYBOARD_KEYS.ENTER) {
+			event.preventDefault();
+			assert(&#x27;Expected target to be an HTMLElement&#x27;, event.target instanceof HTMLElement);
+			event.target.click();
+			return;
+		}
+
+		if (
+			(event.key === KEYBOARD_KEYS.DELETE || event.key === KEYBOARD_KEYS.BACKSPACE) &amp;&amp;
+			this.args.onDelete &amp;&amp;
+			this.focusableTab
+		) {
+			// close the tooltip
+
+			return this.closeTab(this.focusableTab, event);
+		}
+
+		const isOverflowMenu = tab === null;
+
+		// Handle down/up arrow keys for overflow menu button and tab menus
+		if (
+			(event.key === KEYBOARD_KEYS.DOWN_ARROW || event.key === KEYBOARD_KEYS.UP_ARROW) &amp;&amp;
+			((isOverflowMenu &amp;&amp; this.overflowTabs.length) || tab?.menuItems?.length)
+		) {
+			event.preventDefault();
+
+			let menuSelector: string;
+
+			// Open the appropriate menu
+			if (isOverflowMenu) {
+				assert(&#x27;tablistMenuApi must exist&#x27;, this.tablistMenuApi);
+				this.tablistMenuApi.showMenu(event);
+				menuSelector = &#x27;[data-test-tablist-menu-option]:last-child&#x27;;
+			} else {
+				const tabElement = event.target;
+				assert(&#x27;event.target must be an HTMLElement&#x27;, tabElement instanceof HTMLElement);
+
+				const overflowButton = tabElement.parentElement?.querySelector(&#x27;[data-qid-tablist-tab-menu-button]&#x27;);
+				assert(&#x27;overflowButton must be an HTMLElement&#x27;, overflowButton instanceof HTMLElement);
+
+				overflowButton.click();
+				menuSelector = &#x27;[data-qid-tablist-tab-overflow-item]:last-child&#x27;;
+			}
+
+			// Focus last item if up arrow was pressed
+			if (event.key === KEYBOARD_KEYS.UP_ARROW) {
+				later(
+					this,
+					() =&gt; {
+						const lastMenuItem = document.querySelector(menuSelector);
+						if (lastMenuItem instanceof HTMLElement) {
+							lastMenuItem.focus();
+						}
+					},
+					32,
+				);
+			}
+
+			return;
+		}
+
+		return this.moveTabOrChangeFocus(event);
+	};
+
+	/**
+	 * The action run on render and when the tablist resizes.
+	 * Sets the tablistWidth, which recomputes which tabs are visible.
+	 */
+	onResize = (element: HTMLElement) =&gt; {
+		this.tablistWidth = element.offsetWidth;
+		this.beforeBlockWidth = this.beforeBlockElement?.offsetWidth;
+	};
+
+	/**
+	 * A helper to avoid a glint error in the conditional sortableItem call.
+	 */
+	formatTabForSortableItemModifier = (tab: TablistTab&lt;V&gt;) =&gt; {
+		// SAFETY: ModifierHelper thinks we&#x27;re passing the wrong model type to sortableItem
+		return tab as never;
+	};
+
+	/**
+	 * Type assertion helper for yielding tabs with the correct type.
+	 * When options are extended tabs, this preserves the extended type in the yield.
+	 * When options are groups, this yields the base TablistTab type.
+	 */
+	asYieldable = (tab: TablistTab&lt;V&gt;): TabYieldType&lt;V, O&gt; =&gt; {
+		return tab as TabYieldType&lt;V, O&gt;;
+	};
+
+	/**
+	 * The reorder function passed to the sortable modifiers, which return
+	 * information about tabs after a drag-and-drop operation.
+	 * Ensures pinned tabs remain at the front of their group.
+	 */
+	onReorder = (_groupModel: unknown[], itemModels: unknown[], draggedModel: unknown) =&gt; {
+		if (!this.args.onReorder) {
+			return;
+		}
+
+		const draggedTab = draggedModel as TablistTab&lt;V&gt;;
+		const tabsInNewOrder = itemModels as Array&lt;TablistTab&lt;V&gt;&gt;;
+
+		const groupContainingDraggedTab = this.tabGroups.find((group) =&gt; group.tabs.includes(draggedTab));
+
+		assert(&#x27;group must exist&#x27;, groupContainingDraggedTab);
+
+		const updatedTabGroups = this.tabGroups.map((group) =&gt; {
+			if (group.id === groupContainingDraggedTab.id) {
+				return {
+					...group,
+					tabs: this.sortTabsWithPinnedFirst(tabsInNewOrder),
+				};
+			}
+
+			return group;
+		});
+
+		const reorderedAllTabs =
+			this.optionTypeToSave === &#x27;group&#x27; ? updatedTabGroups : updatedTabGroups.flatMap((g) =&gt; g.tabs);
+
+		this.args.onReorder(reorderedAllTabs);
+
+		// Ensure focus happens after DOM updates
+		const asyncTestToken = testWaiter.beginAsync();
+		requestAnimationFrame(() =&gt; {
+			this.focusFocusableTab();
+			testWaiter.endAsync(asyncTestToken);
+		});
+	};
+
+	/**
+	 * Helper to get a group&#x27;s visible tabs, if any. Allows us to initially render all
+	 * tabs for the purpose of calculating their size, and then filter out overflow tabs
+	 * once they&#x27;ve been computed.
+	 */
+	getGroupTabsToRender = (groupId: string) =&gt; {
+		const group = this.tabGroups.find((g) =&gt; g.id === groupId);
+		if (!group) {
+			return [];
+		}
+
+		return group.tabs.filter((tab) =&gt; this.visibleTabs.includes(tab));
+	};
+
+	/**
+	 * Whether to render a close button for a tab. Dependent on whether an onDelete
+	 * function was passed in, and whether the rules of the tab or group allow closing.
+	 */
+	getCloseButtonIsShown = (group: TablistGroup&lt;V&gt;, tab: TablistTab&lt;V&gt;) =&gt; {
+		return this.args.onDelete &amp;&amp; !tab.isPinned &amp;&amp; !group.isLocked;
+	};
+
+	/**
+	 * Whether the tab is currently &quot;grabbed&quot; by the keyboard-reordering feature.
+	 * When true, applies a style to the tab and disables its tooltip.
+	 */
+	getIsGrabbed = (tab: TablistTab&lt;V&gt;) =&gt; {
+		const group = this.tabGroups.find((g) =&gt; g.tabs.includes(tab));
+		if (group?.isLocked) {
+			return false;
+		}
+		return this.isReorderingViaKeyboard &amp;&amp; this.focusableTab === tab;
+	};
+
+	/**
+	 * Whether a tab&#x27;s menu is currently open. When true, the tooltip for that tab
+	 * will be disabled to avoid two popups showing at once.
+	 */
+	getTabMenuIsOpen = (tab: TablistTab&lt;V&gt;) =&gt; {
+		if (this.focusableTab !== tab) return false;
+		if (!tab.menuItems?.length) return false;
+
+		const tabElement = this.tablistElement?.querySelector(`[data-tab=&quot;${tab.value}&quot;]`);
+		if (tabElement) {
+			const menuButton = tabElement.parentElement?.querySelector(&#x27;[data-qid-tablist-tab-menu-button]&#x27;);
+			return menuButton?.getAttribute(&#x27;aria-expanded&#x27;) === &#x27;true&#x27;;
+		}
+
+		return false;
+	};
+
+	/**
+	 * Whether the tooltip for a tab should be disabled.
+	 * True when the user&#x27;s interaction with a tab dictates tooltip closure.
+	 */
+	getTabTooltipIsDisabled = (tab: TablistTab&lt;V&gt;) =&gt; {
+		return (
+			this.keyOfTabBeingOpened === tab.value ||
+			this.keyOfTabBeingClosed === tab.value ||
+			this.getTabMenuIsOpen(tab) ||
+			this.getIsGrabbed(tab)
+		);
+	};
+
+	/**
+	 * Returns the text for a pinned tab&#x27;s tooltip and aria label.
+	 * Will always return the specified `tooltip` if it exists.
+	 * Compact pinned tabs fall back to the label text.
+	 */
+	getTabTooltip = (tab: TablistTab&lt;V&gt;) =&gt; {
+		if (tab.tooltip) return decodeEntities(tab.tooltip);
+
+		if (tab.isPinned &amp;&amp; this.args.shouldUseCompactPinnedTabs) {
+			return decodeEntities(tab.label);
+		}
+	};
+
+	/**
+	 * Function to focus the overflow button as a result of keyboard navigation.
+	 */
+	focusTabOverflowButton = () =&gt; {
+		assert(&#x27;tabOverflowButton must exist&#x27;, this.tabOverflowButton);
+		this.focusableTab = this.overflowTab;
+		this.tabOverflowButton.focus();
+	};
+
+	/**
+	 * The width of non-compact tabs when `shouldBalanceTabs` is true.
+	 */
+	get balancedTabWidth() {
+		if (!this.tablistWidth) return;
+
+		// For simplicity, always keep space for the overflow button
+		let availableWidth = this.tablistWidth - OVERFLOW_MENU_BUTTON_WIDTH - (this.beforeBlockWidth ?? 0);
+
+		// Subtract space used by compact pinned tabs
+		if (this.args.shouldUseCompactPinnedTabs) {
+			availableWidth -= this.pinnedTabs.length * COMPACT_PINNED_TAB_WIDTH;
+		}
+
+		// Count unpinned visible tabs (excluding those already in visibleTabs like activeTab/focusableTab)
+		const unpinnedVisibleTabs = this.visibleTabs.filter((tab) =&gt; !tab.isPinned);
+		const numTabsToBalance = this.args.shouldUseCompactPinnedTabs
+			? unpinnedVisibleTabs.length
+			: this.visibleTabs.length;
+
+		if (numTabsToBalance &gt; 0) {
+			const optimalWidth = Math.floor(availableWidth / numTabsToBalance);
+			return Math.max(MIN_BALANCED_TAB_WIDTH, Math.min(MAX_BALANCED_TAB_WIDTH, optimalWidth));
+		}
+		return MIN_BALANCED_TAB_WIDTH;
+	}
+
+	/**
+	 * The action to internally focus the overflow button.
+	 * Called on overflow-button focus.
+	 */
+	onTabOverflowButtonFocus = () =&gt; {
+		this.focusableTab = this.overflowTab;
+	};
+
+	/**
+	 * The action run when any tab is blurred. Resets the `isReorderingViaKeyboard` state.
+	 */
+	onTabBlur = (event: Event) =&gt; {
+		if (
+			event instanceof FocusEvent &amp;&amp;
+			event.target instanceof HTMLElement &amp;&amp;
+			event.target.getAttribute(&#x27;data-tab&#x27;) === this.focusableTab?.value &amp;&amp;
+			event.relatedTarget === null
+		) {
+			// This most likely indicates the tab being moved by keyboard
+			return;
+		}
+		this.isReorderingViaKeyboard = false;
+	};
+
+	/**
+	 * Modifier to register the tablistElement
+	 */
+	registerTablistElement = templateModifier((element: HTMLElement) =&gt; {
+		this.tablistElement = element;
+		this.tablistWidth = element.offsetWidth;
+	});
+
+	/**
+	 * Modifier to register the tablistMenuButton and its API.
+	 */
+	registerTablistMenu = templateModifier(
+		(
+			element: HTMLElement,
+			positional: [
+				{
+					menuIsShown: boolean;
+					showMenu: (_event: Event) =&gt; void;
+					hideMenu: (_event: Event) =&gt; void;
+				},
+			],
+		) =&gt; {
+			this.tabOverflowButton = element;
+			this.tablistMenuApi = positional[0];
+		},
+	);
+
+	/**
+	 * Modifier to register the before block for measuring purposes.
+	 * The before block&#x27;s width will be considered when determining which
+	 * tabs are shown vs. collapsed into the overflow menu.
+	 */
+	registerBeforeBlock = templateModifier((element: HTMLElement) =&gt; {
+		this.beforeBlockElement = element;
+		this.beforeBlockWidth = this.beforeBlockElement.offsetWidth;
+	});
+
+	/**
+	 * Modifier to register the tab width of every rendered tab.
+	 * All tabs are initially rendered before overflow truncation.
+	 */
+	registerTabWidth = templateModifier((element: HTMLElement, positional: [tab: TablistTab&lt;V&gt;]) =&gt; {
+		if (!this.args.shouldBalanceTabs) {
+			schedule(&#x27;afterRender&#x27;, () =&gt; {
+				this.tabWidths.set(positional[0].value, element.offsetWidth);
+			});
+		}
+	});
+
+	/**
+	 * Generate a unique ID for the tab&#x27;s accessibility description.
+	 */
+	getTabDescriptionId = (tab: TablistTab&lt;V&gt;): string =&gt; {
+		return `tab-description-${tab.value}`;
+	};
+
+	/**
+	 * Gets the screen-reader description for a tab based on its capabilities.
+	 * Used by the visually hidden element linked to the tab via `aria-describedby`.
+	 */
+	getTabAccessibilityDescription = (tab: TablistTab&lt;V&gt;): string | undefined =&gt; {
+		const group = this.getGroupContainingTab(tab);
+		const capabilities = [];
+
+		if (tab.menuItems?.length) {
+			capabilities.push(this.intl.t(&#x27;tablist.accessibility.hasMenu&#x27;));
+		}
+
+		if (this.args.onReorder &amp;&amp; !group?.isLocked) {
+			capabilities.push(this.intl.t(&#x27;tablist.accessibility.movable&#x27;));
+		}
+
+		if (this.args.onDelete &amp;&amp; !tab.isPinned &amp;&amp; !group?.isLocked) {
+			capabilities.push(this.intl.t(&#x27;tablist.accessibility.closable&#x27;));
+		}
+
+		if (!capabilities.length) return undefined;
+
+		return capabilities.join(this.intl.t(&#x27;tablist.accessibility.separator&#x27;));
+	};
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;Tablist&quot;
+			data-variant={{or @variant &quot;default&quot;}}
+			data-size={{or @size &quot;md&quot;}}
+			{{onResize this.onResize}}
+			{{this.registerTablistElement}}
+			{{a11yFocusLayer}}
+			...attributes
+			data-qid-luna-tablist
+		&gt;
+			&lt;div style={{this.cssCustomProperties}} class=&quot;tablist-inner&quot; role={{if this.roleIsTablist &quot;tablist&quot;}}&gt;
+				{{#if (has-block &quot;before&quot;)}}
+					&lt;div {{this.registerBeforeBlock}} data-qid-luna-tablist-before class=&quot;before&quot;&gt;
+						{{yield to=&quot;before&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+
+				{{#each this.tabGroups key=&quot;id&quot; as |group|}}
+					&lt;div
+						role={{if this.roleIsTablist &quot;none&quot;}}
+						class=&quot;tab-group&quot;
+						data-tablist-group-id={{group.id}}
+						data-test-tablist-tabs
+						data-qid-component-type=&quot;Luna::Tablist&quot;
+						{{(if
+							this.reorderingIsEnabled
+							(modifier
+								sortableGroup
+								direction=&quot;x&quot;
+								a11yItemName=&quot;tab&quot;
+								groupName=group.id
+								disabled=(or group.isLocked (not this.reorderingIsEnabled))
+								onChange=(fn this.onReorder group.tabs)
+							)
+						)}}
+					&gt;
+						{{#each (this.getGroupTabsToRender group.id) key=&quot;value&quot; as |tab i|}}
+							&lt;div
+								role={{if this.roleIsTablist &quot;none&quot;}}
+								{{this.registerTabWidth tab}}
+								class=&quot;tab-wrapper
+									{{if (and tab.isPinned @shouldUseCompactPinnedTabs) &#x27;compact&#x27; (if @shouldBalanceTabs &#x27;balanced&#x27;)}}&quot;
+								data-qid-tablist-tab-wrapper={{tab.value}}
+								{{(if
+									this.reorderingIsEnabled
+									(modifier
+										sortableItem model=(this.formatTabForSortableItemModifier tab) groupName=group.id distance=16
+									)
+								)}}
+							&gt;
+								{{#let (elementHelper (if tab.href &quot;a&quot; &quot;button&quot;)) as |Tag|}}
+									{{! template-lint-disable tooltip-t-helper-required }}
+									&lt;Tag
+										class=&quot;tab&quot;
+										role={{if this.roleIsTablist &quot;tab&quot;}}
+										type={{if this.roleIsTablist &quot;button&quot;}}
+										href={{tab.href}}
+										tabindex={{if (eq tab this.focusableTab) &quot;0&quot; &quot;-1&quot;}}
+										data-tab={{tab.value}}
+										data-qid-tablist-tab
+										data-qid-index={{i}}
+										data-qid={{if tab.qid tab.qid &quot;Tablist__Link&quot;}}
+										data-qid-component-type=&quot;Luna::Tab&quot;
+										data-menu-is-open={{this.getTabMenuIsOpen tab}}
+										data-has-menu={{if tab.menuItems &quot;true&quot; &quot;false&quot;}}
+										data-is-active={{eq tab this.activeTab}}
+										data-is-grabbed={{this.getIsGrabbed tab}}
+										data-is-pinned={{if tab.isPinned &quot;true&quot; &quot;false&quot;}}
+										aria-label={{if tab.isPinned (this.getTabTooltip tab)}}
+										aria-current={{if this.roleIsNav (if (eq tab this.activeTab) &quot;true&quot; &quot;false&quot;)}}
+										aria-selected={{if this.roleIsTablist (if (eq tab this.activeTab) &quot;true&quot; &quot;false&quot;)}}
+										aria-controls={{if this.roleIsTablist (concat &quot;luna-panel-&quot; tab.value)}}
+										aria-describedby={{if (this.getTabAccessibilityDescription tab) (this.getTabDescriptionId tab)}}
+										{{on &quot;keydown&quot; (fn this.onKeydown tab)}}
+										{{on &quot;click&quot; (fn this.onTabClick tab)}}
+										{{on &quot;blur&quot; this.onTabBlur}}
+										{{onClickOutside this.onTabBlur}}
+										{{tooltip
+											(this.getTabTooltip tab)
+											disabled=(this.getTabTooltipIsDisabled tab)
+											shouldAnnounce=false
+											placement=&quot;bottom&quot;
+										}}
+									&gt;
+										&lt;div data-qid-tablist-tab-inner class=&quot;inner&quot;&gt;
+											&lt;div data-qid-tablist-tab-inner-content class=&quot;content&quot;&gt;
+												{{yield (this.asYieldable tab)}}
+
+											&lt;/div&gt;
+										&lt;/div&gt;
+									&lt;/Tag&gt;
+								{{/let}}
+
+								{{#if (or tab.menuItems (this.getCloseButtonIsShown group tab))}}
+									&lt;div data-qid-tablist-tab-controls class=&quot;controls&quot;&gt;
+										{{#if tab.menuItems}}
+											&lt;ButtonWithMenu as |m|&gt;
+												&lt;m.Button
+													tabindex=&quot;-1&quot;
+													@variant=&quot;unstyled&quot;
+													@size=&quot;xs&quot;
+													aria-hidden={{if this.roleIsTablist &quot;true&quot;}}
+													aria-label={{formatMessage &quot;Actions&quot;}}
+													class=&quot;tab-control menu-button&quot;
+													data-qid-tablist-tab-menu-button
+													data-tablist-tab-control
+												&gt;
+													&lt;Icon @icon=&quot;more-vertical&quot; @size=&quot;xs&quot; /&gt;
+												&lt;/m.Button&gt;
+												&lt;m.Popup @placement=&quot;bottom-start&quot; as |p|&gt;
+													{{#each tab.menuItems as |item|}}
+														&lt;p.Option
+															data-qid-tablist-tab-overflow-item={{item.label}}
+															{{on &quot;click&quot; (fn this.handleTabItemAction tab item m.hideMenu)}}
+															@href={{item.href}}
+														&gt;
+															{{item.label}}
+														&lt;/p.Option&gt;
+													{{/each}}
+												&lt;/m.Popup&gt;
+											&lt;/ButtonWithMenu&gt;
+										{{/if}}
+										{{#if (this.getCloseButtonIsShown group tab)}}
+											&lt;Button
+												@variant=&quot;unstyled&quot;
+												data-is-pinned
+												data-qid-tablist-tab-close-button
+												data-tablist-tab-control
+												data-qid=&quot;NavTab__Close&quot;
+												class=&quot;tab-control delete-button&quot;
+												tabindex=&quot;-1&quot;
+												@size=&quot;xs&quot;
+												aria-hidden={{if this.roleIsTablist &quot;true&quot;}}
+												aria-label={{formatMessage &quot;Close Tab&quot;}}
+												{{on &quot;click&quot; (fn this.closeTab tab)}}
+											&gt;
+												&lt;Icon @icon=&quot;close&quot; @size=&quot;xs&quot; /&gt;
+											&lt;/Button&gt;
+										{{/if}}
+									&lt;/div&gt;
+								{{/if}}
+							&lt;/div&gt;
+							{{#if (this.getTabAccessibilityDescription tab)}}
+								&lt;div id={{this.getTabDescriptionId tab}} class=&quot;visually-hidden&quot;&gt;
+									{{this.getTabAccessibilityDescription tab}}
+								&lt;/div&gt;
+							{{/if}}
+						{{/each}}
+					&lt;/div&gt;
+				{{/each}}
+			&lt;/div&gt;
+
+			{{#if this.overflowTabs.length}}
+				&lt;div data-qid-tablist-tab-wrapper class=&quot;tab-wrapper&quot;&gt;
+					&lt;ButtonWithMenu as |m|&gt;
+						&lt;m.Button
+							{{this.registerTablistMenu (hash menuIsShown=m.popupIsOpen showMenu=m.showMenu hideMenu=m.hideMenu)}}
+							tabindex={{if this.tabOverflowButtonIsFocused &quot;0&quot; &quot;-1&quot;}}
+							class=&quot;tab tablist-overflow-button&quot;
+							@variant=&quot;unstyled&quot;
+							aria-label={{formatMessage &quot;More tabs&quot;}}
+							data-test-tablist-overflow-menu
+							data-tab={{this.overflowTab.value}}
+							data-qid-component-type=&quot;Luna::Tablist::OverflowMenu&quot;
+							{{on &quot;focusin&quot; this.onTabOverflowButtonFocus}}
+							{{on &quot;blur&quot; this.onTabBlur}}
+							{{on &quot;keydown&quot; (fn this.onKeydown null)}}
+							{{tooltip this.overflowTab.label disabled=m.popupIsOpen placement=&quot;bottom-end&quot;}}
+						&gt;
+							&lt;Icon @icon=&quot;more-horizontal&quot; /&gt;
+						&lt;/m.Button&gt;
+						&lt;m.Popup @placement=&quot;bottom-end&quot; as |p|&gt;
+							{{#each this.overflowTabs as |option|}}
+								&lt;p.Option
+									@href={{option.href}}
+									@openInQuickView={{if @context.isQuickView &quot;always&quot; &quot;never&quot;}}
+									data-test-tablist-menu-option
+									data-tab={{option.value}}
+									{{on &quot;click&quot; (fn this.onOverflowTabClick option)}}
+								&gt;
+									{{#if (has-block &quot;menu-option&quot;)}}
+										{{yield (this.asYieldable option) to=&quot;menu-option&quot;}}
+									{{else}}
+										{{yield (this.asYieldable option)}}
+									{{/if}}
+								&lt;/p.Option&gt;
+							{{/each}}
+						&lt;/m.Popup&gt;
+					&lt;/ButtonWithMenu&gt;
+				&lt;/div&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">tablist.tsx</div><pre class="language-typescript">// TODO(post-merge): Extract shared logic between this and Ember tablist into a shared library.
+import {
+	createContext,
+	type CSSProperties,
+	type ReactNode,
+	type RefObject,
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+} from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { t } from &#x27;../../utils/i18n&#x27;;
+import { Button } from &#x27;../button/button&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { Popup } from &#x27;../popup/popup&#x27;;
+
+import styles from &#x27;./tablist.module.css&#x27;;
+
+// Constants
+export const OVERFLOW_MENU_BUTTON_WIDTH = 44;
+export const COMPACT_PINNED_TAB_WIDTH = 44;
+export const MIN_BALANCED_TAB_WIDTH = 90;
+export const MAX_BALANCED_TAB_WIDTH = 220;
+
+// Types
+export interface TablistTabMenuItem {
+	label: string;
+	action?: (option: TablistTab&lt;string&gt;) =&gt; void;
+	href?: string;
+}
+
+export interface TablistTab&lt;V extends string = string&gt; {
+	value: V;
+	href?: string;
+	action?: () =&gt; void;
+	label?: string;
+	isPinned?: boolean;
+	count?: number;
+	currentWhenUrls?: string[];
+	tooltip?: string;
+	width?: number;
+	icon?: string;
+	menuItems?: TablistTabMenuItem[];
+	qid?: string;
+}
+
+export interface TablistGroup&lt;V extends string = string&gt; {
+	id: string;
+	tabs: Array&lt;TablistTab&lt;V&gt;&gt;;
+	isLocked?: boolean;
+}
+
+export type TablistVariant = &#x27;default&#x27; | &#x27;unstyled&#x27;;
+export type TablistSize = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface TablistBaseProps&lt;V extends string = string&gt; {
+	/** Current selected value */
+	&#x27;value&#x27;?: V | null;
+	/** Visual variant */
+	&#x27;variant&#x27;?: TablistVariant;
+	/** Size of the tablist */
+	&#x27;size&#x27;?: TablistSize;
+	/** Tab options - can be flat tabs or grouped tabs */
+	&#x27;options&#x27;: Array&lt;TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;&gt;;
+	/** Active tab (alternative to value) */
+	&#x27;activeTab&#x27;?: TablistTab&lt;V&gt;;
+	/** Whether tabs should have balanced widths */
+	&#x27;shouldBalanceTabs&#x27;?: boolean;
+	/** Whether pinned tabs should use compact width */
+	&#x27;shouldUseCompactPinnedTabs&#x27;?: boolean;
+	/** Called when tab is clicked */
+	&#x27;onItemClick&#x27;?: (tab?: TablistTab&lt;V&gt;) =&gt; void;
+	/** Called when tabs are reordered */
+	&#x27;onReorder&#x27;?: (tabs: Array&lt;TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;&gt;) =&gt; void;
+	/** Called when selected tab changes */
+	&#x27;onChange&#x27;?: (value: V | null) =&gt; void;
+	/** Called when a tab is deleted */
+	&#x27;onDelete&#x27;?: (value: V) =&gt; void;
+	/** Called when an option is selected from menu */
+	&#x27;onSelectOption&#x27;?: (value: V) =&gt; void;
+	/** Context for URL-based active detection */
+	&#x27;context&#x27;?: { fullUrlPathName: string; isQuickView?: boolean };
+	/** Content to render before tabs */
+	&#x27;before&#x27;?: ReactNode;
+	/** Render function for tab content */
+	&#x27;children&#x27;?: (tab: TablistTab&lt;V&gt;) =&gt; ReactNode;
+	/** Render function for overflow menu options */
+	&#x27;menuOption&#x27;?: (tab: TablistTab&lt;V&gt;) =&gt; ReactNode;
+	/** Additional class name */
+	&#x27;className&#x27;?: string;
+	/** Aria label */
+	&#x27;aria-label&#x27;?: string;
+	/** Test ID */
+	&#x27;data-testid&#x27;?: string;
+}
+
+export type TablistProps&lt;V extends string = string&gt; = ComponentPropsWithRef&lt;TablistBaseProps&lt;V&gt;, HTMLDivElement&gt;;
+
+// Context for tab panel association
+interface TablistContextValue {
+	activeTabValue: string | null;
+}
+
+const TablistContext = createContext&lt;TablistContextValue | null&gt;(null);
+
+export function useTablistContext(): TablistContextValue | null {
+	return useContext(TablistContext);
+}
+
+// Helper function to determine if options are groups
+function isTablistGroup&lt;V extends string&gt;(option: TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;): option is TablistGroup&lt;V&gt; {
+	return &#x27;tabs&#x27; in option;
+}
+
+// Helper to flatten tabs from options
+function getAllTabs&lt;V extends string&gt;(options: Array&lt;TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;&gt;): Array&lt;TablistTab&lt;V&gt;&gt; {
+	const tabs: Array&lt;TablistTab&lt;V&gt;&gt; = [];
+	for (const option of options) {
+		if (isTablistGroup(option)) {
+			tabs.push(...option.tabs);
+		} else {
+			tabs.push(option);
+		}
+	}
+	return tabs;
+}
+
+// Sort tabs with pinned first
+function sortTabsWithPinnedFirst&lt;V extends string&gt;(tabs: Array&lt;TablistTab&lt;V&gt;&gt;): Array&lt;TablistTab&lt;V&gt;&gt; {
+	return [...tabs].sort((a, b) =&gt; {
+		if (a.isPinned === b.isPinned) return 0;
+		return a.isPinned ? -1 : 1;
+	});
+}
+
+// Get tab groups from options
+function getTabGroups&lt;V extends string&gt;(options: Array&lt;TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;&gt;): Array&lt;TablistGroup&lt;V&gt;&gt; {
+	const firstOption = options[0];
+	if (firstOption &amp;&amp; isTablistGroup(firstOption)) {
+		// Options are already groups
+		return (options as Array&lt;TablistGroup&lt;V&gt;&gt;).map((group) =&gt; ({
+			...group,
+			tabs: sortTabsWithPinnedFirst(group.tabs),
+		}));
+	}
+
+	// Convert flat tabs to groups
+	const allTabs = options as Array&lt;TablistTab&lt;V&gt;&gt;;
+	const pinnedTabs = allTabs.filter((tab) =&gt; tab.isPinned);
+	const unpinnedTabs = allTabs.filter((tab) =&gt; !tab.isPinned);
+	const groups: Array&lt;TablistGroup&lt;V&gt;&gt; = [];
+
+	if (pinnedTabs.length &gt; 0) {
+		groups.push({ id: &#x27;pinned&#x27;, tabs: pinnedTabs });
+	}
+	if (unpinnedTabs.length &gt; 0) {
+		groups.push({ id: &#x27;default&#x27;, tabs: unpinnedTabs });
+	}
+
+	return groups;
+}
+
+export function Tablist&lt;V extends string = string&gt;(props: TablistProps&lt;V&gt;): React.ReactElement {
+	const {
+		ref,
+		value,
+		variant = &#x27;default&#x27;,
+		size = &#x27;md&#x27;,
+		options,
+		&#x27;activeTab&#x27;: activeTabProp,
+		shouldBalanceTabs = false,
+		shouldUseCompactPinnedTabs = false,
+		onItemClick,
+		onReorder,
+		onChange,
+		onDelete,
+		context,
+		before,
+		children,
+		menuOption,
+		className,
+		&#x27;aria-label&#x27;: ariaLabel,
+		&#x27;data-testid&#x27;: testId,
+		...restProps
+	} = props;
+	const generatedId = useId();
+
+	// Track container width for overflow calculation
+	const containerRef = useRef&lt;HTMLDivElement&gt;(null);
+	const beforeBlockRef = useRef&lt;HTMLDivElement&gt;(null);
+	const [containerWidth, setContainerWidth] = useState&lt;number&gt;(0);
+	const [beforeBlockWidth, setBeforeBlockWidth] = useState&lt;number&gt;(0);
+	const [tabWidths, setTabWidths] = useState&lt;Map&lt;V, number&gt;&gt;(new Map());
+
+	// Track which tab should receive focus
+	const [focusableTabValue, setFocusableTabValue] = useState&lt;V | null&gt;(null);
+
+	// Track keyboard reordering state
+	const [isReorderingViaKeyboard, setIsReorderingViaKeyboard] = useState(false);
+
+	// Track overflow menu state
+	const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
+	const overflowButtonRef = useRef&lt;HTMLButtonElement&gt;(null);
+
+	// Track tab menu state
+	const [openTabMenuValue, setOpenTabMenuValue] = useState&lt;V | null&gt;(null);
+	const tabMenuButtonRefs = useRef&lt;Map&lt;V, HTMLButtonElement | null&gt;&gt;(new Map());
+
+	// Derive tab groups and all tabs
+	const tabGroups = useMemo(() =&gt; getTabGroups(options), [options]);
+	const allTabs = useMemo(() =&gt; getAllTabs(options), [options]);
+	const sortedAllTabs = useMemo(() =&gt; tabGroups.flatMap((group) =&gt; group.tabs), [tabGroups]);
+	const pinnedTabs = useMemo(() =&gt; allTabs.filter((tab) =&gt; tab.isPinned), [allTabs]);
+	const unpinnedTabs = useMemo(() =&gt; allTabs.filter((tab) =&gt; !tab.isPinned), [allTabs]);
+
+	// Determine if this is a tablist role (vs nav)
+	const roleIsTablist = useMemo(() =&gt; {
+		return (
+			!onDelete &amp;&amp;
+			!sortedAllTabs.some((tab) =&gt; tab.menuItems?.length) &amp;&amp;
+			sortedAllTabs.length &gt; 0 &amp;&amp;
+			sortedAllTabs.every((tab) =&gt; tab.href === undefined)
+		);
+	}, [onDelete, sortedAllTabs]);
+
+	// Get current URL for active tab detection
+	const currentUrl = useMemo(() =&gt; {
+		if (context) {
+			return context.fullUrlPathName || &#x27;&#x27;;
+		}
+		if (typeof window !== &#x27;undefined&#x27;) {
+			return window.location.pathname || &#x27;&#x27;;
+		}
+		return &#x27;&#x27;;
+	}, [context]);
+
+	// Determine active tab
+	const activeTab = useMemo&lt;TablistTab&lt;V&gt; | undefined&gt;(() =&gt; {
+		if (activeTabProp) return activeTabProp;
+
+		return sortedAllTabs.find((tab) =&gt; {
+			if (tab.currentWhenUrls) {
+				return tab.currentWhenUrls.includes(currentUrl);
+			}
+			if (tab.href) {
+				if (currentUrl === tab.href) return true;
+				try {
+					const tabUrl = new URL(tab.href, window.location.origin);
+					return currentUrl === tabUrl.pathname;
+				} catch {
+					const tabPathname = tab.href.split(&#x27;?&#x27;)[0];
+					return currentUrl === tabPathname;
+				}
+			}
+			return tab.value === value;
+		});
+	}, [activeTabProp, sortedAllTabs, currentUrl, value]);
+
+	// Calculate visible tabs based on available width
+	const visibleTabs = useMemo&lt;Array&lt;TablistTab&lt;V&gt;&gt;&gt;(() =&gt; {
+		const visible: Array&lt;TablistTab&lt;V&gt;&gt; = [];
+		let widthAvailable = containerWidth ? containerWidth - OVERFLOW_MENU_BUTTON_WIDTH - beforeBlockWidth : 0;
+
+		// Pinned tabs are always visible
+		visible.push(...pinnedTabs);
+
+		// Reserve space for active tab if it&#x27;s not pinned
+		if (activeTab &amp;&amp; !activeTab.isPinned &amp;&amp; !visible.includes(activeTab)) {
+			visible.push(activeTab);
+			widthAvailable -= shouldBalanceTabs ? MIN_BALANCED_TAB_WIDTH : (tabWidths.get(activeTab.value) ?? 0);
+		}
+
+		// Reserve space for focusable tab if different from active
+		const focusableTab = sortedAllTabs.find((t) =&gt; t.value === focusableTabValue);
+		if (focusableTab &amp;&amp; focusableTab !== activeTab &amp;&amp; !focusableTab.isPinned &amp;&amp; !visible.includes(focusableTab)) {
+			visible.push(focusableTab);
+			widthAvailable -= shouldBalanceTabs ? MIN_BALANCED_TAB_WIDTH : (tabWidths.get(focusableTab.value) ?? 0);
+		}
+
+		if (shouldBalanceTabs) {
+			widthAvailable -=
+				(shouldUseCompactPinnedTabs ? COMPACT_PINNED_TAB_WIDTH : MIN_BALANCED_TAB_WIDTH) * pinnedTabs.length;
+
+			for (const tab of unpinnedTabs) {
+				if (!visible.includes(tab) &amp;&amp; widthAvailable &gt;= MIN_BALANCED_TAB_WIDTH) {
+					widthAvailable -= MIN_BALANCED_TAB_WIDTH;
+					visible.push(tab);
+				}
+			}
+		} else {
+			const pinnedTabsWidth = pinnedTabs.reduce((total, tab) =&gt; {
+				return total + (tabWidths.get(tab.value) ?? (shouldUseCompactPinnedTabs ? COMPACT_PINNED_TAB_WIDTH : 0));
+			}, 0);
+			widthAvailable -= pinnedTabsWidth;
+
+			for (const tab of unpinnedTabs) {
+				if (visible.includes(tab)) continue;
+				const tabWidth = tabWidths.get(tab.value) ?? 0;
+				if (widthAvailable &gt;= tabWidth) {
+					widthAvailable -= tabWidth;
+					visible.push(tab);
+				}
+			}
+		}
+
+		// Return in sorted order
+		return sortedAllTabs.filter((tab) =&gt; visible.includes(tab));
+	}, [
+		containerWidth,
+		beforeBlockWidth,
+		pinnedTabs,
+		activeTab,
+		focusableTabValue,
+		sortedAllTabs,
+		shouldBalanceTabs,
+		shouldUseCompactPinnedTabs,
+		tabWidths,
+		unpinnedTabs,
+	]);
+
+	// Calculate overflow tabs
+	const visibleTabValues = useMemo(() =&gt; {
+		return new Set(visibleTabs.map((tab) =&gt; tab.value));
+	}, [visibleTabs]);
+
+	const overflowTabs = useMemo(() =&gt; {
+		return sortedAllTabs.filter((tab) =&gt; !visibleTabValues.has(tab.value));
+	}, [sortedAllTabs, visibleTabValues]);
+
+	// Calculate balanced tab width
+	const balancedTabWidth = useMemo(() =&gt; {
+		if (!containerWidth) return MIN_BALANCED_TAB_WIDTH;
+
+		let availableWidth = containerWidth - OVERFLOW_MENU_BUTTON_WIDTH - beforeBlockWidth;
+
+		if (shouldUseCompactPinnedTabs) {
+			availableWidth -= pinnedTabs.length * COMPACT_PINNED_TAB_WIDTH;
+		}
+
+		const unpinnedVisibleTabs = visibleTabs.filter((tab) =&gt; !tab.isPinned);
+		const numTabsToBalance = shouldUseCompactPinnedTabs ? unpinnedVisibleTabs.length : visibleTabs.length;
+
+		if (numTabsToBalance &gt; 0) {
+			const optimalWidth = Math.floor(availableWidth / numTabsToBalance);
+			return Math.max(MIN_BALANCED_TAB_WIDTH, Math.min(MAX_BALANCED_TAB_WIDTH, optimalWidth));
+		}
+		return MIN_BALANCED_TAB_WIDTH;
+	}, [containerWidth, beforeBlockWidth, shouldUseCompactPinnedTabs, pinnedTabs.length, visibleTabs]);
+
+	// Initialize focusable tab
+	useEffect(() =&gt; {
+		if (focusableTabValue === null &amp;&amp; sortedAllTabs.length &gt; 0) {
+			setFocusableTabValue((activeTab?.value ?? sortedAllTabs[0]?.value) as V);
+		}
+	}, [focusableTabValue, activeTab, sortedAllTabs]);
+
+	// Handle resize observer
+	useEffect(() =&gt; {
+		const container = containerRef.current;
+		if (!container) return;
+
+		// Set initial width
+		setContainerWidth(container.offsetWidth);
+
+		// Use ResizeObserver if available (not in test environment)
+		if (typeof ResizeObserver === &#x27;undefined&#x27;) return;
+
+		const resizeObserver = new ResizeObserver((entries) =&gt; {
+			for (const entry of entries) {
+				setContainerWidth(entry.contentRect.width);
+			}
+		});
+
+		resizeObserver.observe(container);
+
+		return () =&gt; resizeObserver.disconnect();
+	}, []);
+
+	// Measure before block
+	useEffect(() =&gt; {
+		if (beforeBlockRef.current) {
+			setBeforeBlockWidth(beforeBlockRef.current.offsetWidth);
+		}
+	}, [before]);
+
+	// Handle tab click
+	const handleTabClick = useCallback(
+		(tab: TablistTab&lt;V&gt;, event?: React.MouseEvent) =&gt; {
+			if (event) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			tab.action?.();
+			onItemClick?.(tab);
+			onChange?.(tab.value);
+			setFocusableTabValue(tab.value);
+		},
+		[onItemClick, onChange],
+	);
+
+	// Handle tab close
+	const handleTabClose = useCallback(
+		(tab: TablistTab&lt;V&gt;, event?: React.MouseEvent | React.KeyboardEvent) =&gt; {
+			if (event) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			if (!onDelete) return;
+
+			const tabGroup = tabGroups.find((g) =&gt; g.tabs.includes(tab));
+			if (tabGroup?.isLocked) return;
+
+			const currentIndex = sortedAllTabs.indexOf(tab);
+			let nextFocusableTab: TablistTab&lt;V&gt; | undefined;
+
+			if (sortedAllTabs.length === 1) {
+				nextFocusableTab = undefined;
+			} else if (currentIndex !== 0) {
+				nextFocusableTab = sortedAllTabs[currentIndex - 1];
+			} else {
+				nextFocusableTab = sortedAllTabs[currentIndex + 1];
+			}
+
+			if (tab === activeTab &amp;&amp; nextFocusableTab) {
+				onChange?.(nextFocusableTab.value);
+			}
+
+			setFocusableTabValue(nextFocusableTab?.value ?? null);
+			onDelete(tab.value);
+		},
+		[onDelete, tabGroups, sortedAllTabs, activeTab, onChange],
+	);
+
+	// Handle keyboard navigation
+	const handleKeyDown = useCallback(
+		(tab: TablistTab&lt;V&gt; | null, event: React.KeyboardEvent) =&gt; {
+			const { key } = event;
+
+			if (key === &#x27;Escape&#x27;) {
+				setIsReorderingViaKeyboard(false);
+				if (overflowMenuOpen) {
+					setOverflowMenuOpen(false);
+					overflowButtonRef.current?.focus();
+				}
+				if (openTabMenuValue !== null) {
+					setOpenTabMenuValue(null);
+				}
+				return;
+			}
+
+			if (key === &#x27; &#x27; &amp;&amp; tab !== null) {
+				const group = tabGroups.find((g) =&gt; g.tabs.some((t) =&gt; t.value === tab.value));
+				if (group?.isLocked) return;
+
+				event.preventDefault();
+				if (onReorder) {
+					setIsReorderingViaKeyboard(!isReorderingViaKeyboard);
+				}
+				return;
+			}
+
+			if (key === &#x27;Enter&#x27;) {
+				event.preventDefault();
+				if (event.target instanceof HTMLElement) {
+					event.target.click();
+				}
+				return;
+			}
+
+			if ((key === &#x27;Delete&#x27; || key === &#x27;Backspace&#x27;) &amp;&amp; onDelete &amp;&amp; focusableTabValue) {
+				const focusableTab = sortedAllTabs.find((t) =&gt; t.value === focusableTabValue);
+				if (focusableTab) {
+					handleTabClose(focusableTab, event);
+				}
+				return;
+			}
+
+			// Arrow key navigation
+			if ([&#x27;ArrowLeft&#x27;, &#x27;ArrowRight&#x27;, &#x27;Home&#x27;, &#x27;End&#x27;].includes(key)) {
+				event.preventDefault();
+				event.stopPropagation();
+
+				const currentIndex = visibleTabs.findIndex((t) =&gt; t.value === focusableTabValue);
+				let newIndex = currentIndex;
+
+				if (key === &#x27;ArrowLeft&#x27;) {
+					if (isReorderingViaKeyboard &amp;&amp; focusableTabValue) {
+						// Move tab left within group
+						moveTabInGroup(focusableTabValue, -1);
+					} else if (focusableTabValue === `overflow-${generatedId}`) {
+						newIndex = visibleTabs.length - 1;
+					} else if (currentIndex &gt; 0) {
+						newIndex = currentIndex - 1;
+					}
+				} else if (key === &#x27;ArrowRight&#x27;) {
+					if (isReorderingViaKeyboard &amp;&amp; focusableTabValue) {
+						// Move tab right within group
+						moveTabInGroup(focusableTabValue, 1);
+					} else if (currentIndex === visibleTabs.length - 1 &amp;&amp; overflowTabs.length &gt; 0) {
+						setFocusableTabValue(`overflow-${generatedId}` as V);
+						overflowButtonRef.current?.focus();
+						return;
+					} else if (currentIndex &lt; visibleTabs.length - 1) {
+						newIndex = currentIndex + 1;
+					}
+				} else if (key === &#x27;Home&#x27;) {
+					newIndex = 0;
+				} else if (key === &#x27;End&#x27;) {
+					if (overflowTabs.length &gt; 0) {
+						setFocusableTabValue(`overflow-${generatedId}` as V);
+						overflowButtonRef.current?.focus();
+						return;
+					}
+					newIndex = visibleTabs.length - 1;
+				}
+
+				if (newIndex &gt;= 0 &amp;&amp; newIndex &lt; visibleTabs.length) {
+					const newTab = visibleTabs[newIndex];
+					if (newTab) {
+						setFocusableTabValue(newTab.value);
+						// Focus the new tab element
+						const tabElement = containerRef.current?.querySelector(`[data-tab=&quot;${newTab.value}&quot;]`);
+						if (tabElement instanceof HTMLElement) {
+							tabElement.focus();
+						}
+					}
+				}
+			}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- moveTabInGroup and openTabMenuValue are defined after this callback
+		[
+			tabGroups,
+			onReorder,
+			isReorderingViaKeyboard,
+			onDelete,
+			focusableTabValue,
+			sortedAllTabs,
+			handleTabClose,
+			visibleTabs,
+			overflowTabs.length,
+			generatedId,
+			overflowMenuOpen,
+		],
+	);
+
+	// Move tab within group for keyboard reordering
+	const moveTabInGroup = useCallback(
+		(tabValue: V, direction: number) =&gt; {
+			if (!onReorder) return;
+
+			const tab = sortedAllTabs.find((t) =&gt; t.value === tabValue);
+			if (!tab) return;
+
+			const group = tabGroups.find((g) =&gt; g.tabs.includes(tab));
+			if (!group || group.isLocked) return;
+
+			const groupTabs = group.tabs;
+			const currentIndex = groupTabs.indexOf(tab);
+			const targetIndex = currentIndex + direction;
+
+			if (targetIndex &lt; 0 || targetIndex &gt;= groupTabs.length) return;
+
+			const targetTab = groupTabs[targetIndex];
+			if (!targetTab || tab.isPinned !== targetTab.isPinned) return;
+
+			const newGroupTabs = [...groupTabs];
+			newGroupTabs.splice(currentIndex, 1);
+			newGroupTabs.splice(targetIndex, 0, tab);
+
+			// Update options based on format
+			const firstOption = options[0];
+			if (firstOption &amp;&amp; isTablistGroup(firstOption)) {
+				const updatedGroups = tabGroups.map((g) =&gt; {
+					if (g.id === group.id) {
+						return { ...g, tabs: sortTabsWithPinnedFirst(newGroupTabs) };
+					}
+					return g;
+				});
+				onReorder(updatedGroups as Array&lt;TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;&gt;);
+			} else {
+				const updatedTabs = tabGroups.flatMap((g) =&gt; {
+					if (g.id === group.id) {
+						return sortTabsWithPinnedFirst(newGroupTabs);
+					}
+					return g.tabs;
+				});
+				onReorder(updatedTabs);
+			}
+		},
+		[onReorder, sortedAllTabs, tabGroups, options],
+	);
+
+	// Handle tab menu toggle
+	const handleTabMenuToggle = useCallback((tabValue: V, event?: React.MouseEvent) =&gt; {
+		if (event) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
+		setOpenTabMenuValue((current) =&gt; (current === tabValue ? null : tabValue));
+	}, []);
+
+	// Handle tab menu item click
+	const handleTabMenuItemClick = useCallback((tab: TablistTab&lt;V&gt;, menuItem: TablistTabMenuItem) =&gt; {
+		menuItem.action?.(tab);
+		setOpenTabMenuValue(null);
+	}, []);
+
+	// Handle overflow tab click
+	const handleOverflowTabClick = useCallback(
+		(tab: TablistTab&lt;V&gt;) =&gt; {
+			onChange?.(tab.value);
+			setFocusableTabValue(tab.value);
+			setOverflowMenuOpen(false);
+
+			// If reordering is enabled, move the tab into visible area
+			if (onReorder) {
+				const group = tabGroups.find((g) =&gt; g.tabs.includes(tab));
+				if (group) {
+					const visibleTabsInGroup = visibleTabs.filter((t) =&gt; group.tabs.includes(t));
+					const lastVisibleTab = visibleTabsInGroup[visibleTabsInGroup.length - 1];
+
+					if (lastVisibleTab) {
+						const newGroupTabs = [...group.tabs];
+						const clickedIndex = newGroupTabs.indexOf(tab);
+						if (clickedIndex !== -1) {
+							newGroupTabs.splice(clickedIndex, 1);
+							const insertIndex = newGroupTabs.indexOf(lastVisibleTab) + 1;
+							newGroupTabs.splice(insertIndex, 0, tab);
+						}
+
+						const firstOption = options[0];
+						if (firstOption &amp;&amp; isTablistGroup(firstOption)) {
+							const updatedGroups = tabGroups.map((g) =&gt; {
+								if (g.id === group.id) {
+									return { ...g, tabs: newGroupTabs };
+								}
+								return g;
+							});
+							onReorder(updatedGroups as Array&lt;TablistTab&lt;V&gt; | TablistGroup&lt;V&gt;&gt;);
+						} else {
+							const updatedTabs = tabGroups.flatMap((g) =&gt; {
+								if (g.id === group.id) {
+									return newGroupTabs;
+								}
+								return g.tabs;
+							});
+							onReorder(updatedTabs);
+						}
+					}
+				}
+			}
+		},
+		[onChange, onReorder, tabGroups, visibleTabs, options],
+	);
+
+	// Track tab widths using a ref to avoid infinite loops during render
+	const tabWidthsRef = useRef&lt;Map&lt;V, number&gt;&gt;(new Map());
+	const pendingWidthUpdate = useRef(false);
+
+	// Effect to sync tabWidths state from ref after mount
+	useEffect(() =&gt; {
+		if (pendingWidthUpdate.current &amp;&amp; tabWidthsRef.current.size &gt; 0) {
+			pendingWidthUpdate.current = false;
+			setTabWidths(new Map(tabWidthsRef.current));
+		}
+	}, []);
+
+	// Register tab width - using ref to avoid state updates during render
+	const registerTabRef = useCallback(
+		(tabValue: V) =&gt; {
+			return (element: HTMLElement | null) =&gt; {
+				if (element &amp;&amp; !shouldBalanceTabs) {
+					const newWidth = element.offsetWidth;
+					if (tabWidthsRef.current.get(tabValue) !== newWidth) {
+						tabWidthsRef.current.set(tabValue, newWidth);
+						pendingWidthUpdate.current = true;
+					}
+				}
+			};
+		},
+		[shouldBalanceTabs],
+	);
+
+	// Get accessibility description for tab
+	const getTabAccessibilityDescription = useCallback(
+		(tab: TablistTab&lt;V&gt;): string | undefined =&gt; {
+			const group = tabGroups.find((g) =&gt; g.tabs.includes(tab));
+			const capabilities: string[] = [];
+
+			if (tab.menuItems?.length) {
+				capabilities.push(&#x27;Has menu&#x27;);
+			}
+			if (onReorder &amp;&amp; !group?.isLocked) {
+				capabilities.push(&#x27;Movable&#x27;);
+			}
+			if (onDelete &amp;&amp; !tab.isPinned &amp;&amp; !group?.isLocked) {
+				capabilities.push(&#x27;Closable&#x27;);
+			}
+
+			return capabilities.length &gt; 0 ? capabilities.join(&#x27;; &#x27;) : undefined;
+		},
+		[tabGroups, onReorder, onDelete],
+	);
+
+	// Check if tab should show close button
+	const shouldShowCloseButton = useCallback(
+		(tab: TablistTab&lt;V&gt;): boolean =&gt; {
+			if (!onDelete || tab.isPinned) return false;
+			const group = tabGroups.find((g) =&gt; g.tabs.includes(tab));
+			return !group?.isLocked;
+		},
+		[onDelete, tabGroups],
+	);
+
+	// Get tab tooltip
+	const getTabTooltip = useCallback(
+		(tab: TablistTab&lt;V&gt;): string | undefined =&gt; {
+			if (tab.tooltip) return tab.tooltip;
+			if (tab.isPinned &amp;&amp; shouldUseCompactPinnedTabs) {
+				return tab.label;
+			}
+			return undefined;
+		},
+		[shouldUseCompactPinnedTabs],
+	);
+
+	// CSS custom properties
+	const cssVars: CSSProperties = {
+		&#x27;--tablist-overflow-menu-button-width&#x27;: `${OVERFLOW_MENU_BUTTON_WIDTH}px`,
+		...(shouldUseCompactPinnedTabs &amp;&amp; {
+			&#x27;--tablist-compact-pinned-tab-width&#x27;: `${COMPACT_PINNED_TAB_WIDTH}px`,
+		}),
+		...(shouldBalanceTabs &amp;&amp; {
+			&#x27;--tablist-balanced-tab-width&#x27;: `${balancedTabWidth}px`,
+		}),
+	} as CSSProperties;
+
+	// Get tabs to render for a group
+	const getGroupTabsToRender = (groupId: string) =&gt; {
+		const group = tabGroups.find((g) =&gt; g.id === groupId);
+		if (!group) return [];
+		return group.tabs.filter((tab) =&gt; visibleTabs.includes(tab));
+	};
+
+	// Context value
+	const contextValue: TablistContextValue = {
+		activeTabValue: activeTab?.value ?? null,
+	};
+
+	// Render individual tab
+	const renderTab = (tab: TablistTab&lt;V&gt;, index: number, group: TablistGroup&lt;V&gt;) =&gt; {
+		const isActive = tab === activeTab;
+		const isFocusable = tab.value === focusableTabValue;
+		const isGrabbed = isReorderingViaKeyboard &amp;&amp; isFocusable &amp;&amp; !group.isLocked;
+		const Tag = tab.href ? &#x27;a&#x27; : &#x27;button&#x27;;
+		const descriptionId = `tab-description-${tab.value}`;
+		const description = getTabAccessibilityDescription(tab);
+
+		return (
+			&lt;div
+				key={tab.value}
+				ref={registerTabRef(tab.value)}
+				className={cn(
+					styles.tabWrapper,
+					tab.isPinned &amp;&amp; shouldUseCompactPinnedTabs &amp;&amp; styles.compact,
+					shouldBalanceTabs &amp;&amp; !tab.isPinned &amp;&amp; styles.balanced,
+				)}
+				data-qid-tablist-tab-wrapper={tab.value}
+			&gt;
+				&lt;Tag
+					className={styles.tab}
+					role={roleIsTablist ? &#x27;tab&#x27; : undefined}
+					type={roleIsTablist ? &#x27;button&#x27; : undefined}
+					href={tab.href}
+					tabIndex={isFocusable ? 0 : -1}
+					data-tab={tab.value}
+					data-qid-tablist-tab
+					data-qid-index={index}
+					data-qid={tab.qid ?? &#x27;Tablist__Link&#x27;}
+					data-qid-component-type=&quot;Luna::Tab&quot;
+					data-has-menu={tab.menuItems ? &#x27;true&#x27; : &#x27;false&#x27;}
+					data-is-active={isActive}
+					data-is-grabbed={isGrabbed || undefined}
+					data-is-pinned={tab.isPinned ? &#x27;true&#x27; : &#x27;false&#x27;}
+					aria-label={tab.isPinned ? getTabTooltip(tab) : undefined}
+					aria-current={!roleIsTablist ? (isActive ? &#x27;true&#x27; : &#x27;false&#x27;) : undefined}
+					aria-selected={roleIsTablist ? (isActive ? &#x27;true&#x27; : &#x27;false&#x27;) : undefined}
+					aria-controls={roleIsTablist ? `luna-panel-${tab.value}` : undefined}
+					aria-describedby={description ? descriptionId : undefined}
+					onClick={(e) =&gt; handleTabClick(tab, e as React.MouseEvent)}
+					onKeyDown={(e) =&gt; handleKeyDown(tab, e)}
+					onBlur={() =&gt; setIsReorderingViaKeyboard(false)}
+				&gt;
+					&lt;div data-qid-tablist-tab-inner className={styles.inner}&gt;
+						&lt;div data-qid-tablist-tab-inner-content className={styles.content}&gt;
+							{children ? children(tab) : tab.label}
+						&lt;/div&gt;
+					&lt;/div&gt;
+				&lt;/Tag&gt;
+
+				{(tab.menuItems?.length || shouldShowCloseButton(tab)) &amp;&amp; (
+					&lt;div data-qid-tablist-tab-controls className={styles.controls}&gt;
+						{tab.menuItems?.length &amp;&amp; (
+							&lt;&gt;
+								&lt;Button
+									ref={(el: HTMLButtonElement | HTMLAnchorElement | null) =&gt; {
+										tabMenuButtonRefs.current.set(tab.value, el as HTMLButtonElement | null);
+									}}
+									tabIndex={-1}
+									variant=&quot;unstyled&quot;
+									size=&quot;xs&quot;
+									aria-hidden={roleIsTablist ? &#x27;true&#x27; : undefined}
+									aria-label={t(&#x27;tablist.ariaActions&#x27;)}
+									aria-expanded={openTabMenuValue === tab.value}
+									className={cn(styles.tabControl, styles.menuButton)}
+									data-qid-tablist-tab-menu-button
+									data-tablist-tab-control
+									onClick={(e) =&gt; handleTabMenuToggle(tab.value, e)}
+								&gt;
+									&lt;Icon icon=&quot;more-vertical&quot; size=&quot;xs&quot; /&gt;
+								&lt;/Button&gt;
+								&lt;Popup
+									show={openTabMenuValue === tab.value}
+									relativeTo={{ current: tabMenuButtonRefs.current.get(tab.value) ?? null }}
+									placement=&quot;bottom-end&quot;
+									variant=&quot;light&quot;
+									onClose={() =&gt; setOpenTabMenuValue(null)}
+								&gt;
+									&lt;div className={styles.menu}&gt;
+										{tab.menuItems.map((menuItem, menuIndex) =&gt; (
+											&lt;button
+												key={menuIndex}
+												className={styles.menuOption}
+												data-test-tab-menu-option
+												onClick={() =&gt; handleTabMenuItemClick(tab, menuItem)}
+											&gt;
+												{menuItem.label}
+											&lt;/button&gt;
+										))}
+									&lt;/div&gt;
+								&lt;/Popup&gt;
+							&lt;/&gt;
+						)}
+						{shouldShowCloseButton(tab) &amp;&amp; (
+							&lt;Button
+								variant=&quot;unstyled&quot;
+								data-qid-tablist-tab-close-button
+								data-tablist-tab-control
+								data-qid=&quot;NavTab__Close&quot;
+								className={cn(styles.tabControl, styles.deleteButton)}
+								tabIndex={-1}
+								size=&quot;xs&quot;
+								aria-hidden={roleIsTablist ? &#x27;true&#x27; : undefined}
+								aria-label={t(&#x27;tablist.ariaCloseTab&#x27;)}
+								onClick={(e) =&gt; handleTabClose(tab, e)}
+							&gt;
+								&lt;Icon icon=&quot;close&quot; size=&quot;xs&quot; /&gt;
+							&lt;/Button&gt;
+						)}
+					&lt;/div&gt;
+				)}
+
+				{description &amp;&amp; (
+					&lt;div id={descriptionId} className={styles.visuallyHidden}&gt;
+						{description}
+					&lt;/div&gt;
+				)}
+			&lt;/div&gt;
+		);
+	};
+
+	return (
+		&lt;TablistContext.Provider value={contextValue}&gt;
+			&lt;div
+				ref={(el) =&gt; {
+					if (typeof ref === &#x27;function&#x27;) ref(el);
+					else if (ref) (ref as React.MutableRefObject&lt;HTMLDivElement | null&gt;).current = el;
+					(containerRef as RefObject&lt;HTMLDivElement | null&gt;).current = el;
+				}}
+				className={cn(styles.Tablist, className)}
+				data-variant={variant}
+				data-size={size}
+				data-qid-luna-tablist
+				data-testid={testId}
+				aria-label={ariaLabel}
+				{...restProps}
+			&gt;
+				&lt;div style={cssVars} className={styles.tablistInner} role={roleIsTablist ? &#x27;tablist&#x27; : undefined}&gt;
+					{before &amp;&amp; (
+						&lt;div ref={beforeBlockRef} data-qid-luna-tablist-before className={styles.before}&gt;
+							{before}
+						&lt;/div&gt;
+					)}
+
+					{tabGroups.map((group) =&gt; (
+						&lt;div
+							key={group.id}
+							role={roleIsTablist ? &#x27;none&#x27; : undefined}
+							className={styles.tabGroup}
+							data-tablist-group-id={group.id}
+							data-test-tablist-tabs
+							data-qid-component-type=&quot;Luna::Tablist&quot;
+						&gt;
+							{getGroupTabsToRender(group.id).map((tab, index) =&gt; renderTab(tab, index, group))}
+						&lt;/div&gt;
+					))}
+				&lt;/div&gt;
+
+				{overflowTabs.length &gt; 0 &amp;&amp; (
+					&lt;div data-qid-tablist-tab-wrapper className={styles.tabWrapper}&gt;
+						&lt;Button
+							ref={overflowButtonRef}
+							tabIndex={focusableTabValue === `overflow-${generatedId}` ? 0 : -1}
+							className={cn(styles.tab, styles.tablistOverflowButton)}
+							variant=&quot;unstyled&quot;
+							aria-label={t(&#x27;tablist.ariaMoreTabs&#x27;)}
+							data-test-tablist-overflow-menu
+							data-tab={`overflow-${generatedId}`}
+							data-qid-component-type=&quot;Luna::Tablist::OverflowMenu&quot;
+							onClick={() =&gt; setOverflowMenuOpen(!overflowMenuOpen)}
+							onFocus={() =&gt; setFocusableTabValue(`overflow-${generatedId}` as V)}
+							onBlur={() =&gt; setIsReorderingViaKeyboard(false)}
+							onKeyDown={(e) =&gt; handleKeyDown(null, e)}
+						&gt;
+							&lt;Icon icon=&quot;more-horizontal&quot; /&gt;
+						&lt;/Button&gt;
+						&lt;Popup
+							show={overflowMenuOpen}
+							relativeTo={overflowButtonRef}
+							placement=&quot;bottom-end&quot;
+							variant=&quot;light&quot;
+							onClose={() =&gt; setOverflowMenuOpen(false)}
+						&gt;
+							&lt;div className={styles.menu}&gt;
+								{overflowTabs.map((tab) =&gt; (
+									&lt;button
+										key={tab.value}
+										className={styles.menuOption}
+										data-test-tablist-menu-option
+										data-tab={tab.value}
+										onClick={() =&gt; handleOverflowTabClick(tab)}
+									&gt;
+										{menuOption ? menuOption(tab) : children ? children(tab) : tab.label}
+									&lt;/button&gt;
+								))}
+							&lt;/div&gt;
+						&lt;/Popup&gt;
+					&lt;/div&gt;
+				)}
+			&lt;/div&gt;
+		&lt;/TablistContext.Provider&gt;
+	);
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="sr-only.html" class="nav-btn">← sr-only</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="testing.html" class="nav-btn">testing →</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>util — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>util</h1>
+    <span class="badge badge-ember">Ember only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>util</strong> exists only in the Ember/Glimmer library and has not yet been ported to React. It should be considered part of the React migration backlog.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">cache-state.gts</div><pre class="language-typescript">import { hash } from &#x27;@ember/helper&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import type LunaStateManager from &#x27;../../services/state-manager.ts&#x27;;
+
+interface CacheStateSignature {
+	Args: {
+		key: string;
+		defaultValue: unknown;
+	};
+	Blocks: {
+		default: [
+			{
+				value: unknown;
+				update: &lt;T&gt;(value: T) =&gt; T;
+			},
+		];
+	};
+}
+
+export default class CacheState extends Component&lt;CacheStateSignature&gt; {
+	@service(&#x27;luna/state-manager&#x27;) declare stateManager: LunaStateManager;
+
+	get value() {
+		return this.stateManager.getState(this.args.key, this.args.defaultValue);
+	}
+
+	@action
+	update&lt;T&gt;(value: T): T {
+		return this.stateManager.setState(this.args.key, value);
+	}
+
+	&lt;template&gt;{{yield (hash value=this.value update=this.update)}}&lt;/template&gt;
+}
+</pre><div class="file-tab">tablist-manager.gts</div><pre class="language-typescript">import { assert } from &#x27;@ember/debug&#x27;;
+import { hash } from &#x27;@ember/helper&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import type LunaSessionStorageService from &#x27;../../services/session-storage.ts&#x27;;
+
+interface Tab {
+	/** Any value except null or undefined */
+	value: unknown;
+}
+
+function isTab(value: unknown): value is Tab {
+	if (value !== null &amp;&amp; typeof value === &#x27;object&#x27; &amp;&amp; &#x27;value&#x27; in value) {
+		const innerValue = (value as Tab).value;
+		return innerValue !== undefined &amp;&amp; innerValue !== null;
+	}
+	return false;
+}
+
+function isTabs(value: unknown): value is Tab[] {
+	return Array.isArray(value) &amp;&amp; value.every(isTab);
+}
+
+interface TablistManagerSignature {
+	Args: {
+		key: string;
+	};
+
+	Blocks: {
+		default: [
+			{
+				tabs: Tab[];
+				hasTabs: boolean;
+				activeTab: unknown;
+				onReorder: (tabs: Tab[]) =&gt; void;
+				onChange: (tabValue: Tab) =&gt; void;
+				closeTab: (value: unknown) =&gt; void;
+				closeAllTabs: () =&gt; void;
+				addTab: (tab: Tab) =&gt; void;
+				addTabFromCmdClick: (tab: Tab, event: KeyboardEvent) =&gt; void;
+			},
+		];
+	};
+}
+
+export default class TablistManager extends Component&lt;TablistManagerSignature&gt; {
+	@service(&#x27;luna/session-storage&#x27;) declare sessionStorage: LunaSessionStorageService;
+
+	get activeTabKey() {
+		return `tablist-manager-${this.args.key}-active-tab`;
+	}
+
+	get tabsKey() {
+		return `tablist-manager-${this.args.key}-tabs`;
+	}
+
+	get tabs() {
+		const tabs = this.sessionStorage.getItem&lt;Tab[]&gt;(this.tabsKey) ?? [];
+		assert(`Expected ${this.tabsKey} to be an array of tabs`, isTabs(tabs));
+		return tabs;
+	}
+
+	get activeTab() {
+		return this.sessionStorage.getItem(this.activeTabKey);
+	}
+
+	get hasTabs() {
+		return Boolean(this.tabs.length);
+	}
+
+	@action
+	onReorder(tabs: Tab[]) {
+		this.sessionStorage.setItem(this.tabsKey, tabs);
+	}
+
+	@action
+	onChange(tabValue: Tab) {
+		this.sessionStorage.setItem(this.activeTabKey, tabValue);
+	}
+
+	@action
+	closeAllTabs() {
+		this.sessionStorage.removeItem(this.activeTabKey);
+		this.sessionStorage.removeItem(this.tabsKey);
+	}
+
+	@action
+	closeTab(value: unknown) {
+		const tabs = this.tabs.filter((option) =&gt; option.value !== value);
+		this.sessionStorage.setItem(this.tabsKey, tabs);
+	}
+
+	@action
+	addTabFromCmdClick(tab: Tab, event: KeyboardEvent) {
+		if (!(event.metaKey || event.ctrlKey)) {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.addTab(tab);
+	}
+
+	@action
+	addTab(tab: Tab) {
+		assert(&#x27;You must provide a &quot;value&quot; key on the tab object.&#x27;, isTab(tab));
+
+		const splitViewTabs = this.sessionStorage.getItem&lt;Tab[]&gt;(this.tabsKey) ?? [];
+		assert(`Expected ${this.tabsKey} to be an array of tabs`, isTabs(splitViewTabs));
+		const tabs = [...splitViewTabs];
+
+		if (!tabs.length || !tabs.find((t) =&gt; t.value === tab.value)) {
+			// Convert proxy object to a plain object
+			tabs.push(Object.assign({}, tab));
+		}
+
+		this.sessionStorage.setItem(this.tabsKey, tabs);
+		this.sessionStorage.setItem(this.activeTabKey, tab.value);
+	}
+
+	&lt;template&gt;
+		{{yield
+			(hash
+				tabs=this.tabs
+				hasTabs=this.hasTabs
+				activeTab=this.activeTab
+				onReorder=this.onReorder
+				onChange=this.onChange
+				closeTab=this.closeTab
+				closeAllTabs=this.closeAllTabs
+				addTab=this.addTab
+				addTabFromCmdClick=this.addTabFromCmdClick
+			)
+		}}
+	&lt;/template&gt;
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="ui-control-size.html" class="nav-btn">← ui-control-size</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="x-stack.html" class="nav-btn">x-stack →</a>
+  </div>
+</body>
+</html>

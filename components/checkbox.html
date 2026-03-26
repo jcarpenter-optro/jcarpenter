@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>checkbox — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>checkbox</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>checkbox</strong> implementations exist. The Ember version is 206 lines and the React version is 287 lines. The React version is notably larger (287 vs 206 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">checkbox.gts</div><pre class="language-typescript">import type { AttrValue } from &#x27;@glint/template&#x27;;
+
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import Element from &#x27;./checkbox/element.gts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.ts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+
+export interface LunaCheckboxModifiers {
+	class?: string;
+	size?: &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+	ariaLabel?: string;
+	id?: string;
+	requirements?: Requirements;
+	form?: LunaFormBlockValue;
+	name?: string;
+	disabled?: boolean;
+	/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+	serverErrors?: Array&lt;{ message?: string } | string&gt;;
+	ariaDescribedBy?: string;
+	didAutosave?: () =&gt; void;
+}
+
+interface LunaCheckboxSignature&lt;Value extends AttrValue&gt; {
+	Element: HTMLDivElement;
+	Args: LunaCheckboxModifiers &amp; {
+		onChange?: (value: boolean, event: Event) =&gt; unknown;
+		value: Value;
+	};
+	Blocks: {
+		default?: [];
+	};
+}
+
+let nextInputId = 0;
+
+/**
+ * A checkbox. Similar to a toggle, but supports a mixed state.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/checkbox.md)
+ */
+export default class Checkbox&lt;Value extends AttrValue&gt; extends Component&lt;LunaCheckboxSignature&lt;Value&gt;&gt; {
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+	@consume(&#x27;luna-input-id&#x27;) inputId!: string;
+
+	labelId = `${guidFor(this)}--label`;
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: LunaCheckboxSignature&lt;Value&gt;[&#x27;Args&#x27;]) {
+		super(owner, args);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			name: args.name,
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: args.ariaDescribedBy ?? null,
+
+			get value(): Value {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-checkbox-${nextInputId++}`;
+	}
+
+	/**
+	 * Converts the provided value to an appropriate string to assign to the
+	 * aria-checked attribute.
+	 */
+	get value() {
+		const value = this.args.value;
+
+		if (typeof value === &#x27;boolean&#x27;) {
+			return value.toString();
+		}
+
+		if (value === undefined || value === null) {
+			return &#x27;false&#x27;;
+		}
+
+		return &#x27;mixed&#x27;;
+	}
+
+	@action
+	async toggle(event: Event) {
+		if (this.args.disabled) {
+			return;
+		}
+
+		// This ensures a indeterminate value goes to true on click
+		const value = typeof this.args.value === &#x27;boolean&#x27; ? !this.args.value : true;
+		await this.args.onChange?.(value, event);
+		this.manager.onChange();
+	}
+
+	@action
+	onKeyDown(event: KeyboardEvent) {
+		if (event.key === KEYBOARD_KEYS.SPACE) {
+			event.preventDefault();
+			void this.toggle(event);
+		}
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+	&lt;template&gt;
+		{{! template-lint-disable require-presentational-children }}
+		&lt;div
+			class=&quot;CheckboxWrapper {{@class}}&quot;
+			data-qid-component-type=&quot;Luna::Checkbox&quot;
+			data-focused={{toString0 this.manager.inputHasFocus}}
+			data-errored={{toString0 this.manager.showErrorMessage}}
+		&gt;
+			&lt;div
+				id={{this.id}}
+				class=&quot;Checkbox&quot;
+				tabindex=&quot;0&quot;
+				role=&quot;checkbox&quot;
+				aria-checked={{this.value}}
+				aria-readonly={{toString0 @disabled}}
+				aria-label={{@ariaLabel}}
+				aria-labelledby={{if (has-block) this.labelId}}
+				aria-describedby={{this.manager.ariaDescribedBy}}
+				aria-invalid={{toString0 this.manager.showErrorMessage}}
+				data-size={{or @size &quot;md&quot;}}
+				data-checkbox-element-container
+				...attributes
+				{{on &quot;click&quot; this.toggle}}
+				{{on &quot;keydown&quot; this.onKeyDown}}
+			&gt;
+
+				&lt;Element
+					@value={{this.value}}
+					@size={{or @size &quot;md&quot;}}
+					@disabled={{@disabled}}
+					@invalid={{this.manager.showErrorMessage}}
+					data-qid-component-type=&quot;Luna::CheckboxElement&quot;
+					class=&quot;element&quot;
+				/&gt;
+
+				{{#if (has-block)}}
+					&lt;div id={{this.labelId}} data-test-checkbox-label&gt;
+						{{yield}}
+
+						{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+							&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} class=&quot;spinner&quot; /&gt;
+						{{/if}}
+					&lt;/div&gt;
+				{{/if}}
+			&lt;/div&gt;
+
+			&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}} @align=&quot;left&quot;&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">checkbox-element.tsx</div><pre class="language-typescript">import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./checkbox.module.css&#x27;;
+
+export type CheckboxElementSize = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface CheckboxElementProps extends React.HTMLAttributes&lt;HTMLDivElement&gt; {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Checkbox value state */
+	value: boolean | &#x27;mixed&#x27; | undefined;
+	/** Whether checkbox is disabled */
+	disabled?: boolean;
+	/** Whether checkbox is in invalid state */
+	invalid?: boolean;
+	/** Size of the checkbox */
+	size?: CheckboxElementSize;
+}
+
+/**
+ * A visual-only checkbox element.
+ * Used by CheckboxTree for rendering checkbox appearance without form integration.
+ */
+export function CheckboxElement(props: CheckboxElementProps) {
+	const { ref, value, disabled = false, invalid = false, size = &#x27;md&#x27;, className, ...rest } = props;
+	// Convert value to string for data attribute
+	const dataChecked = value === &#x27;mixed&#x27; ? &#x27;mixed&#x27; : value === true ? &#x27;true&#x27; : &#x27;false&#x27;;
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.checkboxElement, className)}
+			data-checked={dataChecked}
+			data-readonly={disabled ? &#x27;true&#x27; : undefined}
+			data-invalid={invalid ? &#x27;true&#x27; : undefined}
+			data-size={size}
+			data-test-checkbox-element
+			{...rest}
+		&gt;
+			&lt;div className={styles.inner}&gt;
+				{/* Check icon */}
+				&lt;svg className={styles.check} xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 20 20&quot;&gt;
+					&lt;path
+						fill=&quot;currentColor&quot;
+						fillRule=&quot;evenodd&quot;
+						d=&quot;M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z&quot;
+						clipRule=&quot;evenodd&quot;
+					/&gt;
+				&lt;/svg&gt;
+				{/* Mixed/indeterminate icon */}
+				&lt;svg className={styles.mixed} xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 20 20&quot;&gt;
+					&lt;path stroke=&quot;currentColor&quot; strokeWidth=&quot;2.5&quot; strokeLinecap=&quot;round&quot; d=&quot;M5 10h10&quot; /&gt;
+				&lt;/svg&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default CheckboxElement;
+</pre><div class="file-tab">checkbox.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useId, useRef, useState } from &#x27;react&#x27;;
+
+import { Checkbox as BaseCheckbox } from &#x27;@base-ui-components/react/checkbox&#x27;;
+import type { Requirements } from &#x27;@soxhub/luna-utils/validators&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { useFieldContext } from &#x27;../field/field-context&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { InputError } from &#x27;../input-error&#x27;;
+import { Spinner } from &#x27;../spinner&#x27;;
+
+import { CheckboxElement } from &#x27;./checkbox-element&#x27;;
+
+import styles from &#x27;./checkbox.module.css&#x27;;
+
+export type CheckboxSize = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+interface CheckboxBaseProps {
+	/** Forwarded ref to the checkbox root element */
+	&#x27;ref&#x27;?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Checkbox value (boolean or undefined for mixed/indeterminate state) */
+	&#x27;value&#x27;: boolean | undefined;
+	/** Callback fired when value changes */
+	&#x27;onChange&#x27;?: (value: boolean, event: Event) =&gt; void;
+	/** Checkbox size */
+	&#x27;size&#x27;?: CheckboxSize;
+	/** Whether checkbox is disabled */
+	&#x27;disabled&#x27;?: boolean;
+	/** Checkbox ID (auto-generated if not provided) */
+	&#x27;id&#x27;?: string;
+	/** Checkbox name */
+	&#x27;name&#x27;?: string;
+	/** ARIA label (for non-label scenarios) */
+	&#x27;ariaLabel&#x27;?: string;
+	/** ARIA described by */
+	&#x27;aria-describedby&#x27;?: string;
+	/** Additional CSS class */
+	&#x27;className&#x27;?: string;
+	/** Children (label content) */
+	&#x27;children&#x27;?: React.ReactNode;
+	/** Validation requirements */
+	&#x27;requirements&#x27;?: Requirements;
+	/** @deprecated Server errors (use externalErrorsFor on Form instead) */
+	&#x27;serverErrors&#x27;?: Array&lt;{ message?: string } | string&gt;;
+	/** Callback fired when autosave completes successfully */
+	&#x27;didAutosave&#x27;?: () =&gt; void;
+}
+
+type CheckboxProps = CheckboxBaseProps &amp;
+	Omit&lt;React.HTMLAttributes&lt;HTMLDivElement&gt;, keyof CheckboxBaseProps | &#x27;onChange&#x27;&gt;;
+
+/**
+ * A checkbox. Similar to a toggle, but supports a mixed state.
+ *
+ * Matches the Luna::Checkbox Ember component API and styling.
+ * Uses Base UI Checkbox as the foundation.
+ */
+export function Checkbox(props: CheckboxProps) {
+	const {
+		ref,
+		value,
+		onChange,
+		size = &#x27;md&#x27;,
+		disabled = false,
+		&#x27;id&#x27;: providedId,
+		name,
+		ariaLabel,
+		&#x27;aria-describedby&#x27;: providedAriaDescribedBy,
+		className,
+		children,
+		requirements,
+		serverErrors,
+		didAutosave,
+		...rest
+	} = props;
+
+	const generatedId = useId();
+	const fieldContext = useFieldContext();
+	const id = providedId ?? fieldContext?.inputId ?? generatedId;
+	const labelId = fieldContext?.labelId ?? `${id}--label`;
+	const formContext = useFormContext();
+	const checkboxRef = useRef&lt;HTMLDivElement&gt;(null);
+	const valueIsUnchangedRef = useRef(true);
+
+	const focusInput = useCallback(() =&gt; {
+		if (checkboxRef.current) {
+			checkboxRef.current.focus();
+		} else if (ref &amp;&amp; typeof ref === &#x27;object&#x27; &amp;&amp; ref.current) {
+			ref.current.focus();
+		}
+	}, [ref]);
+
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		serverErrors,
+		requirements,
+		name,
+		value,
+		isDisabled: disabled,
+		formContext,
+		ariaDescribedBy: providedAriaDescribedBy ?? null,
+		focus: focusInput,
+		didAutosave: () =&gt; {
+			valueIsUnchangedRef.current = true;
+			didAutosave?.();
+		},
+	});
+
+	// Register/unregister with form
+	const managerRef = useRef(manager);
+	managerRef.current = manager;
+
+	useEffect(() =&gt; {
+		if (formContext) {
+			formContext.actions.registerInputManager(managerRef.current);
+			return () =&gt; {
+				formContext.actions.unregisterInputManager(managerRef.current);
+			};
+		}
+	}, [formContext]);
+
+	const [focused, setFocused] = useState(false);
+	const focusedState = focused || manager.inputHasFocus;
+
+	// Convert value to checked state and indeterminate
+	const checked = value === true;
+	const indeterminate = value === undefined;
+
+	const handleCheckedChange = useCallback(
+		(checked: boolean) =&gt; {
+			valueIsUnchangedRef.current = false;
+			manager.setValueIsUnchanged(false);
+			// When indeterminate, clicking should go to true
+			const newValue = indeterminate ? true : checked;
+			onChange?.(newValue, new Event(&#x27;change&#x27;));
+			manager.onChange();
+		},
+		[onChange, indeterminate, manager],
+	);
+
+	const handleKeyDown = useCallback(
+		(event: React.KeyboardEvent) =&gt; {
+			if (event.key === &#x27; &#x27;) {
+				event.preventDefault();
+				handleCheckedChange(!checked);
+			}
+		},
+		[handleCheckedChange, checked],
+	);
+
+	const handleFocus = useCallback(() =&gt; {
+		setFocused(true);
+		manager.focusIn();
+	}, [manager]);
+
+	const handleBlur = useCallback(() =&gt; {
+		setFocused(false);
+		manager.focusOutAndTrySave(new Event(&#x27;blur&#x27;));
+	}, [manager]);
+
+	const wrapperClassName = cn(styles.CheckboxWrapper, className);
+	const checkboxClassName = cn(styles.Checkbox, disabled &amp;&amp; styles.disabled);
+
+	// Convert value to aria-checked string
+	const ariaChecked = value === true ? &#x27;true&#x27; : value === false ? &#x27;false&#x27; : &#x27;mixed&#x27;;
+
+	return (
+		&lt;div className={wrapperClassName} data-qid-component-type=&quot;Luna::Checkbox&quot; ref={ref} {...rest}&gt;
+			&lt;BaseCheckbox.Root
+				checked={checked}
+				indeterminate={indeterminate}
+				disabled={disabled}
+				onCheckedChange={handleCheckedChange}
+				id={id}
+				render={(checkboxProps) =&gt; (
+					&lt;div
+						{...checkboxProps}
+						className={checkboxClassName}
+						tabIndex={disabled ? -1 : 0}
+						role=&quot;checkbox&quot;
+						aria-checked={ariaChecked}
+						aria-readonly={disabled ? &#x27;true&#x27; : undefined}
+						aria-label={ariaLabel}
+						aria-labelledby={children ? labelId : undefined}
+						aria-describedby={manager.ariaDescribedBy ?? providedAriaDescribedBy}
+						aria-invalid={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+						data-size={size}
+						data-checkbox-element-container
+						data-focused={focusedState ? &#x27;true&#x27; : &#x27;false&#x27;}
+						data-errored={manager.showErrorMessage ? &#x27;true&#x27; : &#x27;false&#x27;}
+						onKeyDown={handleKeyDown}
+						onFocus={handleFocus}
+						onBlur={handleBlur}
+					&gt;
+						&lt;div className={styles.checkboxElementContainer}&gt;
+							&lt;CheckboxElement
+								value={value === undefined ? &#x27;mixed&#x27; : value}
+								size={size}
+								disabled={disabled}
+								invalid={manager.showErrorMessage}
+							/&gt;
+						&lt;/div&gt;
+						{children &amp;&amp; (
+							&lt;div id={labelId} data-test-checkbox-label&gt;
+								{children}
+								{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+									&lt;Spinner
+										size=&quot;sm&quot;
+										transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined}
+										className={styles.spinner}
+									/&gt;
+								)}
+							&lt;/div&gt;
+						)}
+					&lt;/div&gt;
+				)}
+			/&gt;
+
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage} align=&quot;left&quot;&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default Checkbox;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="chart.html" class="nav-btn">← chart</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="checkbox-tree.html" class="nav-btn">checkbox-tree →</a>
+  </div>
+</body>
+</html>

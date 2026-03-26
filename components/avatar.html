@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>avatar — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>avatar</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>avatar</strong> implementations exist. The Ember version is 138 lines and the React version is 159 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">avatar.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports */
+import { service } from &#x27;@ember/service&#x27;;
+import { htmlSafe as trusted } from &#x27;@ember/template&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { element } from &#x27;ember-element-helper&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { eq, or } from &#x27;ember-truth-helpers&#x27;;
+
+import { legacyColorMap } from &#x27;../const/avatar-color.ts&#x27;;
+import type { ElementFromTagName, OptionalTagAttr, OptionalTagName } from &#x27;../types.ts&#x27;;
+import { getHexColorContrast } from &#x27;../utils/a11y.ts&#x27;;
+import { normalizeColorValueToHex } from &#x27;../utils/color.ts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import SrOnly from &#x27;./sr-only.gts&#x27;;
+
+const WHITE = &#x27;#FFFFFF&#x27;;
+const BLACK = &#x27;#000000&#x27;;
+const MINIMUM_CONTRAST = 4.5;
+const DEFAULT_TEXT_COLOR = BLACK;
+
+export type Slot = &#x27;header&#x27; | &#x27;sidebar&#x27; | &#x27;body&#x27; | &#x27;toolkit&#x27;;
+
+export interface LunaAvatarArgs {
+	class?: string;
+	image?: string;
+	size?: &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+	// May actually be required
+	status?: &#x27;success&#x27; | &#x27;error&#x27;;
+	bgColor?: string | null;
+	name?: string;
+	initials?: string;
+	fullName?: string;
+	id?: string;
+}
+
+export interface LunaAvatarSignature&lt;TagName extends OptionalTagName&gt; {
+	Element: ElementFromTagName&lt;TagName&gt;;
+	Args: LunaAvatarArgs &amp; OptionalTagAttr&lt;TagName&gt;;
+	Blocks: {
+		default?: [];
+	};
+}
+
+/**
+ * An avatar is a visual representation of a user or entity.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/avatar.md)
+ */
+export default class LunaAvatar&lt;TagName extends keyof HTMLElementTagNameMap | undefined&gt; extends Component&lt;
+	LunaAvatarSignature&lt;TagName&gt;
+&gt; {
+	@service declare intl: IntlService;
+
+	get tagName(): keyof HTMLElementTagNameMap {
+		return this.args.tag ?? &#x27;div&#x27;;
+	}
+
+	get bgColor(): string | undefined {
+		return this.args.bgColor || undefined;
+	}
+
+	/**
+	 * Determines by background color what text color to use for an appropriate contrast ratio to meet WCAG guidelines
+	 */
+	get textColor(): string | undefined {
+		const value = this.bgColor;
+		if (typeof value !== &#x27;undefined&#x27;) {
+			const colorValue = normalizeColorValueToHex(value);
+			// if we have a predefined mapping, use it
+			if (colorValue) {
+				if (legacyColorMap.has(colorValue)) {
+					return legacyColorMap.get(colorValue) ?? DEFAULT_TEXT_COLOR;
+				}
+				// In the wild, there are already several arbitrary values that were stored before the predefined values were set,
+				// so this check will cover any color by checking which has higher contrast
+				const blackTextContrast = getHexColorContrast(BLACK, colorValue);
+				const whiteTextContrast = getHexColorContrast(WHITE, colorValue);
+
+				// if we don&#x27;t meet minimum contrast on either, we default to the opposite
+				if (blackTextContrast &lt; MINIMUM_CONTRAST) return WHITE;
+				if (whiteTextContrast &lt; MINIMUM_CONTRAST) return BLACK;
+
+				return whiteTextContrast &lt; blackTextContrast ? BLACK : WHITE;
+			}
+		}
+
+		return DEFAULT_TEXT_COLOR;
+	}
+
+	get style() {
+		const { status } = this.args;
+
+		if (!status &amp;&amp; this.bgColor) {
+			return trusted(`background-color: ${this.bgColor}; color: ${this.textColor};`);
+		}
+
+		return;
+	}
+
+	get srName() {
+		/** Use default &#x27;User&#x27; if no name is provided */
+		const defaultName = this.intl.t(&#x27;avatar.user&#x27;);
+
+		return this.intl.t(&#x27;avatar.srAvatarName&#x27;, {
+			name: this.args.name || defaultName,
+		});
+	}
+
+	&lt;template&gt;
+		{{#let (element this.tagName) as |Tag|}}
+			&lt;Tag
+				class=&quot;Avatar {{@class}}&quot;
+				data-image={{if @image &quot;true&quot; &quot;false&quot;}}
+				data-size={{or @size &quot;sm&quot;}}
+				data-status={{@status}}
+				data-qid-component-type=&quot;Luna::Avatar&quot;
+				data-qid-avatar-name={{@name}}
+				type={{if (eq @tag &quot;button&quot;) &quot;button&quot;}}
+				style={{this.style}}
+				...attributes
+			&gt;
+				&lt;div class=&quot;content&quot;&gt;
+					{{#if (has-block)}}
+						{{yield}}
+					{{else if @image}}
+						&lt;img alt={{this.srName}} class=&quot;image&quot; src={{@image}} /&gt;
+					{{else if @initials}}
+						&lt;span aria-hidden=&quot;true&quot; class=&quot;initials&quot;&gt;{{@initials}}&lt;/span&gt;
+						&lt;SrOnly @text={{this.srName}} /&gt;
+					{{else}}
+						&lt;Icon @icon=&quot;person&quot; @title={{this.srName}} /&gt;
+					{{/if}}
+				&lt;/div&gt;
+			&lt;/Tag&gt;
+		{{/let}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">avatar.tsx</div><pre class="language-typescript">import { useMemo } from &#x27;react&#x27;;
+
+import { legacyColorMap } from &#x27;@soxhub/luna-utils&#x27;;
+import { getHexColorContrast } from &#x27;@soxhub/luna-utils&#x27;;
+import { normalizeColorValueToHex } from &#x27;@soxhub/luna-utils&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Icon } from &#x27;../icon&#x27;;
+
+import styles from &#x27;./avatar.module.css&#x27;;
+
+const WHITE = &#x27;#FFFFFF&#x27;;
+const BLACK = &#x27;#000000&#x27;;
+const MINIMUM_CONTRAST = 4.5;
+const DEFAULT_TEXT_COLOR = BLACK;
+
+export type AvatarSize = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+export type AvatarStatus = &#x27;success&#x27; | &#x27;error&#x27;;
+
+interface AvatarBaseProps {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLElement&gt;;
+	/** Image URL to display */
+	image?: string;
+	/** Size of the avatar */
+	size?: AvatarSize;
+	/** Status indicator */
+	status?: AvatarStatus;
+	/** Background color (hex or rgb) */
+	bgColor?: string | null;
+	/** Name for accessibility */
+	name?: string;
+	/** Initials to display */
+	initials?: string;
+	/** Full name for accessibility */
+	fullName?: string;
+	/** ID attribute */
+	id?: string;
+	/** HTML tag to render as */
+	tag?: keyof React.JSX.IntrinsicElements;
+	/** Additional CSS class */
+	className?: string;
+	/** Children content (if provided, overrides image/initials/icon) */
+	children?: React.ReactNode;
+}
+
+export type AvatarProps = ComponentPropsWithRef&lt;AvatarBaseProps, HTMLElement&gt;;
+
+/**
+ * Determines by background color what text color to use for an appropriate contrast ratio to meet WCAG guidelines
+ */
+function getTextColor(bgColor?: string | null): string {
+	if (typeof bgColor === &#x27;undefined&#x27; || bgColor === null) {
+		return DEFAULT_TEXT_COLOR;
+	}
+
+	const colorValue = normalizeColorValueToHex(bgColor);
+	if (colorValue) {
+		// if we have a predefined mapping, use it
+		if (legacyColorMap.has(colorValue)) {
+			return legacyColorMap.get(colorValue) ?? DEFAULT_TEXT_COLOR;
+		}
+		// In the wild, there are already several arbitrary values that were stored before the predefined values were set,
+		// so this check will cover any color by checking which has higher contrast
+		const blackTextContrast = getHexColorContrast(BLACK, colorValue);
+		const whiteTextContrast = getHexColorContrast(WHITE, colorValue);
+
+		// if we don&#x27;t meet minimum contrast on either, we default to the opposite
+		if (blackTextContrast &lt; MINIMUM_CONTRAST) return WHITE;
+		if (whiteTextContrast &lt; MINIMUM_CONTRAST) return BLACK;
+
+		return whiteTextContrast &lt; blackTextContrast ? BLACK : WHITE;
+	}
+
+	return DEFAULT_TEXT_COLOR;
+}
+
+/**
+ * An avatar is a visual representation of a user or entity.
+ *
+ * Matches the Luna::Avatar Ember component API and styling.
+ */
+export function Avatar(props: AvatarProps) {
+	const {
+		ref,
+		image,
+		size = &#x27;sm&#x27;,
+		status,
+		bgColor,
+		name,
+		initials,
+		id,
+		tag = &#x27;div&#x27;,
+		className,
+		children,
+		...rest
+	} = props;
+
+	const Tag = tag as React.ElementType;
+
+	// Calculate text color based on background color
+	const textColor = useMemo(() =&gt; getTextColor(bgColor), [bgColor]);
+
+	// Generate inline style for background and text color (only if no status)
+	const style = useMemo(() =&gt; {
+		if (!status &amp;&amp; bgColor) {
+			return {
+				backgroundColor: bgColor,
+				color: textColor,
+			};
+		}
+		return undefined;
+	}, [status, bgColor, textColor]);
+
+	// Screen reader name
+	const srName = useMemo(() =&gt; {
+		const defaultName = &#x27;User&#x27;;
+		return name ? `${name} avatar` : `${defaultName} avatar`;
+	}, [name]);
+
+	const avatarClassName = cn(styles.Avatar, className);
+
+	// Determine content to render
+	const content = children ? (
+		children
+	) : image ? (
+		&lt;img alt={srName} className={styles.image} src={image} /&gt;
+	) : initials ? (
+		&lt;&gt;
+			&lt;span aria-hidden=&quot;true&quot; className={styles.initials}&gt;
+				{initials}
+			&lt;/span&gt;
+			&lt;span className={styles.SrOnly}&gt;{srName}&lt;/span&gt;
+		&lt;/&gt;
+	) : (
+		&lt;Icon icon=&quot;person&quot; title={srName} /&gt;
+	);
+
+	return (
+		&lt;Tag
+			ref={ref}
+			className={avatarClassName}
+			data-image={image ? &#x27;true&#x27; : &#x27;false&#x27;}
+			data-size={size}
+			data-status={status}
+			data-qid-component-type=&quot;Luna::Avatar&quot;
+			data-qid-avatar-name={name}
+			type={tag === &#x27;button&#x27; ? &#x27;button&#x27; : undefined}
+			style={style}
+			id={id}
+			{...rest}
+		&gt;
+			&lt;div className={styles.content}&gt;{content}&lt;/div&gt;
+		&lt;/Tag&gt;
+	);
+}
+
+export default Avatar;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="animation.html" class="nav-btn">← animation</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="avatar-list.html" class="nav-btn">avatar-list →</a>
+  </div>
+</body>
+</html>

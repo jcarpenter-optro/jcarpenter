@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>label — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>label</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>label</strong> implementations exist. The Ember version is 88 lines and the React version is 114 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">label.gts</div><pre class="language-typescript">import { on } from &#x27;@ember/modifier&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { or } from &#x27;ember-truth-helpers&#x27;;
+
+enum LabelVariant {
+	Default = &#x27;default&#x27;,
+	Light = &#x27;light&#x27;,
+	Caps = &#x27;caps&#x27;,
+}
+
+interface LabelSignature {
+	Element: HTMLLabelElement;
+	Args: {
+		for: string; // Required, but frequently missing
+		variant?: `${LabelVariant}`;
+		level?: number;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+/**
+ * Adds a label for a form input.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/label.md)
+ */
+export default class Label extends Component&lt;LabelSignature&gt; {
+	/**
+	 * Click handler for the label. Conditionally clicks or focuses
+	 * the associated input depending on its type and whether it&#x27;s part
+	 * of a &quot;click to edit&quot; interface.
+	 */
+	handleClick = (e: MouseEvent) =&gt; {
+		e.preventDefault();
+
+		if (!this.args.for) {
+			return;
+		}
+
+		const input = document.getElementById(this.args.for);
+
+		/**
+		 * If the input is a checkbox, we send a click event to toggle its value.
+		 */
+		if ((input as HTMLInputElement).type === &#x27;checkbox&#x27; || input?.getAttribute(&#x27;role&#x27;) === &#x27;checkbox&#x27;) {
+			input?.click();
+			return;
+		}
+
+		/**
+		 * `EditableValue` labels initially reference input-styled buttons;
+		 * the actual inputs are hidden until the user enables editing.
+		 * When a label references one of these buttons, we conditionally click it in
+		 * accordance with how the native label/input would have behaved.
+		 * All other input references are focused.
+		 */
+
+		const editableValueFieldType = input?.getAttribute(&#x27;data-qid-editable-value-field-type&#x27;);
+
+		switch (editableValueFieldType) {
+			case &#x27;checkbox&#x27;:
+			case &#x27;text&#x27;:
+			case &#x27;textarea&#x27;:
+			case &#x27;number&#x27;:
+				input?.click();
+				break;
+			default:
+				input?.focus();
+				break;
+		}
+	};
+
+	&lt;template&gt;
+		&lt;label
+			class=&quot;Label&quot;
+			for={{@for}}
+			data-variant={{or @variant &quot;default&quot;}}
+			data-level={{or @level 1}}
+			data-qid-component-type=&quot;Luna::Label&quot;
+			...attributes
+			{{on &quot;click&quot; this.handleClick}}
+		&gt;
+			{{yield}}
+		&lt;/label&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">label.tsx</div><pre class="language-typescript">import { useCallback } from &#x27;react&#x27;;
+
+import { Field } from &#x27;@base-ui-components/react/field&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+
+import styles from &#x27;./label.module.css&#x27;;
+
+export type LabelVariant = &#x27;default&#x27; | &#x27;light&#x27; | &#x27;caps&#x27;;
+export type LabelLevel = 1 | 2;
+
+interface LabelBaseProps {
+	/** ID of the input this label is for (maps to htmlFor) */
+	for?: string;
+	/** Visual variant */
+	variant?: LabelVariant;
+	/** Level (1 or 2) - affects color for default variant */
+	level?: LabelLevel;
+	/** Children content */
+	children?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export type LabelProps = ComponentPropsWithRef&lt;
+	LabelBaseProps &amp; Omit&lt;React.LabelHTMLAttributes&lt;HTMLLabelElement&gt;, keyof LabelBaseProps | &#x27;htmlFor&#x27;&gt;,
+	HTMLLabelElement
+&gt;;
+
+/**
+ * Click handler for the label. Conditionally clicks or focuses
+ * the associated input depending on its type and whether it&#x27;s part
+ * of a &quot;click to edit&quot; interface.
+ */
+function handleLabelClick(e: React.MouseEvent&lt;HTMLLabelElement&gt;, forId?: string) {
+	e.preventDefault();
+
+	if (!forId) {
+		return;
+	}
+
+	const input = document.getElementById(forId);
+
+	/**
+	 * If the input is a checkbox, we send a click event to toggle its value.
+	 */
+	if ((input as HTMLInputElement)?.type === &#x27;checkbox&#x27; || input?.getAttribute(&#x27;role&#x27;) === &#x27;checkbox&#x27;) {
+		input?.click();
+		return;
+	}
+
+	/**
+	 * `EditableValue` labels initially reference input-styled buttons;
+	 * the actual inputs are hidden until the user enables editing.
+	 * When a label references one of these buttons, we conditionally click it in
+	 * accordance with how the native label/input would have behaved.
+	 * All other input references are focused.
+	 */
+
+	const editableValueFieldType = input?.getAttribute(&#x27;data-qid-editable-value-field-type&#x27;);
+
+	switch (editableValueFieldType) {
+		case &#x27;checkbox&#x27;:
+		case &#x27;text&#x27;:
+		case &#x27;textarea&#x27;:
+		case &#x27;number&#x27;:
+			input?.click();
+			break;
+		default:
+			input?.focus();
+			break;
+	}
+}
+
+/**
+ * Adds a label for a form input.
+ *
+ * Matches the Luna::Label Ember component API and styling.
+ * Uses Base UI Field.Label as the foundation.
+ */
+export function Label(props: LabelProps) {
+	const { ref, for: forId, variant = &#x27;default&#x27;, level = 1, children, className, ...rest } = props;
+
+	const labelClassName = cn(styles.Label, className);
+
+	const handleClick = useCallback(
+		(e: React.MouseEvent&lt;HTMLLabelElement&gt;) =&gt; {
+			handleLabelClick(e, forId);
+		},
+		[forId],
+	);
+
+	// Use Field.Label with render prop to add the `for` attribute and custom click handler
+	// Note: We use Field.Root minimally just to provide context, but Field.Label renders the actual label element
+	return (
+		&lt;Field.Root style={{ display: &#x27;contents&#x27; }}&gt;
+			&lt;Field.Label
+				ref={ref}
+				className={labelClassName}
+				data-variant={variant}
+				data-level={level}
+				data-qid-component-type=&quot;Luna::Label&quot;
+				render={(labelProps) =&gt; (
+					&lt;label {...labelProps} htmlFor={forId} onClick={handleClick} {...rest}&gt;
+						{children}
+					&lt;/label&gt;
+				)}
+			/&gt;
+		&lt;/Field.Root&gt;
+	);
+}
+
+export default Label;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="input-error.html" class="nav-btn">← input-error</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="layout.html" class="nav-btn">layout →</a>
+  </div>
+</body>
+</html>

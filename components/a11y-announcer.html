@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>a11y-announcer — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>a11y-announcer</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>a11y-announcer</strong> implementations exist. The Ember version is 121 lines and the React version is 347 lines. The React version is notably larger (347 vs 121 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">a11y-announcer.gts</div><pre class="language-typescript">import { assert } from &#x27;@ember/debug&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import { htmlSafe } from &#x27;@ember/template&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { or } from &#x27;ember-truth-helpers&#x27;;
+
+import type LunaAnnouncerService from &#x27;../services/announcer.ts&#x27;;
+import type { AnnouncerUrgencyLevels } from &#x27;../services/announcer.ts&#x27;;
+import type AsyncService from &#x27;../services/async.ts&#x27;;
+import announceOnInit from &#x27;./a11y-announcer/announce-on-init.ts&#x27;;
+
+export interface A11yAnnouncerSignature {
+	Element: HTMLSpanElement;
+	Args: {
+		/**
+		 * The text content to be rendered visibly for sighted users, but hidden from screen readers.
+		 * If screenReaderText is not defined, the same text is used for display and screen reader.
+		 */
+		text?: string;
+
+		/**
+		 * Optional text content to be visually hidden but announced to screen readers.
+		 * If text is not defined nothing is rendered (good for loading announcements).
+		 */
+		screenReaderText?: string;
+
+		/**
+		 * The urgency level for the announcement.
+		 * @default &#x27;polite&#x27;
+		 */
+		urgency?: AnnouncerUrgencyLevels;
+
+		/**
+		 * When set to true the text will be announced when the component is initialized.
+		 * Example: &quot;No results found&quot; when filtering a list
+		 * @default false
+		 */
+		announceOnInit?: boolean;
+
+		/**
+		 * Optional message to announce when the component is destroyed.
+		 * @default null
+		 */
+		destroyMessage?: string;
+	};
+}
+
+/**
+ * A component that can render text content for sighted users while providing
+ * accessible announcements for screen reader users via aria-live regions.
+ *
+ * @example
+ * ```hbs
+ * &lt;A11yAnnouncer
+ *   @text=&quot;Item added to cart&quot;
+ *   @screenReaderText=&quot;Item successfully added to your shopping cart&quot;
+ *   @urgency=&quot;polite&quot;
+ *   @announceOnInit={{true}}
+ *   @destroyMessage=&quot;Item removed from cart&quot;
+ * /&gt;
+ * ```
+ */
+export default class A11yAnnouncer extends Component&lt;A11yAnnouncerSignature&gt; {
+	@service(&#x27;luna/announcer&#x27;) declare announcerService: LunaAnnouncerService;
+	@service(&#x27;luna/async&#x27;) declare async: AsyncService;
+
+	constructor(owner: Owner, args: A11yAnnouncerSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+		// Require at least one of these
+		assert(&#x27;Expected @text or @screenReaderText to be defined&#x27;, args.text || args.screenReaderText);
+	}
+
+	get screenReaderText(): string {
+		return `&lt;span&gt;${this.args.screenReaderText ?? this.args.text}&lt;/span&gt;`;
+	}
+
+	get urgency(): AnnouncerUrgencyLevels {
+		return this.args.urgency ?? &#x27;polite&#x27;;
+	}
+
+	get hasBothText() {
+		return this.args.screenReaderText &amp;&amp; this.args.text;
+	}
+
+	get renderSeparate() {
+		return this.hasBothText &amp;&amp; this.args.screenReaderText !== this.args.text;
+	}
+
+	get screenReaderOnly() {
+		return this.args.screenReaderText &amp;&amp; !this.args.text;
+	}
+
+	&lt;template&gt;
+		&lt;span data-luna-announcer=&quot;true&quot; ...attributes&gt;
+			{{! Only render if different values for screen and screen reader }}
+			{{#if this.renderSeparate}}
+				&lt;span data-qid-a11y-announcer-text-content aria-hidden=&quot;true&quot;&gt;
+					{{@text}}
+				&lt;/span&gt;
+			{{/if}}
+
+			&lt;span
+				{{! Hide this if screen reader value is unique }}
+				data-qid-a11y-announcer-live-region
+				class={{if (or this.renderSeparate this.screenReaderOnly) &quot;sr-only&quot;}}
+				aria-live={{this.urgency}}
+				{{announceOnInit
+					urgency=this.urgency
+					announceOnInit=@announceOnInit
+					announcerService=this.announcerService
+					async=this.async
+					destroyMessage=@destroyMessage
+				}}
+			&gt;
+				{{htmlSafe this.screenReaderText}}
+			&lt;/span&gt;
+		&lt;/span&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">a11y-announcer.tsx</div><pre class="language-typescript">/**
+ * A11yAnnouncer: renders aria-live regions for screen reader announcements.
+ * When used inside AnnouncerProvider, announcements are coordinated (e.g. only the
+ * most recently mounted instance speaks). There is no separate &quot;setup&quot; component;
+ * each A11yAnnouncer instance is a live region. Place AnnouncerProvider at app root.
+ */
+import { useEffect, useId, useRef } from &#x27;react&#x27;;
+
+import { assert } from &#x27;@soxhub/luna-utils&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import type { AnnouncerUrgencyLevels } from &#x27;./announcer-context&#x27;;
+import { useAnnouncerOptional } from &#x27;./announcer-context&#x27;;
+
+import srOnlyStyles from &#x27;../sr-only/sr-only.module.css&#x27;;
+
+export interface A11yAnnouncerProps extends React.HTMLAttributes&lt;HTMLSpanElement&gt; {
+	/**
+	 * The text content to be rendered visibly for sighted users, but hidden from screen readers.
+	 * If screenReaderText is not defined, the same text is used for display and screen reader.
+	 */
+	text?: string;
+
+	/**
+	 * Optional text content to be visually hidden but announced to screen readers.
+	 * If text is not defined nothing is rendered (good for loading announcements).
+	 */
+	screenReaderText?: string;
+
+	/**
+	 * The urgency level for the announcement.
+	 * @default &#x27;polite&#x27;
+	 */
+	urgency?: AnnouncerUrgencyLevels;
+
+	/**
+	 * When set to true the text will be announced when the component is initialized.
+	 * Example: &quot;No results found&quot; when filtering a list
+	 * @default false
+	 */
+	announceOnInit?: boolean;
+
+	/**
+	 * Optional message to announce when the component is destroyed.
+	 * @default null
+	 */
+	destroyMessage?: string;
+}
+
+/**
+ * A component that can render text content for sighted users while providing
+ * accessible announcements for screen reader users via aria-live regions.
+ *
+ * @example
+ * ```tsx
+ * &lt;A11yAnnouncer
+ *   text=&quot;Item added to cart&quot;
+ *   screenReaderText=&quot;Item successfully added to your shopping cart&quot;
+ *   urgency=&quot;polite&quot;
+ *   announceOnInit
+ *   destroyMessage=&quot;Item removed from cart&quot;
+ * /&gt;
+ * ```
+ */
+export function A11yAnnouncer(props: A11yAnnouncerProps &amp; { ref?: React.Ref&lt;HTMLSpanElement&gt; }) {
+	const { ref, text, screenReaderText, urgency = &#x27;polite&#x27;, announceOnInit = false, destroyMessage, ...rest } = props;
+	const announcer = useAnnouncerOptional();
+	const instanceId = useId();
+	const hasAnnouncedRef = useRef(false);
+	const liveRegionRef = useRef&lt;HTMLSpanElement&gt;(null);
+
+	// Validate that at least one text prop is provided
+	assert(&#x27;Expected text or screenReaderText to be defined&#x27;, text || screenReaderText);
+
+	// Register/unregister with announcer service
+	useEffect(() =&gt; {
+		if (!announcer) return;
+
+		announcer.registerId(instanceId);
+
+		return () =&gt; {
+			announcer.unregisterId(instanceId);
+
+			// Announce destroy message if provided
+			if (destroyMessage) {
+				announcer.announce(destroyMessage, { urgency });
+			}
+		};
+	}, [announcer, instanceId, destroyMessage, urgency]);
+
+	// Announce on init if requested
+	useEffect(() =&gt; {
+		if (!announcer || !announceOnInit || hasAnnouncedRef.current) return;
+
+		// Announce the text content
+		const textToAnnounce = screenReaderText ?? text;
+		if (textToAnnounce) {
+			announcer.announce(textToAnnounce, { urgency });
+			hasAnnouncedRef.current = true;
+		}
+	}, [announcer, announceOnInit, screenReaderText, text, urgency]);
+
+	// Determine what to render
+	const resolvedScreenReaderText = screenReaderText ?? text;
+	const hasBothText = screenReaderText &amp;&amp; text;
+	const renderSeparate = hasBothText &amp;&amp; screenReaderText !== text;
+	const screenReaderOnly = screenReaderText &amp;&amp; !text;
+
+	// Determine if we should visually hide the live region
+	const shouldHideLiveRegion = renderSeparate || screenReaderOnly;
+
+	return (
+		&lt;span data-luna-announcer=&quot;true&quot; ref={ref} {...rest}&gt;
+			{/* Only render if different values for screen and screen reader */}
+			{renderSeparate &amp;&amp; (
+				&lt;span data-qid-a11y-announcer-text-content aria-hidden=&quot;true&quot;&gt;
+					{text}
+				&lt;/span&gt;
+			)}
+
+			&lt;span
+				ref={liveRegionRef}
+				data-qid-a11y-announcer-live-region
+				className={cn(shouldHideLiveRegion &amp;&amp; srOnlyStyles.SrOnly)}
+				aria-live={urgency}
+			&gt;
+				{resolvedScreenReaderText}
+			&lt;/span&gt;
+		&lt;/span&gt;
+	);
+}
+
+export default A11yAnnouncer;
+</pre><div class="file-tab">announcer-context.tsx</div><pre class="language-typescript">import { createContext, useCallback, useContext, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { createPriorityQueue } from &#x27;@soxhub/luna-utils&#x27;;
+
+export type AnnouncerUrgencyLevels = &#x27;polite&#x27; | &#x27;assertive&#x27;;
+
+interface AriaAnnounceOptions {
+	batchId?: string;
+	urgency?: AnnouncerUrgencyLevels;
+	priority?: number;
+}
+
+export interface AriaLiveMessage {
+	message: string;
+	createdAt: number;
+	priority: number;
+	batchId?: string;
+	urgency: AnnouncerUrgencyLevels;
+}
+
+interface BatchMessage {
+	batchId: string;
+	message: AriaLiveMessage;
+}
+
+// Clean HTML from strings for screen readers
+const cleanseStringOfAnyHtml = (str: string): string =&gt; {
+	const doc = new DOMParser().parseFromString(str, &#x27;text/html&#x27;);
+	return doc.body.textContent ?? &#x27;&#x27;;
+};
+
+export interface AnnouncerContextValue {
+	announce: (message: string, options?: AriaAnnounceOptions) =&gt; void;
+	getPoliteMessages: () =&gt; AriaLiveMessage[];
+	getAssertiveMessages: () =&gt; AriaLiveMessage[];
+	checkHasMessages: () =&gt; boolean;
+	registerId: (id: string) =&gt; void;
+	unregisterId: (id: string) =&gt; void;
+	shouldInstanceAnnounce: (id: string) =&gt; boolean;
+}
+
+const AnnouncerContext = createContext&lt;AnnouncerContextValue | null&gt;(null);
+
+export interface AnnouncerProviderProps {
+	children: React.ReactNode;
+}
+
+/**
+ * Provider that manages screen reader announcements via aria-live regions.
+ * This provider does not render DOM; the actual aria-live regions are rendered
+ * by A11yAnnouncer components that consume this context.
+ *
+ * Must wrap any components using A11yAnnouncer or the useAnnouncer hook.
+ */
+export function AnnouncerProvider({ children }: AnnouncerProviderProps) {
+	// Use refs for mutable state that shouldn&#x27;t trigger re-renders
+	const messageOrderRef = useRef(0);
+	const batchMessagesRef = useRef&lt;BatchMessage[]&gt;([]);
+	const instanceIdsRef = useRef&lt;string[]&gt;([]);
+
+	// Use state for the message queue to allow components to subscribe to updates
+	const [messageQueue] = useState(() =&gt;
+		createPriorityQueue&lt;AriaLiveMessage&gt;((a, b) =&gt; {
+			if (a.priority !== b.priority) {
+				return b.priority - a.priority;
+			}
+			return a.createdAt - b.createdAt;
+		}),
+	);
+
+	// Force update state to trigger re-renders when messages are added
+	const [, setUpdateTrigger] = useState(0);
+
+	const registerId = useCallback((id: string) =&gt; {
+		instanceIdsRef.current = [...instanceIdsRef.current, id];
+	}, []);
+
+	const unregisterId = useCallback((id: string) =&gt; {
+		instanceIdsRef.current = instanceIdsRef.current.filter((i) =&gt; i !== id);
+	}, []);
+
+	const shouldInstanceAnnounce = useCallback((id: string) =&gt; {
+		return id === instanceIdsRef.current[instanceIdsRef.current.length - 1];
+	}, []);
+
+	const announce = useCallback(
+		(rawMessage: string, options: AriaAnnounceOptions = {}) =&gt; {
+			const message = cleanseStringOfAnyHtml(rawMessage);
+
+			// UI state changes immediately after announcing can cause focus changes that
+			// cancel reading so wait for the UI first
+			setTimeout(() =&gt; {
+				const { priority = 0, batchId, urgency = &#x27;assertive&#x27; } = options;
+
+				const liveMessage: AriaLiveMessage = {
+					message,
+					createdAt: messageOrderRef.current++,
+					priority,
+					batchId,
+					urgency,
+				};
+
+				// Check if batchId exists and update our batch cache if needed
+				if (batchId) {
+					const batchMessage = batchMessagesRef.current.find((msg) =&gt; msg.batchId === batchId);
+
+					if (batchMessage) {
+						// Replace existing message in queue
+						messageQueue.remove(batchMessage.message);
+						// Update list of existing batchIds with most recent message
+						batchMessage.message = liveMessage;
+					} else {
+						// Add new batch entry
+						batchMessagesRef.current.push({ batchId, message: liveMessage });
+					}
+				}
+
+				// Add new message to queue
+				messageQueue.enqueue(liveMessage);
+
+				// Trigger re-render for any listening components
+				setUpdateTrigger((prev) =&gt; prev + 1);
+			}, 250);
+		},
+		[messageQueue],
+	);
+
+	const getAndClearMessages = useCallback(
+		(targetUrgency: AnnouncerUrgencyLevels): AriaLiveMessage[] =&gt; {
+			const allCurrentMessages = messageQueue.all();
+			const messagesToReturn: AriaLiveMessage[] = [];
+			const messagesToKeepInQueue: AriaLiveMessage[] = [];
+
+			for (const msg of allCurrentMessages) {
+				if (msg.message.trim().length &gt; 0 &amp;&amp; msg.urgency === targetUrgency) {
+					messagesToReturn.push(msg);
+					// If this message was part of a batch, remove that batch entry
+					if (msg.batchId) {
+						batchMessagesRef.current = batchMessagesRef.current.filter((batchMsg) =&gt; batchMsg.message !== msg);
+					}
+				} else {
+					messagesToKeepInQueue.push(msg);
+				}
+			}
+
+			// Rebuild queue with messages that weren&#x27;t taken
+			messageQueue.clear();
+			messagesToKeepInQueue.forEach((msg) =&gt; messageQueue.enqueue(msg));
+
+			return messagesToReturn;
+		},
+		[messageQueue],
+	);
+
+	const getPoliteMessages = useCallback(() =&gt; {
+		return getAndClearMessages(&#x27;polite&#x27;);
+	}, [getAndClearMessages]);
+
+	const getAssertiveMessages = useCallback(() =&gt; {
+		return getAndClearMessages(&#x27;assertive&#x27;);
+	}, [getAndClearMessages]);
+
+	const checkHasMessages = useCallback(() =&gt; {
+		return messageQueue.peek() !== undefined;
+	}, [messageQueue]);
+
+	const value = useMemo&lt;AnnouncerContextValue&gt;(
+		() =&gt; ({
+			announce,
+			getPoliteMessages,
+			getAssertiveMessages,
+			checkHasMessages,
+			registerId,
+			unregisterId,
+			shouldInstanceAnnounce,
+		}),
+		[
+			announce,
+			getPoliteMessages,
+			getAssertiveMessages,
+			checkHasMessages,
+			registerId,
+			unregisterId,
+			shouldInstanceAnnounce,
+		],
+	);
+
+	return &lt;AnnouncerContext.Provider value={value}&gt;{children}&lt;/AnnouncerContext.Provider&gt;;
+}
+
+/**
+ * Hook to access the announcer context for making screen reader announcements.
+ *
+ * @throws Error if used outside of AnnouncerProvider
+ */
+export function useAnnouncer(): AnnouncerContextValue {
+	const context = useContext(AnnouncerContext);
+
+	if (!context) {
+		throw new Error(&#x27;useAnnouncer must be used within an AnnouncerProvider&#x27;);
+	}
+
+	return context;
+}
+
+/**
+ * Optional hook that returns the announcer context or null when used outside
+ * AnnouncerProvider (no provider in the tree). Useful for components that
+ * should work with or without announcer support.
+ */
+export function useAnnouncerOptional(): AnnouncerContextValue | null {
+	return useContext(AnnouncerContext);
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <span></span>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="accordion.html" class="nav-btn">accordion →</a>
+  </div>
+</body>
+</html>

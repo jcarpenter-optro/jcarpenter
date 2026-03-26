@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>empty-state — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>empty-state</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>empty-state</strong> implementations exist. The Ember version is 144 lines and the React version is 196 lines. The React version is notably larger (196 vs 144 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">empty-state.gts</div><pre class="language-typescript">import { assert } from &#x27;@ember/debug&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { and, not, or } from &#x27;ember-truth-helpers&#x27;;
+
+import { RENDERING_IN_SCHEMA_TABLE_CONTEXT } from &#x27;@auditboard/consts/schema-table&#x27;;
+
+import EmptyStateAnnouncer from &#x27;./empty-state-announcer.gts&#x27;;
+import Heading from &#x27;./heading.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import type { IllustrationName } from &#x27;./illustration.gts&#x27;;
+import LunaIllustration from &#x27;./illustration.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+
+interface EmptyStateSignature {
+	Element: HTMLElement;
+	Args: {
+		/**
+		 * Sets the url of the image.
+		 */
+		imageUrl?: string;
+		/**
+		 * Name of luna icon to display.
+		 */
+		icon?: string;
+		/**
+		 * Sets the heading message.
+		 */
+		heading?: string;
+		/**
+		 * Sets the description message.
+		 */
+		description?: string;
+		/**
+		 * Sets the illustration to display
+		 */
+		illustration?: IllustrationName;
+		/**
+		 * Sets the heading level (1-6). Defaults to 4.
+		 */
+		headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+	};
+	Blocks: {
+		&#x27;heading&#x27;: [];
+		&#x27;description&#x27;: [];
+		&#x27;primary-actions&#x27;: [];
+		&#x27;secondary-actions&#x27;: [];
+	};
+}
+
+// remove when we upgrade to ember-source@5.2, and replace with built-in uniqueId
+let emptyStateCount = 0;
+function uniqueId(): string {
+	return `empty-state-${emptyStateCount++}`;
+}
+
+/**
+ * A temporary placeholder for empty, error, or success states that provides an explanation and guidance on next steps the user can take.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/empty-state.md)
+ */
+class EmptyState extends Component&lt;EmptyStateSignature&gt; {
+	@consume(RENDERING_IN_SCHEMA_TABLE_CONTEXT) isInSchemaTable: boolean | undefined;
+
+	&lt;template&gt;
+		{{#let (uniqueId) as |emptyStateId|}}
+			&lt;aside
+				class=&quot;EmptyState&quot;
+				data-align=&quot;center&quot;
+				data-qid-component-type=&quot;Luna::EmptyState&quot;
+				aria-labelledby={{emptyStateId}}
+				...attributes
+			&gt;
+				{{#if @illustration}}
+					&lt;div class=&quot;graphic illustration&quot;&gt;
+						&lt;LunaIllustration @illustration={{@illustration}} @size=&quot;24&quot; /&gt;
+					&lt;/div&gt;
+				{{else if @imageUrl}}
+					&lt;div class=&quot;graphic&quot; data-qid-empty-state-image&gt;
+						&lt;img src={{@imageUrl}} aria-hidden=&quot;true&quot; /&gt;
+					&lt;/div&gt;
+				{{else if @icon}}
+					&lt;div class=&quot;graphic icon&quot;&gt;
+						&lt;Icon @icon={{@icon}} @size=&quot;3xl&quot; /&gt;
+					&lt;/div&gt;
+				{{/if}}
+
+				&lt;Heading
+					id={{emptyStateId}}
+					@level={{or @headingLevel 4}}
+					@font=&quot;400&quot;
+					@weight=&quot;strong&quot;
+					data-qid-empty-state-heading
+				&gt;
+					{{#if (has-block &quot;heading&quot;)}}
+						{{yield to=&quot;heading&quot;}}
+					{{else}}
+						{{assert
+							&quot;You must pass a @heading arg or use the &lt;:heading&gt; block when using the &lt;EmptyState&gt; component&quot;
+							@heading
+						}}
+						{{#if this.isInSchemaTable}}
+							&lt;EmptyStateAnnouncer @text={{@heading}} /&gt;
+						{{else}}
+							{{@heading}}
+						{{/if}}
+					{{/if}}
+				&lt;/Heading&gt;
+
+				&lt;Text @tag=&quot;p&quot; @clamp={{3}} @font=&quot;200&quot; @color=&quot;gray-500&quot; @align=&quot;center&quot; data-qid-empty-state-description&gt;
+					{{#if (has-block &quot;description&quot;)}}
+						{{yield to=&quot;description&quot;}}
+					{{else}}
+						{{assert
+							&quot;You must pass a @description arg or use the &lt;:description&gt; block when using the &lt;EmptyState&gt; component&quot;
+							@description
+						}}
+						{{! In schema table without a heading, announce the description }}
+						{{#if (and this.isInSchemaTable (not (or @heading (has-block &quot;heading&quot;))))}}
+							&lt;EmptyStateAnnouncer @text={{@description}} /&gt;
+						{{else}}
+							{{@description}}
+						{{/if}}
+					{{/if}}
+				&lt;/Text&gt;
+
+				{{#if (has-block &quot;primary-actions&quot;)}}
+					&lt;div class=&quot;primary-actions&quot; data-qid-empty-state-primary-actions&gt;
+						{{yield to=&quot;primary-actions&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+
+				{{#if (has-block &quot;secondary-actions&quot;)}}
+					&lt;Text @tag=&quot;div&quot; @font=&quot;200&quot; @weight=&quot;strong&quot; data-qid-empty-state-secondary-actions&gt;
+						{{yield to=&quot;secondary-actions&quot;}}
+					&lt;/Text&gt;
+				{{/if}}
+			&lt;/aside&gt;
+		{{/let}}
+	&lt;/template&gt;
+}
+
+export default EmptyState;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">empty-state.tsx</div><pre class="language-typescript">import { useId } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { extractCompoundSlots } from &#x27;../../utils/extract-compound-slots&#x27;;
+import { Heading } from &#x27;../heading&#x27;;
+import { Icon } from &#x27;../icon&#x27;;
+import { Illustration, type IllustrationName } from &#x27;../illustration&#x27;;
+import { Text } from &#x27;../text&#x27;;
+
+import styles from &#x27;./empty-state.module.css&#x27;;
+
+const EMPTY_STATE_SLOT_MAP = {
+	&#x27;EmptyState.Heading&#x27;: &#x27;heading&#x27;,
+	&#x27;EmptyState.Description&#x27;: &#x27;description&#x27;,
+	&#x27;EmptyState.PrimaryActions&#x27;: &#x27;primaryActions&#x27;,
+	&#x27;EmptyState.SecondaryActions&#x27;: &#x27;secondaryActions&#x27;,
+} as const;
+
+type EmptyStateSlotKey = (typeof EMPTY_STATE_SLOT_MAP)[keyof typeof EMPTY_STATE_SLOT_MAP];
+
+interface EmptyStateBaseProps {
+	/** URL of the image to display */
+	imageUrl?: string;
+	/** Name of luna icon to display */
+	icon?: string;
+	/** Sets the illustration to display */
+	illustration?: IllustrationName;
+	/** Sets the heading level (1-6). Defaults to 2. */
+	headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+	/** Heading text (use when not using EmptyState.Heading or headingSlot) */
+	heading?: string;
+	/** Description text (use when not using EmptyState.Description or descriptionSlot) */
+	description?: string;
+	/** Custom heading content (use when not using heading prop or EmptyState.Heading) */
+	headingSlot?: React.ReactNode;
+	/** Custom description content (use when not using description prop or EmptyState.Description) */
+	descriptionSlot?: React.ReactNode;
+	/** Primary action buttons */
+	primaryActionsSlot?: React.ReactNode;
+	/** Secondary action links */
+	secondaryActionsSlot?: React.ReactNode;
+	/** Compound component children (EmptyState.Heading, EmptyState.Description, etc.) */
+	children?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export type EmptyStateProps = ComponentPropsWithRef&lt;EmptyStateBaseProps, HTMLElement&gt;;
+
+interface EmptyStateSubcomponentProps {
+	children: React.ReactNode;
+}
+
+/**
+ * A temporary placeholder for empty, error, or success states that provides an explanation
+ * and guidance on next steps the user can take.
+ *
+ * Use compound components to compose the empty state:
+ * - `EmptyState.Heading` - Required heading text
+ * - `EmptyState.Description` - Required description text
+ * - `EmptyState.PrimaryActions` - Optional primary action buttons
+ * - `EmptyState.SecondaryActions` - Optional secondary action links
+ *
+ * Children can be passed in any order - they will always render in the correct position.
+ *
+ * @example
+ * ```tsx
+ * &lt;EmptyState illustration=&quot;upload&quot;&gt;
+ *   &lt;EmptyState.Heading&gt;No files uploaded&lt;/EmptyState.Heading&gt;
+ *   &lt;EmptyState.Description&gt;Drag and drop files here to upload.&lt;/EmptyState.Description&gt;
+ *   &lt;EmptyState.PrimaryActions&gt;
+ *     &lt;Button&gt;Upload Files&lt;/Button&gt;
+ *   &lt;/EmptyState.PrimaryActions&gt;
+ * &lt;/EmptyState&gt;
+ * ```
+ */
+function EmptyStateRoot(props: EmptyStateProps) {
+	const {
+		ref,
+		imageUrl,
+		icon,
+		illustration,
+		headingLevel,
+		heading,
+		description,
+		headingSlot,
+		descriptionSlot,
+		primaryActionsSlot,
+		secondaryActionsSlot,
+		children,
+		className,
+		...rest
+	} = props;
+
+	const emptyStateId = useId();
+	const emptyStateClassName = cn(styles.EmptyState, className);
+
+	// Extract slot content from children (order-independent)
+	const compoundSlots = extractCompoundSlots(children ?? null, EMPTY_STATE_SLOT_MAP) as Partial&lt;
+		Record&lt;EmptyStateSlotKey, React.ReactNode&gt;
+	&gt;;
+
+	// Props/slots take precedence over compound children
+	const slots = {
+		heading: headingSlot ?? compoundSlots.heading ?? (heading != null ? heading : undefined),
+		description: descriptionSlot ?? compoundSlots.description ?? (description != null ? description : undefined),
+		primaryActions: primaryActionsSlot ?? compoundSlots.primaryActions,
+		secondaryActions: secondaryActionsSlot ?? compoundSlots.secondaryActions,
+	};
+
+	return (
+		&lt;aside
+			ref={ref}
+			className={emptyStateClassName}
+			data-align=&quot;center&quot;
+			data-qid-component-type=&quot;Luna::EmptyState&quot;
+			aria-labelledby={emptyStateId}
+			{...rest}
+		&gt;
+			{/* Graphic: illustration, image, or icon */}
+			{illustration &amp;&amp; (
+				&lt;div className={cn(styles.graphic, styles.illustration)}&gt;
+					&lt;Illustration illustration={illustration} size=&quot;24&quot; /&gt;
+				&lt;/div&gt;
+			)}
+			{!illustration &amp;&amp; imageUrl &amp;&amp; (
+				&lt;div className={styles.graphic} data-qid-empty-state-image&gt;
+					&lt;img src={imageUrl} aria-hidden=&quot;true&quot; alt=&quot;&quot; /&gt;
+				&lt;/div&gt;
+			)}
+			{!illustration &amp;&amp; !imageUrl &amp;&amp; icon &amp;&amp; (
+				&lt;div className={cn(styles.graphic, styles.icon)}&gt;
+					&lt;Icon icon={icon} size=&quot;3xl&quot; /&gt;
+				&lt;/div&gt;
+			)}
+
+			{/* Heading */}
+			{slots.heading != null &amp;&amp; (
+				&lt;Heading id={emptyStateId} level={headingLevel} font=&quot;400&quot; weight=&quot;strong&quot; data-qid-empty-state-heading&gt;
+					{slots.heading}
+				&lt;/Heading&gt;
+			)}
+
+			{/* Description */}
+			{slots.description != null &amp;&amp; (
+				&lt;Text tag=&quot;p&quot; clamp={3} font=&quot;200&quot; color=&quot;gray-500&quot; align=&quot;center&quot; data-qid-empty-state-description&gt;
+					{slots.description}
+				&lt;/Text&gt;
+			)}
+
+			{/* Primary actions */}
+			{slots.primaryActions &amp;&amp; (
+				&lt;div className={styles.primaryActions} data-qid-empty-state-primary-actions&gt;
+					{slots.primaryActions}
+				&lt;/div&gt;
+			)}
+
+			{/* Secondary actions */}
+			{slots.secondaryActions &amp;&amp; (
+				&lt;Text tag=&quot;div&quot; font=&quot;200&quot; weight=&quot;strong&quot; data-qid-empty-state-secondary-actions&gt;
+					{slots.secondaryActions}
+				&lt;/Text&gt;
+			)}
+		&lt;/aside&gt;
+	);
+}
+
+EmptyStateRoot.displayName = &#x27;EmptyState&#x27;;
+
+// Subcomponents - these don&#x27;t render themselves, they&#x27;re extracted by the parent
+const EmptyStateHeading = ({ children }: EmptyStateSubcomponentProps) =&gt; children;
+EmptyStateHeading.displayName = &#x27;EmptyState.Heading&#x27;;
+
+const EmptyStateDescription = ({ children }: EmptyStateSubcomponentProps) =&gt; children;
+EmptyStateDescription.displayName = &#x27;EmptyState.Description&#x27;;
+
+const EmptyStatePrimaryActions = ({ children }: EmptyStateSubcomponentProps) =&gt; children;
+EmptyStatePrimaryActions.displayName = &#x27;EmptyState.PrimaryActions&#x27;;
+
+const EmptyStateSecondaryActions = ({ children }: EmptyStateSubcomponentProps) =&gt; children;
+EmptyStateSecondaryActions.displayName = &#x27;EmptyState.SecondaryActions&#x27;;
+
+/**
+ * EmptyState compound component with namespaced subcomponents.
+ *
+ * Subcomponents can be passed in any order - they will render in the correct position.
+ */
+export const EmptyState = Object.assign(EmptyStateRoot, {
+	Heading: EmptyStateHeading,
+	Description: EmptyStateDescription,
+	PrimaryActions: EmptyStatePrimaryActions,
+	SecondaryActions: EmptyStateSecondaryActions,
+});
+
+export default EmptyState;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="divider.html" class="nav-btn">← divider</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="empty-state-announcer.html" class="nav-btn">empty-state-announcer →</a>
+  </div>
+</body>
+</html>

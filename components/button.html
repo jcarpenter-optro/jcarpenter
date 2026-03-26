@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>button — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>button</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>button</strong> implementations exist. The Ember version is 157 lines and the React version is 157 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">button.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+// Define as consts so they can both be used in types and to return the correct spinner variant for the button background
+import element_ from &#x27;ember-element-helper/helpers/element&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { eq } from &#x27;ember-truth-helpers&#x27;;
+import and from &#x27;ember-truth-helpers/helpers/and&#x27;;
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import toStringHelper from &#x27;../helpers/to-string.ts&#x27;;
+import Help from &#x27;./help.gts&#x27;;
+import type { LunaSpinnerSignature } from &#x27;./spinner.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+import { UI_CONTROL_SIZE_CONTEXT_KEY } from &#x27;./ui-control-size.gts&#x27;;
+
+const VARIANTS_DEFAULT_LOADER = [&#x27;white&#x27;, &#x27;transparent&#x27;, &#x27;gray&#x27;] as const;
+const VARIANTS_REVERSED_LOADER = [&#x27;blue&#x27;, &#x27;red&#x27;, &#x27;orange&#x27;, &#x27;green&#x27;, &#x27;purple&#x27;] as const;
+type DarkLoaderVariant = (typeof VARIANTS_DEFAULT_LOADER)[number];
+type LightLoaderVariant = (typeof VARIANTS_REVERSED_LOADER)[number];
+export type ButtonVariant = DarkLoaderVariant | LightLoaderVariant | &#x27;unstyled&#x27;;
+
+export type LunaButtonSize = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+interface DisabledHelpWrapperSignature {
+	Element?: HTMLDivElement;
+	Args: {
+		disabled?: boolean;
+		disabledTooltip?: string;
+	};
+	Blocks: LunaButtonBlocks;
+}
+
+const DisabledHelpWrapper: TOC&lt;DisabledHelpWrapperSignature&gt; = &lt;template&gt;
+	{{#if (and @disabled @disabledTooltip)}}
+		&lt;Help @tooltip={{@disabledTooltip}}&gt;
+			{{yield}}
+			&lt;span class=&quot;sr-only&quot;&gt;{{t &quot;button.disabled.sr-text&quot;}}&lt;/span&gt;
+		&lt;/Help&gt;
+	{{else}}
+		{{yield}}
+	{{/if}}
+&lt;/template&gt;;
+
+// IMPORTANT: Property names of any added/removed arguments must be added to AcceptedLunaButtonArgs in Luna::IconButton
+export interface LunaButtonArgs {
+	variant?: ButtonVariant;
+	size?: LunaButtonSize;
+	width?: &#x27;auto&#x27; | &#x27;full&#x27;;
+	type?: string;
+	disabled?: boolean;
+	disabledTooltip?: string;
+	loading?: boolean;
+	active?: boolean;
+	focused?: boolean;
+	errored?: boolean;
+	shouldRenderAsDiv?: boolean;
+	transitionTo?: LunaSpinnerSignature[&#x27;Args&#x27;][&#x27;transitionTo&#x27;];
+	openInQuickView?: &#x27;always&#x27; | &#x27;never&#x27;;
+	href?: string;
+	target?: HTMLAnchorElement[&#x27;target&#x27;];
+	rel?: HTMLAnchorElement[&#x27;rel&#x27;];
+	download?: HTMLAnchorElement[&#x27;download&#x27;];
+	align?: &#x27;left&#x27; | &#x27;center&#x27; | &#x27;right&#x27;;
+}
+
+interface LunaButtonBlocks {
+	default: [];
+}
+
+export interface LunaButtonSignature&lt;Args extends LunaButtonArgs&gt; {
+	Element: Args extends { shouldRenderAsDiv: true }
+		? HTMLDivElement
+		: Args extends { href: string }
+			? HTMLAnchorElement
+			: HTMLButtonElement;
+	Args: Args;
+	Blocks: LunaButtonBlocks;
+}
+
+/**
+ * A button that allows you to use it as a traditional button or as a link styled to look like a button.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/button.md)
+ */
+export default class LunaButtonClass&lt;Args extends LunaButtonArgs&gt; extends Component&lt;LunaButtonSignature&lt;Args&gt;&gt; {
+	get spinnerSize(): LunaSpinnerSignature[&#x27;Args&#x27;][&#x27;size&#x27;] {
+		if (this.args.size === &#x27;xs&#x27;) {
+			return &#x27;sm&#x27;;
+		}
+		return this.args.size ?? &#x27;md&#x27;;
+	}
+
+	get spinnerVariant(): LunaSpinnerSignature[&#x27;Args&#x27;][&#x27;variant&#x27;] {
+		if (VARIANTS_REVERSED_LOADER.includes(this.args.variant as LightLoaderVariant)) {
+			return &#x27;reversed&#x27;;
+		}
+		if (VARIANTS_DEFAULT_LOADER.includes(this.args.variant as DarkLoaderVariant)) {
+			return &#x27;default&#x27;;
+		}
+		return &#x27;default&#x27;;
+	}
+
+	@consume(UI_CONTROL_SIZE_CONTEXT_KEY) declare uiControlSize: &#x27;small&#x27; | &#x27;medium&#x27; | &#x27;large&#x27; | undefined;
+
+	get size() {
+		return this.uiControlSize ?? this.args.size ?? &#x27;md&#x27;;
+	}
+
+	&lt;template&gt;
+		&lt;DisabledHelpWrapper @disabled={{@disabled}} @disabledTooltip={{@disabledTooltip}}&gt;
+			{{#let (element_ (if @shouldRenderAsDiv &quot;div&quot; (if @href &quot;a&quot; &quot;button&quot;))) as |Tag|}}
+				&lt;Tag
+					class=&quot;btn {{unless (eq @variant &#x27;unstyled&#x27;) &#x27;Button&#x27;}}&quot;
+					data-variant={{or @variant &quot;white&quot;}}
+					data-size={{this.size}}
+					data-width={{or @width &quot;auto&quot;}}
+					type={{if (not (or @href @shouldRenderAsDiv)) (or @type &quot;button&quot;)}}
+					role={{unless (or @shouldRenderAsDiv @href) &quot;button&quot;}}
+					href={{unless (or @shouldRenderAsDiv @disabled @loading) @href}}
+					target={{@target}}
+					rel={{@rel}}
+					download={{@download}}
+					aria-disabled={{toStringHelper (or @disabled @loading false)}}
+					aria-busy={{toStringHelper @loading}}
+					disabled={{or @disabled @loading}}
+					data-active={{toStringHelper @active}}
+					data-focused={{toStringHelper @focused}}
+					data-errored={{toStringHelper @errored}}
+					data-luna-feature=&quot;meld&quot;
+					data-open-in-quick-view={{@openInQuickView}}
+					...attributes
+					data-qid-component-type=&quot;Luna::Button&quot;
+				&gt;
+					&lt;div data-qid-luna-button-content class=&quot;content&quot;&gt;
+						&lt;div data-qid-luna-button-label class=&quot;label&quot; data-align={{@align}}&gt;
+							{{yield}}
+						&lt;/div&gt;
+
+						{{#if @loading}}
+							&lt;div class=&quot;loading&quot;&gt;
+								&lt;Spinner
+									@variant={{this.spinnerVariant}}
+									@size={{this.spinnerSize}}
+									@transitionTo={{@transitionTo}}
+									data-qid-loading
+								/&gt;
+							&lt;/div&gt;
+						{{/if}}
+					&lt;/div&gt;
+				&lt;/Tag&gt;
+			{{/let}}
+		&lt;/DisabledHelpWrapper&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">button.tsx</div><pre class="language-typescript">import { type AnchorHTMLAttributes, type ButtonHTMLAttributes } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { Spinner, type SpinnerSize } from &#x27;../spinner&#x27;;
+
+import styles from &#x27;./button.module.css&#x27;;
+
+export type ButtonVariant =
+	| &#x27;white&#x27;
+	| &#x27;transparent&#x27;
+	| &#x27;gray&#x27;
+	| &#x27;gray-tertiary&#x27;
+	| &#x27;blue&#x27;
+	| &#x27;red&#x27;
+	| &#x27;orange&#x27;
+	| &#x27;green&#x27;
+	| &#x27;purple&#x27;
+	| &#x27;unstyled&#x27;;
+
+// Variants that use the reversed (light) spinner for dark backgrounds
+const VARIANTS_REVERSED_LOADER = [&#x27;blue&#x27;, &#x27;red&#x27;, &#x27;orange&#x27;, &#x27;green&#x27;, &#x27;purple&#x27;] as const;
+
+export type ButtonSize = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export type ButtonWidth = &#x27;auto&#x27; | &#x27;full&#x27;;
+
+export type ButtonAlign = &#x27;left&#x27; | &#x27;center&#x27; | &#x27;right&#x27;;
+
+interface ButtonBaseProps {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLButtonElement | HTMLAnchorElement&gt;;
+	/** Visual variant of the button */
+	variant?: ButtonVariant;
+	/** Size of the button */
+	size?: ButtonSize;
+	/** Width behavior */
+	width?: ButtonWidth;
+	/** Text alignment within the button */
+	align?: ButtonAlign;
+	/** Whether the button is in a loading state */
+	loading?: boolean;
+	/** Whether the button appears active */
+	active?: boolean;
+	/** Whether the button appears focused */
+	focused?: boolean;
+	/** Whether the button shows an error state */
+	errored?: boolean;
+	/** Whether the button is disabled */
+	disabled?: boolean;
+	/** Children to render inside the button */
+	children?: React.ReactNode;
+}
+
+type ButtonAsButton = ButtonBaseProps &amp;
+	Omit&lt;ButtonHTMLAttributes&lt;HTMLButtonElement&gt;, keyof ButtonBaseProps&gt; &amp; {
+		/** When href is not provided, renders as a button */
+		href?: undefined;
+	};
+
+type ButtonAsAnchor = ButtonBaseProps &amp;
+	Omit&lt;AnchorHTMLAttributes&lt;HTMLAnchorElement&gt;, keyof ButtonBaseProps&gt; &amp; {
+		/** When href is provided, renders as an anchor */
+		href: string;
+	};
+
+export type ButtonProps = ButtonAsButton | ButtonAsAnchor;
+
+/**
+ * A button component that can render as a button or anchor element.
+ *
+ * Matches the Luna::Button Ember component API and styling.
+ */
+export function Button(props: ButtonProps) {
+	const {
+		ref,
+		variant = &#x27;white&#x27;,
+		size = &#x27;md&#x27;,
+		width = &#x27;auto&#x27;,
+		align,
+		loading = false,
+		active = false,
+		focused = false,
+		errored = false,
+		disabled,
+		children,
+		className,
+		href,
+		...rest
+	} = props;
+
+	const isDisabled = disabled || loading;
+	const isUnstyled = variant === &#x27;unstyled&#x27;;
+
+	// Determine spinner size based on button size (xs uses sm spinner)
+	const spinnerSize: SpinnerSize = size === &#x27;xs&#x27; ? &#x27;sm&#x27; : size;
+
+	// Determine spinner variant based on button variant
+	const spinnerVariant = (VARIANTS_REVERSED_LOADER as readonly string[]).includes(variant) ? &#x27;reversed&#x27; : &#x27;default&#x27;;
+
+	const buttonClassName = cn(styles.btn, !isUnstyled &amp;&amp; styles.Button, className);
+
+	const content = (
+		&lt;div className={styles.content} data-qid-luna-button-content&gt;
+			&lt;div className={styles.label} data-align={align} data-qid-luna-button-label&gt;
+				{children}
+			&lt;/div&gt;
+			{loading &amp;&amp; (
+				&lt;div className={styles.loading}&gt;
+					&lt;Spinner variant={spinnerVariant} size={spinnerSize} data-qid-loading /&gt;
+				&lt;/div&gt;
+			)}
+		&lt;/div&gt;
+	);
+
+	const commonProps = {
+		&#x27;className&#x27;: buttonClassName,
+		&#x27;data-variant&#x27;: variant,
+		&#x27;data-size&#x27;: size,
+		&#x27;data-width&#x27;: width,
+		&#x27;data-active&#x27;: active ? &#x27;true&#x27; : undefined,
+		&#x27;data-focused&#x27;: focused ? &#x27;true&#x27; : undefined,
+		&#x27;data-errored&#x27;: errored ? &#x27;true&#x27; : undefined,
+		&#x27;data-luna-feature&#x27;: &#x27;meld&#x27;,
+		&#x27;data-qid-component-type&#x27;: &#x27;Luna::Button&#x27;,
+		&#x27;aria-disabled&#x27;: isDisabled || undefined,
+		&#x27;aria-busy&#x27;: loading || undefined,
+	};
+
+	// Render as anchor if href is provided
+	if (href &amp;&amp; !isDisabled) {
+		return (
+			&lt;a
+				{...(rest as AnchorHTMLAttributes&lt;HTMLAnchorElement&gt;)}
+				{...commonProps}
+				href={href}
+				ref={ref as React.Ref&lt;HTMLAnchorElement&gt;}
+			&gt;
+				{content}
+			&lt;/a&gt;
+		);
+	}
+
+	// Render as button
+	return (
+		&lt;button
+			{...(rest as ButtonHTMLAttributes&lt;HTMLButtonElement&gt;)}
+			{...commonProps}
+			type={(rest as ButtonHTMLAttributes&lt;HTMLButtonElement&gt;).type ?? &#x27;button&#x27;}
+			disabled={isDisabled}
+			ref={ref as React.Ref&lt;HTMLButtonElement&gt;}
+		&gt;
+			{content}
+		&lt;/button&gt;
+	);
+}
+
+export default Button;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="block.html" class="nav-btn">← block</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="button-with-menu.html" class="nav-btn">button-with-menu →</a>
+  </div>
+</body>
+</html>

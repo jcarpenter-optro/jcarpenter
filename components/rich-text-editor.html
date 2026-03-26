@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>rich-text-editor — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>rich-text-editor</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>rich-text-editor</strong> implementations exist. The Ember version is 138 lines and the React version is 264 lines. The React version is notably larger (264 vs 138 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">rich-text-editor.gts</div><pre class="language-typescript">import type { Editor, Extensions, JSONContent } from &#x27;@tiptap/core&#x27;;
+
+import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { modifier } from &#x27;ember-modifier&#x27;;
+
+import { TIPTAP_EXTENSION_GROUPS } from &#x27;@auditboard/rich-text/extension-groups&#x27;;
+import { attachContent } from &#x27;@auditboard/rich-text/lib/attach-tiptap&#x27;;
+import { EmberEditor } from &#x27;@auditboard/rich-text/lib/ember-editor&#x27;;
+
+import type AsyncService from &#x27;../services/async.ts&#x27;;
+import { BubbleMenu } from &#x27;./rich-text/bubble-menu.gts&#x27;;
+
+interface RichTextEditorArgs {
+	value?: string | JSONContent;
+	onEditorCreated?: (editor: Editor) =&gt; void;
+	onEditorBlur?: () =&gt; void;
+	onChange: (s: JSONContent) =&gt; void;
+	extensions?: Extensions;
+	readonly?: boolean;
+}
+
+/**
+ * @deprecated
+ *
+ * This is not ready for use *quite* yet. It should not be used in production until CoreX approval
+ * Known issues:
+ * 1. Documentation is not complete
+ * 2. Confirm UAT around keyboard shortcuts and things like typing &quot;*text*&quot; will bold things
+ * 3. Enable Link extension
+ * 4. Enable Highlight and fix bubble menu popup
+ */
+export class RichTextEditor extends Component&lt;{ Element: HTMLDivElement; Args: RichTextEditorArgs }&gt; {
+	@service(&#x27;luna/async&#x27;) declare asyncService: AsyncService;
+	editor: Editor;
+
+	constructor(owner: Owner, args: RichTextEditorArgs) {
+		super(owner, args);
+
+		this.editor = new EmberEditor({
+			extensions: this.args.extensions ?? TIPTAP_EXTENSION_GROUPS.ALL,
+			content: this.args.value ?? &#x27;&#x27;,
+
+			// This allows the editor to auto format with MD style syntax when typing or pasting
+			enableInputRules: true,
+			enablePasteRules: true,
+			editable: !this.args.readonly,
+			onBlur: () =&gt; {
+				this.args.onEditorBlur?.();
+			},
+		});
+
+		this.editor.on(&#x27;update&#x27;, ({ editor, transaction }) =&gt; {
+			this.asyncService.requestAnimationFrame(() =&gt; {
+				if (transaction.docChanged) {
+					this.args.onChange(editor.getJSON());
+				}
+			});
+		});
+
+		this.args.onEditorCreated?.(this.editor);
+
+		registerDestructor(this, () =&gt; {
+			if (!this.editor.isDestroyed) {
+				this.editor.destroy();
+			}
+		});
+	}
+
+	/**
+	 * Triggers an update to the content of the editor.
+	 *
+	 * If we have rendering components that are Ember components, this may need to be revisited
+	 * to ensure that the content is updated correctly without unnecessary re-renders or render loops
+	 *
+	 * @TODO this could be refactored to use reactiveweb effect when we get to 1.5+
+	 */
+	updateContent = modifier(() =&gt; {
+		const value = this.args.value;
+		const { editor } = this;
+
+		this.asyncService.requestAnimationFrame(() =&gt; {
+			if (!value || typeof value === &#x27;string&#x27;) {
+				editor.commands.setContent(value ?? &#x27;&#x27;, { emitUpdate: false });
+				return;
+			}
+
+			if (!editor.schema.nodeFromJSON(value).eq(editor.state.doc)) {
+				editor.commands.setContent(value ?? &#x27;&#x27;, { emitUpdate: false });
+			}
+		});
+	});
+
+	updateIsEditable = modifier(() =&gt; {
+		if (this.isEditable === !this.args.readonly) {
+			return;
+		}
+
+		this.editor.setEditable(!this.args.readonly);
+	});
+
+	get isEditable() {
+		return this.editor.isEditable;
+	}
+
+	&lt;template&gt;
+		&lt;div class=&quot;editor-container&quot; {{this.updateContent @value}} {{this.updateIsEditable @readonly}}&gt;
+			&lt;div
+				class=&quot;editor-content {{if this.isEditable &#x27;editable&#x27;}}&quot;
+				...attributes
+				data-editor
+				{{attachContent this.editor}}
+			&gt;&lt;/div&gt;
+			&lt;BubbleMenu @editor={{this.editor}} /&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+
+interface RichTextRenderArgs {
+	value?: string | JSONContent;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () =&gt; {};
+
+export const RichTextRender: TOC&lt;{ Element: HTMLDivElement; Args: RichTextRenderArgs }&gt; = &lt;template&gt;
+	&lt;RichTextEditor
+		@value={{@value}}
+		@extensions={{TIPTAP_EXTENSION_GROUPS.ALL}}
+		@readonly={{true}}
+		@onChange={{noop}}
+		...attributes
+	/&gt;
+&lt;/template&gt;;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">rich-text-editor.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useImperativeHandle, useRef } from &#x27;react&#x27;;
+
+import type { Editor, Extensions, JSONContent } from &#x27;@tiptap/core&#x27;;
+import Bold from &#x27;@tiptap/extension-bold&#x27;;
+import BulletList from &#x27;@tiptap/extension-bullet-list&#x27;;
+import Document from &#x27;@tiptap/extension-document&#x27;;
+import Gapcursor from &#x27;@tiptap/extension-gapcursor&#x27;;
+import History from &#x27;@tiptap/extension-history&#x27;;
+import Italic from &#x27;@tiptap/extension-italic&#x27;;
+import ListItem from &#x27;@tiptap/extension-list-item&#x27;;
+import OrderedList from &#x27;@tiptap/extension-ordered-list&#x27;;
+import Paragraph from &#x27;@tiptap/extension-paragraph&#x27;;
+import Text from &#x27;@tiptap/extension-text&#x27;;
+import Underline from &#x27;@tiptap/extension-underline&#x27;;
+import { EditorContent, useEditor } from &#x27;@tiptap/react&#x27;;
+import { BubbleMenu } from &#x27;@tiptap/react/menus&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { IconButton } from &#x27;../icon-button&#x27;;
+import { XStack } from &#x27;../x-stack&#x27;;
+
+import styles from &#x27;./rich-text-editor.module.css&#x27;;
+
+// TODO: Extract TipTap functionality (extensions, BubbleMenu config) into a shared package
+// so luna-core (Ember) and luna-react can both use it.
+
+/**
+ * Basic TipTap extensions for the rich text editor
+ */
+const BASIC_EXTENSIONS: Extensions = [
+	Document,
+	Paragraph,
+	Text,
+	Bold,
+	Italic,
+	Underline,
+	BulletList,
+	OrderedList,
+	ListItem,
+	History,
+	Gapcursor,
+];
+
+export interface RichTextEditorProps {
+	ref?: React.Ref&lt;RichTextEditorHandle&gt;;
+	/** The value of the editor (string or TipTap JSONContent) */
+	value?: string | JSONContent;
+	/** Callback when content changes */
+	onChange?: (content: JSONContent) =&gt; void;
+	/** Custom TipTap extensions (defaults to basic formatting) */
+	extensions?: Extensions;
+	/** Whether the editor is read-only */
+	readonly?: boolean;
+	/** Whether to show the bubble menu toolbar */
+	showBubbleMenu?: boolean;
+	/** Placeholder text when editor is empty */
+	placeholder?: string;
+	/** Additional CSS class */
+	className?: string;
+	/** Minimum height for the editor */
+	minHeight?: string;
+}
+
+export interface RichTextEditorHandle {
+	/** The TipTap editor instance */
+	editor: Editor | null;
+	/** Focus the editor */
+	focus: () =&gt; void;
+	/** Clear the editor content */
+	clear: () =&gt; void;
+}
+
+interface BubbleMenuButtonConfig {
+	command: (editor: Editor) =&gt; void;
+	icon: string;
+	tooltip: string;
+	activeCheck: string;
+}
+
+const BUBBLE_MENU_BUTTONS: BubbleMenuButtonConfig[] = [
+	{
+		command: (editor) =&gt; editor.chain().focus().toggleBold().run(),
+		icon: &#x27;bold&#x27;,
+		tooltip: &#x27;Bold&#x27;,
+		activeCheck: &#x27;bold&#x27;,
+	},
+	{
+		command: (editor) =&gt; editor.chain().focus().toggleItalic().run(),
+		icon: &#x27;italic&#x27;,
+		tooltip: &#x27;Italic&#x27;,
+		activeCheck: &#x27;italic&#x27;,
+	},
+	{
+		command: (editor) =&gt; editor.chain().focus().toggleUnderline().run(),
+		icon: &#x27;underline&#x27;,
+		tooltip: &#x27;Underline&#x27;,
+		activeCheck: &#x27;underline&#x27;,
+	},
+	{
+		command: (editor) =&gt; editor.chain().focus().toggleBulletList().run(),
+		icon: &#x27;list-ul&#x27;,
+		tooltip: &#x27;Bulleted List&#x27;,
+		activeCheck: &#x27;bulletList&#x27;,
+	},
+	{
+		command: (editor) =&gt; editor.chain().focus().toggleOrderedList().run(),
+		icon: &#x27;list-ol&#x27;,
+		tooltip: &#x27;Ordered List&#x27;,
+		activeCheck: &#x27;orderedList&#x27;,
+	},
+];
+
+interface BubbleMenuButtonProps {
+	editor: Editor;
+	config: BubbleMenuButtonConfig;
+	isActive: boolean;
+}
+
+function BubbleMenuButton({ editor, config, isActive }: BubbleMenuButtonProps) {
+	const handleClick = useCallback(() =&gt; {
+		config.command(editor);
+	}, [editor, config]);
+
+	return (
+		&lt;IconButton
+			icon={config.icon}
+			tooltip={config.tooltip}
+			variant={isActive ? &#x27;blue&#x27; : &#x27;transparent&#x27;}
+			size=&quot;xs&quot;
+			onClick={handleClick}
+			data-qid-rich-text-bubble-menu-button={config.tooltip}
+			data-active={String(isActive)}
+		/&gt;
+	);
+}
+
+/**
+ * A rich text editor built on TipTap.
+ *
+ * Supports basic formatting (bold, italic, underline, lists) with a bubble menu toolbar.
+ */
+export function RichTextEditor({
+	value,
+	onChange,
+	extensions = BASIC_EXTENSIONS,
+	readonly = false,
+	showBubbleMenu = true,
+	placeholder: _placeholder,
+	className,
+	minHeight = &#x27;5rem&#x27;,
+	ref,
+	...props
+}: RichTextEditorProps): React.ReactElement {
+	const lastValueRef = useRef&lt;string | JSONContent | undefined&gt;(value);
+
+	const editor = useEditor({
+		extensions,
+		content: value ?? &#x27;&#x27;,
+		editable: !readonly,
+		enableInputRules: false,
+		enablePasteRules: false,
+		onUpdate: ({ editor }) =&gt; {
+			const json = editor.getJSON();
+			onChange?.(json);
+		},
+	});
+
+	// Update content when value prop changes externally
+	useEffect(() =&gt; {
+		if (!editor) return;
+
+		// Skip if value hasn&#x27;t changed (avoid loops)
+		if (lastValueRef.current === value) return;
+		lastValueRef.current = value;
+
+		// Handle string content
+		if (!value || typeof value === &#x27;string&#x27;) {
+			const currentText = editor.getText();
+			if (currentText !== (value ?? &#x27;&#x27;)) {
+				editor.commands.setContent(value ?? &#x27;&#x27;, { emitUpdate: false });
+			}
+			return;
+		}
+
+		// Handle JSON content - only update if different
+		try {
+			const currentDoc = editor.state.doc;
+			const newDoc = editor.schema.nodeFromJSON(value);
+			if (!currentDoc.eq(newDoc)) {
+				editor.commands.setContent(value, { emitUpdate: false });
+			}
+		} catch {
+			// If JSON parsing fails, set content anyway
+			editor.commands.setContent(value, { emitUpdate: false });
+		}
+	}, [editor, value]);
+
+	// Update editable state when readonly prop changes
+	useEffect(() =&gt; {
+		if (editor &amp;&amp; editor.isEditable === readonly) {
+			editor.setEditable(!readonly);
+		}
+	}, [editor, readonly]);
+
+	// Expose editor methods via ref
+	useImperativeHandle(
+		ref,
+		() =&gt; ({
+			editor,
+			focus: () =&gt; editor?.chain().focus().run(),
+			clear: () =&gt; editor?.commands.clearContent(),
+		}),
+		[editor],
+	);
+
+	const isEditable = editor?.isEditable ?? !readonly;
+
+	return (
+		&lt;div className={cn(styles.editorContainer, className)} data-qid-component-type=&quot;Luna::RichTextEditor&quot; {...props}&gt;
+			&lt;div
+				className={cn(styles.editorContent, isEditable &amp;&amp; styles.editable)}
+				style={{ minHeight }}
+				data-editor
+				data-qid-text-editor
+			&gt;
+				&lt;EditorContent editor={editor} /&gt;
+			&lt;/div&gt;
+
+			{editor &amp;&amp; showBubbleMenu &amp;&amp; isEditable &amp;&amp; (
+				&lt;BubbleMenu editor={editor} className={styles.bubbleMenu} data-qid-component-type=&quot;Luna::RichText::BubbleMenu&quot;&gt;
+					&lt;XStack spacing=&quot;sm&quot;&gt;
+						{BUBBLE_MENU_BUTTONS.map((config) =&gt; (
+							&lt;BubbleMenuButton
+								key={config.tooltip}
+								editor={editor}
+								config={config}
+								isActive={editor.isActive(config.activeCheck)}
+							/&gt;
+						))}
+					&lt;/XStack&gt;
+				&lt;/BubbleMenu&gt;
+			)}
+		&lt;/div&gt;
+	);
+}
+
+/**
+ * A read-only rich text renderer.
+ * Convenience component that renders RichTextEditor in readonly mode.
+ */
+export interface RichTextRenderProps {
+	ref?: React.Ref&lt;RichTextEditorHandle&gt;;
+	/** The value to render (string or TipTap JSONContent) */
+	value?: string | JSONContent;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export function RichTextRender({ value, className, ref, ...props }: RichTextRenderProps): React.ReactElement {
+	return &lt;RichTextEditor ref={ref} value={value} readonly showBubbleMenu={false} className={className} {...props} /&gt;;
+}
+
+export default RichTextEditor;
+export type { JSONContent };
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="rich-text.html" class="nav-btn">← rich-text</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="search-highlight.html" class="nav-btn">search-highlight →</a>
+  </div>
+</body>
+</html>

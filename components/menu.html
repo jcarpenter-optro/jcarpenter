@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>menu — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>menu</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>menu</strong> implementations exist. The Ember version is 66 lines and the React version is 92 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">menu.gts</div><pre class="language-typescript">import type { WithBoundArgs } from &#x27;@glint/template&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { hash } from &#x27;@ember/helper&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import a11y from &#x27;../modifiers/a11y.ts&#x27;;
+import { group, menu } from &#x27;../utils/a11y.ts&#x27;;
+import type { LunaOptionArgs } from &#x27;./option.gts&#x27;;
+import LunaOption from &#x27;./option.gts&#x27;;
+import OptionGroupHeader from &#x27;./option-heading.gts&#x27;;
+
+export interface LunaMenuSignature {
+	Element: HTMLDivElement;
+	Args: Pick&lt;LunaOptionArgs, &#x27;onClick&#x27;&gt;;
+	Blocks: {
+		default: [
+			{
+				Option: WithBoundArgs&lt;typeof LunaOption, &#x27;onClick&#x27;&gt;;
+				Heading?: typeof OptionGroupHeader;
+			},
+		];
+	};
+}
+
+/**
+ * The Menu allows a user to navigate the menu options with the arrow keys, and HOME and END will jump to the first and last option items, respectively. The Menu component uses the [option](https://docs.auditboardteam.com/Luna/components/components/option) component for each menu item.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/menu.md)
+ */
+export default class MenuComponent extends Component&lt;LunaMenuSignature&gt; {
+	menuId = `${guidFor(this)}--menu`;
+
+	get optionsElement() {
+		const element = document.getElementById(this.menuId);
+		assert(&#x27;Expected menu element&#x27;, element);
+		return element;
+	}
+
+	get a11ySetup(): object {
+		return {
+			...group({ tabbing: &#x27;trap&#x27; }),
+			...menu({ loop: true }),
+		};
+	}
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;Menu&quot;
+			role=&quot;menu&quot;
+			id={{this.menuId}}
+			{{a11y this.a11ySetup}}
+			data-qid-component-type=&quot;Luna::Menu&quot;
+			...attributes
+		&gt;
+			{{!
+				Glint Problems:
+				- https://github.com/typed-ember/glint/issues/661
+					- we can&#x27;t yield typed components at all
+			}}
+			{{! @glint-expect-error }}
+			{{yield (hash Option=(component LunaOption onClick=@onClick) Heading=(component OptionGroupHeader))}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">menu.tsx</div><pre class="language-typescript">import { type MutableRefObject, useEffect, useId, useRef } from &#x27;react&#x27;;
+
+import { Menu as BaseMenu } from &#x27;@base-ui-components/react/menu&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Option } from &#x27;../option&#x27;;
+import { OptionHeading } from &#x27;../option-heading&#x27;;
+
+import styles from &#x27;./menu.module.css&#x27;;
+
+interface MenuBaseProps {
+	/** Click handler for options (passed to all Option children) */
+	onClick?: () =&gt; void;
+	/** Child elements, typically Menu.Option and Menu.Heading */
+	children?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+	/**
+	 * CSS selector to autofocus when the menu mounts.
+	 * The selector is relative to the menu container.
+	 * E.g., &#x27;[role=menuitem]&#x27; to focus the first menu item.
+	 */
+	autoFocusSelector?: string;
+}
+
+export type MenuProps = ComponentPropsWithRef&lt;MenuBaseProps, HTMLDivElement&gt;;
+
+/**
+ * The Menu allows a user to navigate the menu options with the arrow keys, and HOME and END will jump to the first and last option items, respectively.
+ *
+ * Matches the Luna::Menu Ember component API and styling.
+ * Uses Base UI Menu.Root as the foundation for keyboard navigation.
+ */
+export function Menu(props: MenuProps) {
+	const { ref, children, className, autoFocusSelector, ...rest } = props;
+
+	const menuId = useId();
+	const menuClassName = cn(styles.Menu, className);
+	const internalRef = useRef&lt;HTMLDivElement&gt;(null);
+
+	// Merge refs
+	const setRef = (el: HTMLDivElement | null) =&gt; {
+		internalRef.current = el;
+		if (typeof ref === &#x27;function&#x27;) {
+			ref(el);
+		} else if (ref) {
+			(ref as MutableRefObject&lt;HTMLDivElement | null&gt;).current = el;
+		}
+	};
+
+	// Autofocus the first matching element when specified
+	useEffect(() =&gt; {
+		if (autoFocusSelector &amp;&amp; internalRef.current) {
+			// Use setTimeout to ensure focus happens after the popup&#x27;s focus trap is established
+			const timeoutId = setTimeout(() =&gt; {
+				if (internalRef.current) {
+					const element = internalRef.current.querySelector&lt;HTMLElement&gt;(
+						`${autoFocusSelector}:not(:disabled):not([tabindex=&quot;-1&quot;])`,
+					);
+					if (element) {
+						element.focus();
+					}
+				}
+			}, 0);
+			return () =&gt; clearTimeout(timeoutId);
+		}
+	}, [autoFocusSelector]);
+
+	// Base UI Menu.Popup requires Menu.Positioner, but Luna Menu is standalone
+	// We use Menu.Root for keyboard navigation context; children (Menu.Option, Menu.Heading) render inside
+	return (
+		&lt;BaseMenu.Root defaultOpen={true} loopFocus={true} modal={false}&gt;
+			&lt;div
+				ref={setRef}
+				className={menuClassName}
+				role=&quot;menu&quot;
+				id={menuId}
+				data-qid-component-type=&quot;Luna::Menu&quot;
+				{...rest}
+			&gt;
+				{children}
+			&lt;/div&gt;
+		&lt;/BaseMenu.Root&gt;
+	);
+}
+
+// Compound component API: consumers use &lt;Menu&gt;&lt;Menu.Option&gt;...&lt;/Menu.Option&gt;&lt;Menu.Heading&gt;...&lt;/Menu.Heading&gt;&lt;/Menu&gt;
+Menu.Option = Option;
+Menu.Heading = OptionHeading;
+
+export default Menu;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="link.html" class="nav-btn">← link</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="modal.html" class="nav-btn">modal →</a>
+  </div>
+</body>
+</html>

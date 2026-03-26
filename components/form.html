@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>form — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>form</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>form</strong> implementations exist. The Ember version is 190 lines and the React version is 163 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">form.gts</div><pre class="language-typescript">/* eslint-disable ember/no-runloop */
+
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { next } from &#x27;@ember/runloop&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import fade from &#x27;ember-animated/transitions/fade&#x27;;
+import { task } from &#x27;ember-concurrency&#x27;;
+import perform from &#x27;ember-concurrency/helpers/perform&#x27;;
+import { provide } from &#x27;ember-provide-consume-context&#x27;;
+
+import { isFormError } from &#x27;../utils/error.ts&#x27;;
+import type InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { isVisibleInViewport } from &#x27;../utils/scroll.ts&#x27;;
+import Animation from &#x27;./animation.gts&#x27;;
+import Notice from &#x27;./notice.gts&#x27;;
+
+export interface LunaFormBlockValue {
+	actions: {
+		onSubmit: () =&gt; Promise&lt;{ errorDuringSave: boolean }&gt;;
+		validate: () =&gt; { errorDuringSave: boolean } | undefined;
+		registerInputManager: (manager: InputManager) =&gt; void;
+		unregisterInputManager: (manager: InputManager) =&gt; void;
+	};
+	autosave: boolean | undefined;
+	isLoading: boolean;
+	externalErrorsFor: (name: string) =&gt; Array&lt;{ message?: string } | string&gt; | null | undefined;
+}
+
+export interface LunaFormSignature {
+	Element: HTMLFormElement;
+	Args: {
+		autosave?: boolean;
+		onSubmit: (event?: SubmitEvent, ...additionalArgs: unknown[]) =&gt; Promise&lt;void&gt; | void;
+		externalErrorsFor?: (name: string) =&gt; Array&lt;{ message?: string } | string&gt; | null | undefined;
+	};
+	Blocks: {
+		default: [LunaFormBlockValue];
+	};
+}
+
+/**
+ * A wrapper around the HTML form. It will ensure its child inputs have valid data before allowing the user to submit it.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/form.md)
+ */
+export default class LunaForm extends Component&lt;LunaFormSignature&gt; {
+	@provide(&#x27;luna-form&#x27;)
+	get formApi() {
+		return {
+			actions: {
+				validate: this.validate.bind(this),
+				onSubmit: this.onSubmit.perform.bind(this),
+				registerInputManager: this.registerInputManager.bind(this),
+				unregisterInputManager: this.unregisterInputManager.bind(this),
+			},
+			autosave: this.args.autosave,
+			isLoading: this.onSubmit.isRunning,
+			externalErrorsFor: this.externalErrorsFor.bind(this),
+		};
+	}
+
+	fadeTransition = fade;
+
+	/**
+	 * Hold the error returned from the onSubmit action
+	 */
+	@tracked onSubmitError: string | null = null;
+
+	/**
+	 * A registry of all child input components.
+	 */
+	inputManagers = new Set&lt;InputManager&gt;();
+
+	@action
+	registerInputManager(manager: InputManager) {
+		this.inputManagers.add(manager);
+	}
+
+	@action
+	unregisterInputManager(manager: InputManager) {
+		this.inputManagers.delete(manager);
+	}
+
+	get hasSubmitError() {
+		return Boolean(this.onSubmitError);
+	}
+
+	// Should we just pass this directly?
+	@action
+	externalErrorsFor(name: string) {
+		return this.args.externalErrorsFor?.(name);
+	}
+
+	private validate = () =&gt; {
+		let invalidInput: InputManager | undefined;
+		this.inputManagers.forEach((manager) =&gt; {
+			manager.showErrorIfPresent = true;
+			if (!invalidInput &amp;&amp; manager.isInvalid) {
+				invalidInput = manager;
+			}
+		});
+
+		if (invalidInput) {
+			if (!this.args.autosave) {
+				invalidInput.focus();
+			}
+			return { errorDuringSave: true };
+		}
+	};
+
+	/**
+	 * Action that is called when the form is submitted. If none of the
+	 * child components have any errors then it calls the onSubmit action.
+	 *
+	 * @param event The event that triggered the form submission
+	 */
+	onSubmit = task(async (event?: SubmitEvent, ...additionalArgs: unknown[]) =&gt; {
+		event?.preventDefault?.();
+
+		const validation = this.validate();
+
+		if (validation !== undefined) {
+			return validation;
+		}
+
+		this.onSubmitError = null;
+
+		try {
+			await this.args.onSubmit(event, ...additionalArgs);
+
+			/**
+			 * This resets the form so it can be reused without error
+			 * messages immediately showing up when all the fields are
+			 * reset to empty.
+			 */
+			this.inputManagers.forEach((manager) =&gt; {
+				manager.showErrorIfPresent = false;
+			});
+
+			return { errorDuringSave: false };
+		} catch (error: unknown) {
+			if (isFormError(error)) {
+				if (error.hasGlobalError) {
+					this.onSubmitError = error.message;
+
+					next(this, function () {
+						const errorElement = document.querySelector(&#x27;[data-form-error]&#x27;);
+
+						if (errorElement &amp;&amp; !isVisibleInViewport(errorElement)) {
+							errorElement.scrollIntoView({
+								behavior: &#x27;smooth&#x27;,
+							});
+						}
+					});
+				}
+			} else {
+				// We got an unexpected error, so we re-throw it
+				throw error;
+			}
+
+			return { errorDuringSave: true };
+		}
+	});
+	&lt;template&gt;
+		&lt;form
+			class=&quot;Form&quot;
+			{{on &quot;submit&quot; (perform this.onSubmit)}}
+			novalidate
+			data-qid-component-type=&quot;Luna::Form&quot;
+			...attributes
+		&gt;
+
+			&lt;Animation @animation=&quot;slide-and-fade&quot; @show={{this.hasSubmitError}}&gt;
+				&lt;Notice class=&quot;error&quot; @variant=&quot;red&quot; data-form-error data-qid-form-error&gt;
+					{{!
+          We set this to unbound because we don&#x27;t want to text to disappear
+          during the out animation.
+        }}
+					{{! template-lint-disable no-unbound }}
+					{{unbound this.onSubmitError}}
+				&lt;/Notice&gt;
+			&lt;/Animation&gt;
+
+			{{yield this.formApi}}
+		&lt;/form&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">form.tsx</div><pre class="language-typescript">import { createContext, type ReactNode, useCallback, useContext, useRef, useState } from &#x27;react&#x27;;
+
+import type { InputManager } from &#x27;../../utils/use-input-manager&#x27;;
+
+export interface FormContextValue {
+	actions: {
+		onSubmit: () =&gt; Promise&lt;{ errorDuringSave: boolean }&gt;;
+		validate: () =&gt; { errorDuringSave: boolean } | undefined;
+		registerInputManager: (manager: InputManager) =&gt; void;
+		unregisterInputManager: (manager: InputManager) =&gt; void;
+	};
+	autosave: boolean | undefined;
+	isLoading: boolean;
+	externalErrorsFor: (name: string) =&gt; Array&lt;{ message?: string } | string&gt; | null | undefined;
+}
+
+const FormContext = createContext&lt;FormContextValue | undefined&gt;(undefined);
+
+export function useFormContext(): FormContextValue | undefined {
+	return useContext(FormContext);
+}
+
+interface FormProps {
+	/** Whether to enable autosave */
+	autosave?: boolean;
+	/** Callback fired when form is submitted */
+	onSubmit: (event?: SubmitEvent, ...additionalArgs: unknown[]) =&gt; Promise&lt;void&gt; | void;
+	/** Function to get external errors for a field name */
+	externalErrorsFor?: (name: string) =&gt; Array&lt;{ message?: string } | string&gt; | null | undefined;
+	/** Children (use useFormContext() hook to access form context) */
+	children: ReactNode | ((formContext: FormContextValue) =&gt; ReactNode);
+	/** Additional CSS class */
+	className?: string;
+}
+
+/**
+ * A wrapper around the HTML form. It will ensure its child inputs have valid data before allowing the user to submit it.
+ *
+ * Matches the Luna::Form Ember component API and styling.
+ *
+ * @example
+ * ```tsx
+ * // Using useFormContext hook (recommended)
+ * function MyForm() {
+ *   return (
+ *     &lt;Form onSubmit={handleSubmit}&gt;
+ *       &lt;MyInput /&gt;
+ *       &lt;MySubmitButton /&gt;
+ *     &lt;/Form&gt;
+ *   );
+ * }
+ *
+ * function MySubmitButton() {
+ *   const form = useFormContext();
+ *   return &lt;Button loading={form?.isLoading} type=&quot;submit&quot;&gt;Save&lt;/Button&gt;;
+ * }
+ *
+ * // Using legacy render callback (deprecated)
+ * &lt;Form onSubmit={handleSubmit}&gt;
+ *   {(form) =&gt; (
+ *     &lt;&gt;
+ *       &lt;Input /&gt;
+ *       &lt;Button loading={form.isLoading} type=&quot;submit&quot;&gt;Save&lt;/Button&gt;
+ *     &lt;/&gt;
+ *   )}
+ * &lt;/Form&gt;
+ * ```
+ */
+export function Form({ autosave, onSubmit, externalErrorsFor, children, className }: FormProps) {
+	const [isLoading, setIsLoading] = useState(false);
+	const inputManagersRef = useRef&lt;Map&lt;string, InputManager&gt;&gt;(new Map());
+
+	const registerInputManager = useCallback((manager: InputManager) =&gt; {
+		inputManagersRef.current.set(manager.id, manager);
+	}, []);
+
+	const unregisterInputManager = useCallback((manager: InputManager) =&gt; {
+		inputManagersRef.current.delete(manager.id);
+	}, []);
+
+	const validate = useCallback((): { errorDuringSave: boolean } | undefined =&gt; {
+		let invalidInput: InputManager | undefined;
+
+		inputManagersRef.current.forEach((manager) =&gt; {
+			manager.setShowErrorIfPresent(true);
+			if (!invalidInput &amp;&amp; manager.isInvalid) {
+				invalidInput = manager;
+			}
+		});
+
+		if (invalidInput) {
+			if (!autosave) {
+				invalidInput.focus();
+			}
+			return { errorDuringSave: true };
+		}
+	}, [autosave]);
+
+	const handleSubmit = useCallback(
+		async (event?: SubmitEvent, ...additionalArgs: unknown[]): Promise&lt;{ errorDuringSave: boolean }&gt; =&gt; {
+			event?.preventDefault?.();
+
+			const validation = validate();
+
+			if (validation !== undefined) {
+				return validation;
+			}
+
+			setIsLoading(true);
+
+			try {
+				await onSubmit(event, ...additionalArgs);
+
+				/**
+				 * This resets the form so it can be reused without error
+				 * messages immediately showing up when all the fields are
+				 * reset to empty.
+				 */
+				inputManagersRef.current.forEach((manager) =&gt; {
+					manager.setShowErrorIfPresent(false);
+				});
+
+				return { errorDuringSave: false };
+			} catch (_error: unknown) {
+				// TODO: Handle FormError type
+				return { errorDuringSave: true };
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[onSubmit, validate],
+	);
+
+	const formContext: FormContextValue = {
+		actions: {
+			onSubmit: handleSubmit,
+			validate,
+			registerInputManager,
+			unregisterInputManager,
+		},
+		autosave,
+		isLoading,
+		externalErrorsFor: externalErrorsFor ?? (() =&gt; undefined),
+	};
+
+	return (
+		&lt;form
+			className={className}
+			onSubmit={(e) =&gt; {
+				e.preventDefault();
+				void handleSubmit(e.nativeEvent as SubmitEvent);
+			}}
+			noValidate
+			data-qid-component-type=&quot;Luna::Form&quot;
+		&gt;
+			&lt;FormContext.Provider value={formContext}&gt;
+				{typeof children === &#x27;function&#x27; ? children(formContext) : children}
+			&lt;/FormContext.Provider&gt;
+		&lt;/form&gt;
+	);
+}
+
+export default Form;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="field.html" class="nav-btn">← field</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="format-markdown.html" class="nav-btn">format-markdown →</a>
+  </div>
+</body>
+</html>

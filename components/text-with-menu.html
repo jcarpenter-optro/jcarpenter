@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>text-with-menu — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>text-with-menu</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>text-with-menu</strong> implementations exist. The Ember version is 143 lines and the React version is 331 lines. The React version is notably larger (331 vs 143 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">text-with-menu.gts</div><pre class="language-typescript">import type { WithBoundArgs } from &#x27;@glint/template&#x27;;
+
+import { concat, fn, hash } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import autofocus from &#x27;../modifiers/autofocus.ts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import type { LunaMenuSignature } from &#x27;./menu.gts&#x27;;
+import Menu from &#x27;./menu.gts&#x27;;
+import type { LunaPopupBlockValue, LunaPopupSignature } from &#x27;./popup.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+
+type PopupArgs = LunaPopupSignature[&#x27;Args&#x27;];
+
+export interface TextWrapperSignature {
+	Element: HTMLButtonElement;
+	Args: {
+		id?: string;
+		popupId: string;
+		isExpanded: boolean;
+		showMenu: (event: MouseEvent) =&gt; void;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+class TextWrapper extends Component&lt;TextWrapperSignature&gt; {
+	get isOpen() {
+		return String(this.args.isExpanded);
+	}
+
+	&lt;template&gt;
+		&lt;button
+			id={{@id}}
+			aria-expanded={{this.isOpen}}
+			aria-controls={{@popupId}}
+			type=&quot;button&quot;
+			class=&quot;trigger&quot;
+			data-qid-component-type=&quot;Luna::TextWithMenu&quot;
+			...attributes
+			{{on &quot;click&quot; @showMenu}}
+		&gt;
+			&lt;div class=&quot;trigger-text&quot;&gt;
+				{{yield}}
+			&lt;/div&gt;
+			&lt;Icon @icon=&quot;chevron-down&quot; /&gt;
+		&lt;/button&gt;
+	&lt;/template&gt;
+}
+
+export interface MenuWrapperSignature {
+	Element: HTMLDivElement;
+	Args: {
+		popupId?: PopupArgs[&#x27;id&#x27;];
+		relativeTo: PopupArgs[&#x27;relativeTo&#x27;];
+		isExpanded?: PopupArgs[&#x27;show&#x27;];
+		hideMenu?: PopupArgs[&#x27;onClose&#x27;];
+	};
+	Blocks: {
+		default: [
+			{
+				Option: LunaMenuSignature[&#x27;Blocks&#x27;][&#x27;default&#x27;][0][&#x27;Option&#x27;];
+			},
+		];
+	};
+}
+
+class MenuWrapper extends Component&lt;MenuWrapperSignature&gt; {
+	close = (popup: LunaPopupBlockValue) =&gt; {
+		void popup.closeTask.perform();
+	};
+
+	&lt;template&gt;
+		&lt;Popup
+			@id={{@popupId}}
+			@show={{@isExpanded}}
+			@trapFocus={{true}}
+			@onClose={{@hideMenu}}
+			@relativeTo={{@relativeTo}}
+			@placement=&quot;bottom-start&quot;
+			@ySpacing={{8}}
+			...attributes
+			as |popup|
+		&gt;
+			&lt;Menu {{autofocus &quot;[role=menuitem]&quot;}} as |m|&gt;
+				{{yield (hash Option=(component m.Option onClick=(fn this.close popup)))}}
+			&lt;/Menu&gt;
+		&lt;/Popup&gt;
+	&lt;/template&gt;
+}
+
+interface TextWithMenuSignature {
+	Blocks: {
+		default: [
+			{
+				Text: WithBoundArgs&lt;typeof TextWrapper, &#x27;id&#x27; | &#x27;popupId&#x27; | &#x27;isExpanded&#x27; | &#x27;showMenu&#x27;&gt;;
+				Popup: WithBoundArgs&lt;typeof MenuWrapper, &#x27;popupId&#x27; | &#x27;isExpanded&#x27; | &#x27;relativeTo&#x27; | &#x27;hideMenu&#x27;&gt;;
+			},
+		];
+	};
+}
+
+let counter = 0;
+
+/**
+ * Text used to show a menu of options to the user. The menu closes once the user selects an option.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/text-with-menu.md)
+ */
+export default class LunaTextWithMenu extends Component&lt;TextWithMenuSignature&gt; {
+	targetId = `luna${counter++}--target`;
+	popupId = `luna${counter++}--popup`;
+
+	@tracked renderMenu = false;
+
+	showMenu = () =&gt; {
+		this.renderMenu = true;
+	};
+
+	hideMenu = () =&gt; {
+		this.renderMenu = false;
+	};
+
+	&lt;template&gt;
+		{{yield
+			(hash
+				Text=(component
+					TextWrapper id=this.targetId popupId=this.popupId isExpanded=this.renderMenu showMenu=this.showMenu
+				)
+				Popup=(component
+					MenuWrapper
+					popupId=this.popupId
+					relativeTo=(concat &quot;#&quot; this.targetId)
+					isExpanded=this.renderMenu
+					hideMenu=this.hideMenu
+				)
+			)
+		}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">text-with-menu.tsx</div><pre class="language-typescript">import {
+	Children,
+	createContext,
+	type MutableRefObject,
+	type ReactElement,
+	type ReactNode,
+	type Ref,
+	type RefObject,
+	useCallback,
+	useContext,
+	useId,
+	useRef,
+	useState,
+} from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Icon } from &#x27;../icon&#x27;;
+import { Menu } from &#x27;../menu&#x27;;
+import { Option, type OptionProps } from &#x27;../option&#x27;;
+import { OptionHeading } from &#x27;../option-heading&#x27;;
+import { Popup, type PopupPlacement, usePopupContext } from &#x27;../popup&#x27;;
+
+import styles from &#x27;./text-with-menu.module.css&#x27;;
+
+/** Symbol used to identify Text slot when extracting children (avoids string keys like $$). */
+export const TWM_TEXT = Symbol(&#x27;TextWithMenu.Text&#x27;);
+/** Symbol used to identify Menu slot when extracting children. */
+export const TWM_MENU = Symbol(&#x27;TextWithMenu.Menu&#x27;);
+
+/**
+ * Context for sharing menu state between TextWithMenu and its subcomponents
+ */
+interface TextWithMenuContextValue {
+	/** Whether the menu is currently open */
+	isOpen: boolean;
+	/** Open the menu */
+	showMenu: (event?: React.MouseEvent) =&gt; void;
+	/** Close the menu */
+	hideMenu: () =&gt; void;
+	/** ID of the trigger text */
+	textId: string;
+	/** ID of the popup menu */
+	popupId: string;
+	/** Ref to the trigger text element */
+	textRef: RefObject&lt;HTMLButtonElement | null&gt;;
+}
+
+const TextWithMenuContext = createContext&lt;TextWithMenuContextValue | null&gt;(null);
+
+function useTextWithMenuContext() {
+	const context = useContext(TextWithMenuContext);
+	if (!context) {
+		throw new Error(&#x27;TextWithMenu subcomponents must be used within TextWithMenu&#x27;);
+	}
+	return context;
+}
+
+/**
+ * Hook to access the TextWithMenu control functions and state from within menu content or text children
+ */
+export function useTextWithMenuHandle(): {
+	showMenu: (event?: React.MouseEvent) =&gt; void;
+	hideMenu: () =&gt; void;
+	popupIsOpen: boolean;
+} {
+	const context = useTextWithMenuContext();
+	return { showMenu: context.showMenu, hideMenu: context.hideMenu, popupIsOpen: context.isOpen };
+}
+
+// ============================================================================
+// TextTrigger Subcomponent
+// ============================================================================
+
+interface TextTriggerBaseProps {
+	/** ID for the element */
+	&#x27;id&#x27;?: string;
+	/** Children content */
+	&#x27;children&#x27;?: React.ReactNode;
+	/** Additional class name */
+	&#x27;className&#x27;?: string;
+	/** ARIA label for accessibility */
+	&#x27;aria-label&#x27;?: string;
+}
+
+export type TextTriggerProps = ComponentPropsWithRef&lt;TextTriggerBaseProps, HTMLButtonElement&gt;;
+
+/**
+ * The trigger text for TextWithMenu.
+ * Renders as a button styled to look like text with an underline and chevron icon.
+ */
+export function TextTrigger(props: TextTriggerProps) {
+	const { ref, children, className, ...rest } = props;
+	const { isOpen, showMenu, textId, popupId, textRef } = useTextWithMenuContext();
+
+	const handleClick = useCallback(
+		(event: React.MouseEvent&lt;HTMLButtonElement&gt;) =&gt; {
+			event.stopPropagation();
+			showMenu(event);
+		},
+		[showMenu],
+	);
+
+	// Merge refs
+	const setRef = useCallback(
+		(el: HTMLButtonElement | null) =&gt; {
+			(textRef as MutableRefObject&lt;HTMLButtonElement | null&gt;).current = el;
+			if (typeof ref === &#x27;function&#x27;) {
+				ref(el);
+			} else if (ref) {
+				(ref as MutableRefObject&lt;HTMLButtonElement | null&gt;).current = el;
+			}
+		},
+		[textRef, ref],
+	);
+
+	return (
+		&lt;button
+			ref={setRef}
+			id={rest.id ?? textId}
+			type=&quot;button&quot;
+			className={cn(styles.trigger, className)}
+			aria-expanded={isOpen}
+			aria-controls={popupId}
+			data-qid-component-type=&quot;Luna::TextWithMenu&quot;
+			onClick={handleClick}
+			{...rest}
+		&gt;
+			&lt;div className={styles.triggerText}&gt;{children}&lt;/div&gt;
+			&lt;Icon icon=&quot;chevron-down&quot; /&gt;
+		&lt;/button&gt;
+	);
+}
+
+TextTrigger.displayName = &#x27;TextWithMenu.Text&#x27;;
+(TextTrigger as unknown as Record&lt;symbol, boolean&gt;)[TWM_TEXT] = true;
+
+// ============================================================================
+// MenuPopup Subcomponent
+// ============================================================================
+
+export interface TextMenuPopupProps {
+	/** Popup placement relative to the text trigger */
+	&#x27;placement&#x27;?: PopupPlacement;
+	/** Children content - use TextWithMenu.Option for menu items */
+	&#x27;children&#x27;?: ReactNode;
+	/** Additional class name */
+	&#x27;className&#x27;?: string;
+	/** Test ID */
+	&#x27;data-testid&#x27;?: string;
+	/** QID attribute */
+	&#x27;data-qid&#x27;?: string;
+}
+
+/**
+ * The popup menu for TextWithMenu.
+ * Automatically positions relative to the trigger text and closes on option click.
+ */
+export function TextMenuPopup({ placement = &#x27;bottom-start&#x27;, children, className, ...props }: TextMenuPopupProps) {
+	const { isOpen, hideMenu, popupId, textRef } = useTextWithMenuContext();
+
+	return (
+		&lt;Popup
+			id={popupId}
+			show={isOpen}
+			trapFocus={true}
+			onClose={hideMenu}
+			relativeTo={textRef}
+			placement={placement}
+			ySpacing={8}
+			className={className}
+			initialFocusSelector=&quot;[role=menuitem]&quot;
+			data-qid-luna-text-with-menu-menu
+			{...props}
+		&gt;
+			&lt;div className={styles.overflow}&gt;
+				&lt;Menu&gt;{children}&lt;/Menu&gt;
+			&lt;/div&gt;
+		&lt;/Popup&gt;
+	);
+}
+
+TextMenuPopup.displayName = &#x27;TextWithMenu.Menu&#x27;;
+(TextMenuPopup as unknown as Record&lt;symbol, boolean&gt;)[TWM_MENU] = true;
+
+// ============================================================================
+// TextMenuOption Subcomponent
+// ============================================================================
+
+export interface TextMenuOptionProps extends OptionProps {
+	/** Forwarded ref to the underlying option element */
+	ref?: Ref&lt;HTMLButtonElement | HTMLAnchorElement&gt;;
+	/** Children content */
+	children?: React.ReactNode;
+}
+
+/**
+ * An option within the TextWithMenu popup.
+ * Automatically closes the menu when clicked.
+ */
+export function TextMenuOption(props: TextMenuOptionProps) {
+	const { ref, onClick, children, ...rest } = props;
+	const popupContext = usePopupContext();
+
+	const handleClick = useCallback(() =&gt; {
+		onClick?.();
+		// Close the popup after the option action
+		popupContext?.close(&#x27;manual&#x27;);
+	}, [onClick, popupContext]);
+
+	return (
+		&lt;Option ref={ref} onClick={handleClick} {...rest}&gt;
+			{children}
+		&lt;/Option&gt;
+	);
+}
+
+TextMenuOption.displayName = &#x27;TextWithMenu.Option&#x27;;
+
+// Re-export OptionHeading for use in menus
+export { OptionHeading };
+
+// ============================================================================
+// Slot Extraction
+// ============================================================================
+
+/**
+ * Extract text and menu slots from children
+ */
+function extractTextWithMenuSlots(children: ReactNode): {
+	textSlot: ReactElement | null;
+	menuSlot: ReactElement | null;
+	otherChildren: ReactNode[];
+} {
+	let textSlot: ReactElement | null = null;
+	let menuSlot: ReactElement | null = null;
+	const otherChildren: ReactNode[] = [];
+
+	Children.forEach(children, (child) =&gt; {
+		if (!child || typeof child !== &#x27;object&#x27; || !(&#x27;type&#x27; in child)) {
+			otherChildren.push(child);
+			return;
+		}
+
+		const element = child as ReactElement &amp; {
+			type: Record&lt;symbol, boolean&gt;;
+		};
+
+		if (element.type?.[TWM_TEXT]) {
+			textSlot = element;
+		} else if (element.type?.[TWM_MENU]) {
+			menuSlot = element;
+		} else {
+			otherChildren.push(child);
+		}
+	});
+
+	return { textSlot, menuSlot, otherChildren };
+}
+
+// ============================================================================
+// TextWithMenu Main Component
+// ============================================================================
+
+export interface TextWithMenuProps {
+	/** Children components - use TextWithMenu.Text and TextWithMenu.Menu */
+	children: ReactNode;
+}
+
+/**
+ * Text used to show a menu of options to the user.
+ * The menu closes once the user selects an option.
+ *
+ * @example
+ * ```tsx
+ * &lt;TextWithMenu&gt;
+ *   &lt;TextWithMenu.Text&gt;Options&lt;/TextWithMenu.Text&gt;
+ *   &lt;TextWithMenu.Menu&gt;
+ *     &lt;TextWithMenu.Option onClick={() =&gt; console.log(&#x27;Edit&#x27;)}&gt;Edit&lt;/TextWithMenu.Option&gt;
+ *     &lt;TextWithMenu.Option onClick={() =&gt; console.log(&#x27;Delete&#x27;)}&gt;Delete&lt;/TextWithMenu.Option&gt;
+ *   &lt;/TextWithMenu.Menu&gt;
+ * &lt;/TextWithMenu&gt;
+ * ```
+ */
+function TextWithMenuComponent({ children }: TextWithMenuProps) {
+	const id = useId();
+	const textId = `${id}--target`;
+	const popupId = `${id}--popup`;
+	const textRef = useRef&lt;HTMLButtonElement | null&gt;(null);
+
+	const [isOpen, setIsOpen] = useState(false);
+
+	const showMenu = useCallback((event?: React.MouseEvent) =&gt; {
+		event?.stopPropagation();
+		setIsOpen(true);
+	}, []);
+
+	const hideMenu = useCallback(() =&gt; {
+		setIsOpen(false);
+	}, []);
+
+	const contextValue: TextWithMenuContextValue = {
+		isOpen,
+		showMenu,
+		hideMenu,
+		textId,
+		popupId,
+		textRef,
+	};
+
+	const { textSlot, menuSlot } = extractTextWithMenuSlots(children);
+
+	return (
+		&lt;TextWithMenuContext.Provider value={contextValue}&gt;
+			{textSlot}
+			{menuSlot}
+		&lt;/TextWithMenuContext.Provider&gt;
+	);
+}
+
+// Attach subcomponents
+const TextWithMenu = Object.assign(TextWithMenuComponent, {
+	Text: TextTrigger,
+	Menu: TextMenuPopup,
+	Option: TextMenuOption,
+	Heading: OptionHeading,
+});
+
+export { TextWithMenu };
+
+export default TextWithMenu;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="text.html" class="nav-btn">← text</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="textarea.html" class="nav-btn">textarea →</a>
+  </div>
+</body>
+</html>

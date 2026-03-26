@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>input-error — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>input-error</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>input-error</strong> implementations exist. The Ember version is 47 lines and the React version is 64 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">input-error.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+export interface LunaInputErrorSignature {
+	Element: HTMLDivElement; // Not always visible
+	Args: {
+		showWhen: boolean;
+		align?: &#x27;right&#x27; | &#x27;left&#x27;;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+const LunaInputError: TOC&lt;LunaInputErrorSignature&gt; = &lt;template&gt;
+	{{#if @showWhen}}
+		&lt;div
+			class=&quot;InputError&quot;
+			aria-live=&quot;assertive&quot;
+			data-align={{or @align &quot;right&quot;}}
+			data-qid-input-error
+			data-qid-component-type=&quot;Luna::InputError&quot;
+			...attributes
+		&gt;
+			&lt;div class=&quot;layout&quot;&gt;
+				&lt;svg
+					class=&quot;icon&quot;
+					xmlns=&quot;http://www.w3.org/2000/svg&quot;
+					viewBox=&quot;0 0 16 16&quot;
+					aria-label={{t &quot;error.input.infoIcon&quot;}}
+				&gt;
+					&lt;path
+						d=&quot;M8 0a8 8 0 11-8 8 8 8 0 018-8zm0 14.48A6.48 6.48 0 101.52 8 6.48 6.48 0 008 14.48zM8 12a.93.93 0 00.93-.93.93.93 0 10-1.86 0A.92.92 0 008 12zm-.86-2.76h1.72V4H7.14z&quot;
+						fill=&quot;currentColor&quot;
+					&gt;&lt;/path&gt;
+				&lt;/svg&gt;
+				&lt;div class=&quot;text&quot;&gt;
+					{{yield}}
+				&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	{{/if}}
+&lt;/template&gt;;
+
+export default LunaInputError;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">input-error.tsx</div><pre class="language-typescript">import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { t } from &#x27;../../utils/i18n&#x27;;
+
+import styles from &#x27;./input-error.module.css&#x27;;
+
+export type InputErrorAlign = &#x27;left&#x27; | &#x27;right&#x27;;
+
+interface InputErrorBaseProps {
+	/** Whether to show the error */
+	showWhen: boolean;
+	/** Alignment of the error message */
+	align?: InputErrorAlign;
+	/** Additional CSS class */
+	className?: string;
+	/** Children (error message content) */
+	children?: React.ReactNode;
+}
+
+export type InputErrorProps = ComponentPropsWithRef&lt;InputErrorBaseProps, HTMLDivElement&gt;;
+
+/**
+ * An error message component for form inputs.
+ *
+ * Matches the Luna::InputError Ember component API and styling.
+ */
+export function InputError(props: InputErrorProps) {
+	const { ref, showWhen, align = &#x27;right&#x27;, className, children, ...rest } = props;
+
+	if (!showWhen) {
+		return null;
+	}
+
+	const inputErrorClassName = cn(styles.InputError, className);
+
+	return (
+		&lt;div
+			className={inputErrorClassName}
+			aria-live=&quot;assertive&quot;
+			data-align={align}
+			data-qid-input-error
+			data-qid-component-type=&quot;Luna::InputError&quot;
+			ref={ref}
+			{...rest}
+		&gt;
+			&lt;div className={styles.layout}&gt;
+				&lt;svg
+					className={styles.icon}
+					xmlns=&quot;http://www.w3.org/2000/svg&quot;
+					viewBox=&quot;0 0 16 16&quot;
+					aria-label={t(&#x27;input-error.ariaError&#x27;)}
+				&gt;
+					&lt;path
+						d=&quot;M8 0a8 8 0 11-8 8 8 8 0 018-8zm0 14.48A6.48 6.48 0 101.52 8 6.48 6.48 0 008 14.48zM8 12a.93.93 0 00.93-.93.93.93 0 10-1.86 0A.92.92 0 008 12zm-.86-2.76h1.72V4H7.14z&quot;
+						fill=&quot;currentColor&quot;
+					&gt;&lt;/path&gt;
+				&lt;/svg&gt;
+				&lt;div className={styles.text}&gt;{children}&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default InputError;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="input.html" class="nav-btn">← input</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="label.html" class="nav-btn">label →</a>
+  </div>
+</body>
+</html>

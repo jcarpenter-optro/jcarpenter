@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>checkbox-tree — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>checkbox-tree</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>checkbox-tree</strong> implementations exist. The Ember version is 334 lines and the React version is 298 lines. The Ember version is notably larger (334 vs 298 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">checkbox-tree.gts</div><pre class="language-typescript">import type { ModifierLike } from &#x27;@glint/template&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { task } from &#x27;ember-concurrency&#x27;;
+import { modifier } from &#x27;ember-modifier&#x27;;
+import { and } from &#x27;ember-truth-helpers&#x27;;
+
+import a11yMenu from &#x27;../modifiers/a11y-menu.ts&#x27;;
+import type { CheckboxNode } from &#x27;../utils/checkbox-node.ts&#x27;;
+import { buildTree } from &#x27;../utils/checkbox-node.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import LunaCheckboxElement from &#x27;./checkbox/element.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+import XStack from &#x27;./x-stack.gts&#x27;;
+import YStack from &#x27;./y-stack.gts&#x27;;
+
+interface CheckboxTreeNodeSignature {
+	Element: HTMLDivElement;
+	Args: {
+		node: CheckboxNode;
+		onChange: (value: boolean, changedNodes: CheckboxNode[], event: Event) =&gt; unknown;
+	};
+	Blocks: { default?: [] };
+}
+
+export interface CheckboxTreeItem {
+	id: string;
+	label: string;
+	children?: CheckboxTreeItem[];
+}
+
+// Note does a shallow validation and doesn&#x27;t validate children is CheckboxTreeItem
+export function isCheckboxTreeItem(value: unknown): value is CheckboxTreeItem {
+	if (typeof value !== &#x27;object&#x27; || value === null) {
+		return false;
+	}
+
+	const item = value as Record&lt;string, unknown&gt;;
+
+	if (typeof item.id !== &#x27;string&#x27; || typeof item.label !== &#x27;string&#x27;) {
+		return false;
+	}
+
+	if (item.children !== undefined &amp;&amp; !Array.isArray(item.children)) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * A Node within a checkbox tree component. Nodes render the CheckboxNode, recursively rendering for their children.
+ */
+class CheckboxTreeNode extends Component&lt;CheckboxTreeNodeSignature&gt; {
+	nodeElement: HTMLDivElement | null = null;
+	childrenId = `${guidFor(this)}--children`;
+
+	get isExpanded() {
+		return !!this.args.node.expanded;
+	}
+
+	get hasChildren() {
+		return this.args.node.children.length;
+	}
+
+	get value() {
+		return this.args.node.value;
+	}
+
+	get id() {
+		return this.args.node.fullPath();
+	}
+
+	@action
+	toggleExpanded() {
+		this.args.node.expanded = !this.args.node.expanded;
+	}
+
+	@action
+	toggleValue(event: Event) {
+		const nextValue = this.value === &#x27;mixed&#x27; ? true : !this.value;
+		const leafNodes = this.args.node.updateValue(nextValue);
+
+		// Note that checkbox tree state is decoupled from the caller, if this.args.onChange fails checkbox tree will not revert state.
+		this.args.onChange?.(nextValue, leafNodes, event);
+	}
+
+	@action
+	handleKeydown(event: KeyboardEvent) {
+		const { key } = event;
+		if (key === KEYBOARD_KEYS.SPACE || key === KEYBOARD_KEYS.RIGHT_ARROW || key === KEYBOARD_KEYS.LEFT_ARROW) {
+			event.preventDefault();
+		}
+		switch (key) {
+			case KEYBOARD_KEYS.RIGHT_ARROW:
+				if (this.hasChildren) {
+					// First expand then enter children
+					if (!this.args.node.expanded) {
+						this.args.node.expanded = true;
+					} else {
+						this.moveFocusToFirstTreeItem();
+					}
+				}
+				break;
+			case KEYBOARD_KEYS.LEFT_ARROW:
+				// Collapse children first (if any) or move to parent
+				if (this.args.node.expanded &amp;&amp; this.hasChildren) {
+					this.args.node.expanded = false;
+				} else {
+					this.moveFocusToParentTreeItem();
+				}
+				break;
+			case KEYBOARD_KEYS.SPACE:
+				this.toggleValue(event);
+				break;
+			case KEYBOARD_KEYS.ENTER:
+				if (this.nodeElement &amp;&amp; this.hasChildren) {
+					this.toggleExpanded();
+				}
+				break;
+		}
+	}
+
+	moveFocusToFirstTreeItem = () =&gt; {
+		if (this.nodeElement) {
+			const firstItem = this.nodeElement.querySelector(`#${this.childrenId} [role=&quot;treeitem&quot;]:first-of-type`);
+			if (firstItem instanceof HTMLElement) firstItem.focus();
+		}
+	};
+
+	moveFocusToParentTreeItem = () =&gt; {
+		if (this.nodeElement) {
+			const groupElement = this.nodeElement.closest(&#x27;[role=&quot;group&quot;]&#x27;);
+			if (groupElement) {
+				const parentTreeItem = groupElement.previousElementSibling;
+				if (parentTreeItem instanceof HTMLElement) parentTreeItem.focus();
+			}
+		}
+	};
+
+	registerNodeElement: ModifierLike&lt;{ Element: HTMLElement }&gt; = modifier((element: HTMLElement) =&gt; {
+		if (element instanceof HTMLDivElement) this.nodeElement = element;
+		assert(&#x27;Expected this.nodeElement to be an HTMLDivElement&#x27;, this.nodeElement instanceof HTMLDivElement);
+	});
+
+	&lt;template&gt;
+		{{#if @node.isVisible}}
+			&lt;YStack {{this.registerNodeElement}}&gt;
+				{{#unless @node.isRootNode}}
+					{{! We&#x27;re using aria-checked here instead of aria-selected since it supports mixed state }}
+					{{! template-lint-disable require-mandatory-role-attributes }}
+					&lt;XStack
+						class=&quot;tree-item left-padding&quot;
+						{{! Tree role provided in parent component }}
+						{{! template-lint-disable require-context-role }}
+						role=&quot;treeitem&quot;
+						tabindex=&quot;0&quot;
+						aria-expanded={{if this.hasChildren (String this.isExpanded)}}
+						aria-checked={{String this.value}}
+						aria-owns={{if (and this.isExpanded this.hasChildren) this.childrenId}}
+						data-qid-tree-item={{this.id}}
+						{{on &quot;keydown&quot; this.handleKeydown}}
+					&gt;
+						{{#if this.hasChildren}}
+							{{! This is acceptable since the keyboard interaction, focus state, etc. are on the node, not the toggle itself }}
+							{{! template-lint-disable no-invalid-interactive }}
+							&lt;div
+								class=&quot;toggle-tree&quot;
+								data-open={{String this.isExpanded}}
+								{{on &quot;click&quot; this.toggleExpanded}}
+								data-qid-tree-toggle
+							&gt;
+								&lt;Icon @icon=&quot;chevron-right&quot; @size=&quot;sm&quot; /&gt;
+							&lt;/div&gt;
+						{{else}}
+							&lt;span class=&quot;toggle-tree&quot; data-qid-tree-toggle-placeholder /&gt;
+						{{/if}}
+						&lt;XStack @spacing=&quot;sm&quot; class=&quot;checkbox-and-label&quot; @width=&quot;auto&quot;&gt;
+							&lt;LunaCheckboxElement
+								@value={{String this.value}}
+								aria-hidden=&quot;true&quot;
+								data-qid-checkbox
+								{{on &quot;click&quot; this.toggleValue}}
+							/&gt;
+							{{@node.label}}
+						&lt;/XStack&gt;
+					&lt;/XStack&gt;
+				{{/unless}}
+				{{#if (and this.isExpanded this.hasChildren)}}
+					&lt;div role=&quot;group&quot; id={{this.childrenId}}&gt;
+						{{#each @node.children as |childNode|}}
+							&lt;CheckboxTreeNode @node={{childNode}} @onChange={{@onChange}} /&gt;
+						{{/each}}
+					&lt;/div&gt;
+				{{/if}}
+			&lt;/YStack&gt;
+		{{/if}}
+	&lt;/template&gt;
+}
+
+type CheckboxTreeItemsLoader = () =&gt; PromiseLike&lt;CheckboxTreeItem[]&gt;;
+
+/**
+ * External controller for CheckboxTree that allows consumers to trigger select all and search actions, as well as track loading state and select all value.
+ */
+export class CheckboxTreeController {
+	@tracked selectAllValue: boolean | &#x27;mixed&#x27; = false;
+
+	// These methods will be set by the CheckboxTree component when a controller instance is passed in as an argument
+	selectAll: (value: boolean) =&gt; void = () =&gt; {
+		assert(&#x27;Expected selectAll method to be set by CheckboxTree component&#x27;, false);
+	};
+
+	searchItems: (searchStr: string) =&gt; void = () =&gt; {
+		assert(&#x27;Expected searchItems method to be set by CheckboxTree component&#x27;, false);
+	};
+}
+
+interface CheckboxTreeSignature {
+	Element: HTMLDivElement;
+	Args: {
+		items: CheckboxTreeItem[] | CheckboxTreeItemsLoader;
+		onChange: (items: string[], event: Event) =&gt; unknown;
+		initialSelection?: string[];
+		autoExpandSelection?: boolean;
+		controller?: CheckboxTreeController;
+	};
+	Blocks: { default?: [] };
+}
+
+/**
+ * A checkbox tree. Checkbox component that open to show more checkboxes in a tree structure.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/checkbox-tree.md)
+ */
+export default class CheckboxTree extends Component&lt;CheckboxTreeSignature&gt; {
+	@tracked selectedItems = new Set&lt;string&gt;(this.args.initialSelection ?? []);
+	@tracked rootNode = buildTree([]);
+	@tracked isLoading = true;
+	treeElement: HTMLDivElement | null = null;
+
+	constructor(owner: Owner, args: CheckboxTreeSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+
+		// Attach the internal method to the external controller object
+		if (this.args.controller) {
+			this.args.controller.selectAll = this.selectAll;
+			this.args.controller.searchItems = this.searchItems;
+		}
+
+		void this.loadRootNode.perform();
+	}
+
+	get controller() {
+		return this.args.controller ?? new CheckboxTreeController();
+	}
+
+	updateSelectAllValue() {
+		this.controller.selectAllValue = this.rootNode.value;
+	}
+
+	selectAll = (value: boolean) =&gt; {
+		const selectedNodes = this.rootNode.updateValue(value);
+
+		this.onChange(value, selectedNodes, new Event(&#x27;remote-select-all&#x27;));
+		this.updateSelectAllValue();
+	};
+
+	searchItems = (searchStr: string) =&gt; {
+		this.rootNode.filterVisibleNodes(searchStr);
+		this.updateSelectAllValue();
+	};
+
+	loadRootNode = task({ keepLatest: true }, async () =&gt; {
+		this.isLoading = true;
+		try {
+			let items: CheckboxTreeItem[];
+
+			if (typeof this.args.items === &#x27;function&#x27;) {
+				items = await this.args.items();
+			} else {
+				items = this.args.items;
+			}
+
+			this.rootNode = buildTree(items, this.args.initialSelection ?? [], this.args.autoExpandSelection ?? false);
+			this.updateSelectAllValue();
+		} finally {
+			this.isLoading = false;
+		}
+	});
+
+	@action
+	onChange(value: boolean, changedNodes: CheckboxNode[], event: Event) {
+		const newSelection = new Set(this.selectedItems);
+
+		if (value) {
+			for (const node of changedNodes) {
+				if (node.id) {
+					newSelection.add(node.id);
+				}
+			}
+		} else {
+			for (const node of changedNodes) {
+				if (node.id) {
+					newSelection.delete(node.id);
+				}
+			}
+		}
+
+		this.selectedItems = newSelection;
+		this.args.onChange(Array.from(this.selectedItems), event);
+		this.updateSelectAllValue();
+	}
+
+	&lt;template&gt;
+		&lt;div role=&quot;tree&quot; {{a11yMenu loop=true memorize=true}} data-qid-component-type=&quot;Luna::CheckboxTree&quot; ...attributes&gt;
+			&lt;YStack&gt;
+				{{#if this.isLoading}}
+					&lt;Spinner /&gt;
+				{{else}}
+					&lt;CheckboxTreeNode @node={{this.rootNode}} @onChange={{this.onChange}} /&gt;
+				{{/if}}
+			&lt;/YStack&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">checkbox-tree.tsx</div><pre class="language-typescript">import { useCallback, useId, useRef, useState } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { CheckboxElement } from &#x27;../checkbox/checkbox-element&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+
+import { buildTree, type CheckboxNode, type CheckboxTreeItem, type CheckboxValue } from &#x27;./checkbox-node&#x27;;
+
+import styles from &#x27;./checkbox-tree.module.css&#x27;;
+
+// Keyboard codes
+const KEYS = {
+	SPACE: &#x27; &#x27;,
+	ENTER: &#x27;Enter&#x27;,
+	ARROW_UP: &#x27;ArrowUp&#x27;,
+	ARROW_DOWN: &#x27;ArrowDown&#x27;,
+	ARROW_LEFT: &#x27;ArrowLeft&#x27;,
+	ARROW_RIGHT: &#x27;ArrowRight&#x27;,
+	HOME: &#x27;Home&#x27;,
+	END: &#x27;End&#x27;,
+} as const;
+
+interface CheckboxTreeNodeProps {
+	node: CheckboxNode;
+	onChange: (value: boolean, changedNodes: CheckboxNode[], event: React.MouseEvent | React.KeyboardEvent) =&gt; void;
+	onTreeUpdate: () =&gt; void;
+}
+
+/**
+ * A Node within a checkbox tree component.
+ * Nodes render the CheckboxNode, recursively rendering for their children.
+ */
+function CheckboxTreeNode({ node, onChange, onTreeUpdate }: CheckboxTreeNodeProps) {
+	const nodeRef = useRef&lt;HTMLDivElement&gt;(null);
+	const childrenId = useId();
+
+	const isExpanded = node.expanded;
+	const hasChildren = node.children.length &gt; 0;
+	const value = node.value;
+	const id = node.fullPath();
+
+	const toggleExpanded = useCallback(() =&gt; {
+		node.expanded = !node.expanded;
+		onTreeUpdate();
+	}, [node, onTreeUpdate]);
+
+	const toggleValue = useCallback(
+		(event: React.MouseEvent | React.KeyboardEvent) =&gt; {
+			const nextValue = value === &#x27;mixed&#x27; ? true : !value;
+			const leafNodes = node.updateValue(nextValue);
+			onChange(nextValue, leafNodes, event);
+			onTreeUpdate();
+		},
+		[node, value, onChange, onTreeUpdate],
+	);
+
+	const moveFocusToFirstTreeItem = useCallback(() =&gt; {
+		if (nodeRef.current) {
+			const firstItem = nodeRef.current.querySelector(`#${CSS.escape(childrenId)} [role=&quot;treeitem&quot;]:first-of-type`);
+			if (firstItem instanceof HTMLElement) {
+				firstItem.focus();
+			}
+		}
+	}, [childrenId]);
+
+	const moveFocusToParentTreeItem = useCallback(() =&gt; {
+		if (nodeRef.current) {
+			const groupElement = nodeRef.current.closest(&#x27;[role=&quot;group&quot;]&#x27;);
+			if (groupElement) {
+				const parentTreeItem = groupElement.previousElementSibling;
+				if (parentTreeItem instanceof HTMLElement) {
+					parentTreeItem.focus();
+				}
+			}
+		}
+	}, []);
+
+	const handleKeyDown = useCallback(
+		(event: React.KeyboardEvent) =&gt; {
+			const { key } = event;
+
+			if (key === KEYS.SPACE || key === KEYS.ARROW_RIGHT || key === KEYS.ARROW_LEFT) {
+				event.preventDefault();
+			}
+
+			switch (key) {
+				case KEYS.ARROW_RIGHT:
+					if (hasChildren) {
+						if (!node.expanded) {
+							node.expanded = true;
+							onTreeUpdate();
+						} else {
+							moveFocusToFirstTreeItem();
+						}
+					}
+					break;
+
+				case KEYS.ARROW_LEFT:
+					if (node.expanded &amp;&amp; hasChildren) {
+						node.expanded = false;
+						onTreeUpdate();
+					} else {
+						moveFocusToParentTreeItem();
+					}
+					break;
+
+				case KEYS.SPACE:
+					toggleValue(event);
+					break;
+
+				case KEYS.ENTER:
+					if (hasChildren) {
+						toggleExpanded();
+					}
+					break;
+			}
+		},
+		[hasChildren, node, onTreeUpdate, moveFocusToFirstTreeItem, moveFocusToParentTreeItem, toggleValue, toggleExpanded],
+	);
+
+	const handleCheckboxClick = useCallback(
+		(event: React.MouseEvent) =&gt; {
+			event.stopPropagation();
+			toggleValue(event);
+		},
+		[toggleValue],
+	);
+
+	const handleToggleClick = useCallback(
+		(event: React.MouseEvent) =&gt; {
+			event.stopPropagation();
+			toggleExpanded();
+		},
+		[toggleExpanded],
+	);
+
+	// Don&#x27;t render the root node itself, only its children
+	if (node.isRootNode) {
+		return (
+			&lt;&gt;
+				{node.children.map((childNode) =&gt; (
+					&lt;CheckboxTreeNode
+						key={childNode.fullPath()}
+						node={childNode}
+						onChange={onChange}
+						onTreeUpdate={onTreeUpdate}
+					/&gt;
+				))}
+			&lt;/&gt;
+		);
+	}
+
+	return (
+		&lt;div ref={nodeRef}&gt;
+			&lt;div
+				className={styles.treeItem}
+				role=&quot;treeitem&quot;
+				tabIndex={0}
+				aria-expanded={hasChildren ? isExpanded : undefined}
+				aria-checked={String(value) as &#x27;true&#x27; | &#x27;false&#x27; | &#x27;mixed&#x27;}
+				aria-owns={isExpanded &amp;&amp; hasChildren ? childrenId : undefined}
+				data-qid-tree-item={id}
+				onKeyDown={handleKeyDown}
+			&gt;
+				{hasChildren ? (
+					&lt;button
+						type=&quot;button&quot;
+						className={styles.toggleTree}
+						data-open={String(isExpanded)}
+						data-has-children=&quot;true&quot;
+						data-qid-tree-toggle
+						onClick={handleToggleClick}
+						tabIndex={-1}
+						aria-hidden=&quot;true&quot;
+					&gt;
+						&lt;Icon icon=&quot;chevron-right&quot; size=&quot;sm&quot; /&gt;
+					&lt;/button&gt;
+				) : (
+					&lt;span className={styles.toggleTree} data-qid-tree-toggle-placeholder /&gt;
+				)}
+				&lt;div className={styles.nodeContent}&gt;
+					&lt;CheckboxElement
+						value={value}
+						aria-hidden=&quot;true&quot;
+						data-qid-checkbox
+						onClick={handleCheckboxClick}
+						tabIndex={-1}
+					/&gt;
+					{node.label}
+				&lt;/div&gt;
+			&lt;/div&gt;
+
+			{isExpanded &amp;&amp; hasChildren &amp;&amp; (
+				&lt;div role=&quot;group&quot; id={childrenId} className={styles.childrenGroup}&gt;
+					{node.children.map((childNode) =&gt; (
+						&lt;CheckboxTreeNode
+							key={childNode.fullPath()}
+							node={childNode}
+							onChange={onChange}
+							onTreeUpdate={onTreeUpdate}
+						/&gt;
+					))}
+				&lt;/div&gt;
+			)}
+		&lt;/div&gt;
+	);
+}
+
+interface CheckboxTreeBaseProps {
+	/** Items to display in the tree */
+	items: CheckboxTreeItem[];
+	/** Initial selection (array of item IDs) */
+	initialSelection?: string[];
+	/** Whether to auto-expand nodes that have selected children */
+	autoExpandSelection?: boolean;
+	/** Called when selection changes */
+	onChange?: (selectedIds: string[], event: React.MouseEvent | React.KeyboardEvent) =&gt; void;
+	/** Additional CSS class */
+	className?: string;
+	/** Test ID */
+	testId?: string;
+}
+
+export type CheckboxTreeProps = ComponentPropsWithRef&lt;CheckboxTreeBaseProps, HTMLDivElement&gt;;
+
+/**
+ * A checkbox tree component.
+ * Displays a tree of checkboxes that can be expanded/collapsed and supports mixed states.
+ */
+export function CheckboxTree(props: CheckboxTreeProps) {
+	const {
+		ref,
+		items,
+		initialSelection = [],
+		autoExpandSelection = false,
+		onChange,
+		className,
+		testId,
+		...rest
+	} = props;
+	// Build the tree and track selected items
+	const [rootNode, _setRootNode] = useState&lt;CheckboxNode&gt;(() =&gt;
+		buildTree(items, initialSelection, autoExpandSelection),
+	);
+
+	const [_selectedItems, setSelectedItems] = useState&lt;Set&lt;string&gt;&gt;(() =&gt; new Set(initialSelection));
+
+	// Force re-render when tree state changes (expand/collapse, value changes)
+	const [, forceUpdate] = useState({});
+	const onTreeUpdate = useCallback(() =&gt; {
+		forceUpdate({});
+	}, []);
+
+	const handleChange = useCallback(
+		(value: boolean, changedNodes: CheckboxNode[], event: React.MouseEvent | React.KeyboardEvent) =&gt; {
+			setSelectedItems((prev) =&gt; {
+				const next = new Set(prev);
+
+				if (value) {
+					for (const node of changedNodes) {
+						if (node.id) {
+							next.add(node.id);
+						}
+					}
+				} else {
+					for (const node of changedNodes) {
+						if (node.id) {
+							next.delete(node.id);
+						}
+					}
+				}
+
+				// Call onChange with the new selection
+				onChange?.(Array.from(next), event);
+
+				return next;
+			});
+		},
+		[onChange],
+	);
+
+	return (
+		&lt;div
+			ref={ref}
+			role=&quot;tree&quot;
+			className={cn(styles.CheckboxTree, className)}
+			data-qid-component-type=&quot;Luna::CheckboxTree&quot;
+			data-testid={testId}
+			{...rest}
+		&gt;
+			&lt;CheckboxTreeNode node={rootNode} onChange={handleChange} onTreeUpdate={onTreeUpdate} /&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default CheckboxTree;
+export type { CheckboxTreeItem, CheckboxValue };
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="checkbox.html" class="nav-btn">← checkbox</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="click-to-edit.html" class="nav-btn">click-to-edit →</a>
+  </div>
+</body>
+</html>

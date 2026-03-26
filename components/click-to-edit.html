@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>click-to-edit — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>click-to-edit</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>click-to-edit</strong> implementations exist. The Ember version is 192 lines and the React version is 435 lines. The React version is notably larger (435 vs 192 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">click-to-edit.gts</div><pre class="language-typescript">/* eslint-disable ember/no-runloop */
+import { dedupeTracked } from &#x27;tracked-toolbox&#x27;;
+
+import { isArray } from &#x27;@ember/array&#x27;;
+import { hash } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import { scheduleOnce } from &#x27;@ember/runloop&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import autofocus from &#x27;../modifiers/autofocus.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import unwrapProxy from &#x27;../utils/unwrap-proxy.ts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.gts&#x27;;
+
+type Size = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface LunaClickToEditSignature&lt;T&gt; {
+	Element: HTMLDivElement;
+	Args: {
+		id?: string;
+		value: T;
+		disabled?: boolean;
+		onChange: (value: T) =&gt; void;
+		form?: LunaFormBlockValue;
+		placeholder?: string;
+		size?: Size;
+	};
+	Blocks: {
+		input: [
+			{
+				didAutosave: () =&gt; void;
+				disabled?: boolean;
+				form?: LunaFormBlockValue;
+				id: string;
+				onChange: (value: T) =&gt; void;
+				placeholder?: string;
+				size: Size;
+				value: T;
+				variant: &#x27;transparent&#x27;;
+			},
+		];
+		text: [];
+	};
+}
+
+/**
+ * A wrapper component for displaying text that the user can click on to edit.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/click-to-edit.md)
+ */
+export default class LunaClickToEdit&lt;T&gt; extends Component&lt;LunaClickToEditSignature&lt;T&gt;&gt; {
+	@tracked inputId = this.args.id || `${guidFor(this)}--target`;
+
+	@dedupeTracked isEditing = false;
+
+	/**
+	 * This property keeps track if the user has initiated the editing
+	 * version of the field. If so, then we autofocus back to the fake
+	 * input after we exit the editing state.
+	 *
+	 * This only applied when starting the edit process via the keyboard.
+	 */
+	@tracked enableAutofocusToText = false;
+
+	/**
+	 * Stores original value before user changes so we can reset it
+	 * if they decide to cancel via ESC
+	 */
+	originalValue?: T;
+
+	get showPlaceholder() {
+		const value = unwrapProxy(this.args.value);
+		return value === null || value === undefined || value === &#x27;&#x27; || (isArray(value) &amp;&amp; value.length === 0);
+	}
+
+	@action
+	enableEditing(event: MouseEvent) {
+		if (this.args.disabled) {
+			return;
+		}
+
+		if (
+			event.target instanceof HTMLAnchorElement ||
+			(event.target instanceof HTMLElement &amp;&amp; event.target.closest(&#x27;a&#x27;))
+		) {
+			// We&#x27;re clicking on a link, so don&#x27;t enable editing
+			return;
+		}
+
+		this.originalValue = this.args.value;
+		this.isEditing = true;
+	}
+
+	@action
+	disableEditing() {
+		// Don&#x27;t disable editing if user refocused input during save animation
+		if (document.activeElement === document.getElementById(this.inputId)) {
+			return;
+		}
+
+		this.isEditing = false;
+
+		scheduleOnce(&#x27;afterRender&#x27;, this, this.afterDisableEditing);
+	}
+
+	afterDisableEditing() {
+		this.enableAutofocusToText = false;
+	}
+
+	@action
+	onChange(value: T) {
+		this.args.onChange(value);
+	}
+
+	@action
+	onInputKeyDown(event: KeyboardEvent) {
+		if (event.key === KEYBOARD_KEYS.ESC) {
+			// This may trigger a focusout event on the inner input, causing an autosave.
+			// We set the data attribute so we can check for that in the focusout and
+			// prevent the autosave behavior.
+			const inputEl = document.getElementById(this.inputId);
+			if (inputEl) {
+				inputEl.setAttribute(&#x27;data-is-esc&#x27;, &#x27;true&#x27;);
+			}
+
+			// SAFETY: We know it will be `T` since we set it in `enableEditing`
+			this.args.onChange(this.originalValue as T);
+			this.isEditing = false;
+		}
+	}
+
+	@action
+	onTextKeyDown(event: KeyboardEvent) {
+		if (event.key === KEYBOARD_KEYS.ENTER || event.key === KEYBOARD_KEYS.SPACE) {
+			event.preventDefault();
+
+			this.isEditing = true;
+			this.enableAutofocusToText = true;
+		}
+	}
+	&lt;template&gt;
+		{{! template-lint-disable no-invalid-interactive }}
+		{{#if this.isEditing}}
+			&lt;div ...attributes {{on &quot;keydown&quot; this.onInputKeyDown}} data-editing={{String this.isEditing}}&gt;
+				{{yield
+					(hash
+						didAutosave=this.disableEditing
+						disabled=@disabled
+						form=@form
+						id=this.inputId
+						onChange=this.onChange
+						placeholder=@placeholder
+						size=(or @size &quot;md&quot;)
+						value=@value
+						variant=&quot;transparent&quot;
+					)
+					to=&quot;input&quot;
+				}}
+			&lt;/div&gt;
+		{{else}}
+			&lt;div
+				id={{@id}}
+				class=&quot;text&quot;
+				role={{unless @disabled &quot;button&quot;}}
+				tabindex={{if @disabled &quot;-1&quot; &quot;0&quot;}}
+				data-size={{or @size &quot;md&quot;}}
+				data-disabled={{@disabled}}
+				data-qid-component-type=&quot;Luna::ClickToEdit&quot;
+				...attributes
+				{{on &quot;click&quot; this.enableEditing}}
+				{{on &quot;keydown&quot; this.onTextKeyDown}}
+				{{autofocus disabled=(not this.enableAutofocusToText)}}
+			&gt;
+				&lt;div class=&quot;internal&quot;&gt;
+					{{#if this.showPlaceholder}}
+						&lt;span class=&quot;placeholder&quot;&gt;
+							{{@placeholder}}
+						&lt;/span&gt;
+					{{else}}
+						{{yield to=&quot;text&quot;}}
+					{{/if}}
+				&lt;/div&gt;
+			&lt;/div&gt;
+		{{/if}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">click-to-edit.tsx</div><pre class="language-typescript">import {
+	Children,
+	createContext,
+	type ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+} from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import type { FormContextValue } from &#x27;../form/form&#x27;;
+
+import inputStyles from &#x27;../input/input.module.css&#x27;;
+import styles from &#x27;./click-to-edit.module.css&#x27;;
+
+/**
+ * Context for ClickToEdit input rendering.
+ */
+const ClickToEditContext = createContext&lt;ClickToEditInputContext&lt;unknown&gt; | null&gt;(null);
+
+/**
+ * Hook to access ClickToEdit context within Input subcomponent.
+ */
+export function useClickToEditContext&lt;T = unknown&gt;(): ClickToEditInputContext&lt;T&gt; {
+	const context = useContext(ClickToEditContext);
+	if (!context) {
+		throw new Error(&#x27;useClickToEditContext must be used within a ClickToEdit component&#x27;);
+	}
+	return context as ClickToEditInputContext&lt;T&gt;;
+}
+
+/**
+ * Optional context accessor for components that can render inside or outside ClickToEdit.
+ */
+export function useOptionalClickToEditContext&lt;T = unknown&gt;(): ClickToEditInputContext&lt;T&gt; | null {
+	return useContext(ClickToEditContext) as ClickToEditInputContext&lt;T&gt; | null;
+}
+
+/**
+ * Input subcomponent for ClickToEdit.
+ * Accepts a render function as children that receives the input context.
+ */
+function Input&lt;T&gt;({ children: _children }: ClickToEditInputSlotProps&lt;T&gt;): null {
+	return null;
+}
+
+Input.displayName = &#x27;ClickToEdit.Input&#x27;;
+
+/**
+ * Text subcomponent for ClickToEdit.
+ * Accepts a render function as children for the text display mode.
+ */
+function Text({ children: _children }: ClickToEditTextSlotProps): null {
+	return null;
+}
+
+Text.displayName = &#x27;ClickToEdit.Text&#x27;;
+
+interface ExtractedSlots&lt;T&gt; {
+	renderInput?: (context: ClickToEditInputContext&lt;T&gt;) =&gt; ReactNode;
+	renderText?: () =&gt; ReactNode;
+	inputSlotProps?: Omit&lt;ClickToEditInputSlotProps&lt;T&gt;, &#x27;children&#x27;&gt;;
+}
+
+/**
+ * Extract Input and Text slots from children (same displayName-based pattern as other compound components).
+ */
+function extractClickToEditSlots&lt;T&gt;(children: React.ReactNode): ExtractedSlots&lt;T&gt; {
+	let renderInput: ((context: ClickToEditInputContext&lt;T&gt;) =&gt; ReactNode) | undefined;
+	let renderText: (() =&gt; ReactNode) | undefined;
+	let inputSlotProps: Omit&lt;ClickToEditInputSlotProps&lt;T&gt;, &#x27;children&#x27;&gt; | undefined;
+
+	Children.forEach(children, (child) =&gt; {
+		if (typeof child === &#x27;object&#x27; &amp;&amp; child !== null &amp;&amp; &#x27;type&#x27; in child) {
+			const displayName = (child.type as { displayName?: string }).displayName;
+			if (displayName === &#x27;ClickToEdit.Input&#x27;) {
+				const inputProps = child.props as ClickToEditInputSlotProps&lt;T&gt;;
+				const { children: inputChildren, ...restInputProps } = inputProps;
+				inputSlotProps = restInputProps;
+				if (typeof inputChildren === &#x27;function&#x27;) {
+					renderInput = inputChildren as (context: ClickToEditInputContext&lt;T&gt;) =&gt; ReactNode;
+				} else if (inputChildren !== undefined) {
+					renderInput = () =&gt; inputChildren;
+				}
+			}
+			if (displayName === &#x27;ClickToEdit.Text&#x27;) {
+				const textProps = child.props as ClickToEditTextSlotProps;
+				const textChildren = textProps.children;
+				if (typeof textChildren === &#x27;function&#x27;) {
+					renderText = textChildren as () =&gt; ReactNode;
+				} else if (textChildren !== undefined) {
+					renderText = () =&gt; textChildren;
+				}
+			}
+		}
+	});
+
+	return { renderInput, renderText, inputSlotProps };
+}
+
+export type ClickToEditSize = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface ClickToEditInputContext&lt;T&gt; {
+	/** Callback to call when autosave completes - exits edit mode */
+	didAutosave: () =&gt; void;
+	/** Whether the input is disabled */
+	disabled?: boolean;
+	/** Form context, if provided */
+	form?: FormContextValue;
+	/** Input ID for accessibility */
+	id: string;
+	/** Callback when value changes */
+	onChange: (value: T) =&gt; void;
+	/** Placeholder text */
+	placeholder?: string;
+	/** Size of the input */
+	size: ClickToEditSize;
+	/** Current value */
+	value: T;
+	/** Visual variant for the input */
+	variant: &#x27;transparent&#x27;;
+}
+
+export interface ClickToEditInputSlotProps&lt;T = unknown&gt; extends Omit&lt;React.HTMLAttributes&lt;HTMLDivElement&gt;, &#x27;children&#x27;&gt; {
+	children?: ReactNode | ((context: ClickToEditInputContext&lt;T&gt;) =&gt; ReactNode);
+}
+
+export interface ClickToEditTextSlotProps {
+	children?: ReactNode | (() =&gt; ReactNode);
+}
+
+export interface ClickToEditProps&lt;T&gt; {
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Optional ID for the component */
+	id?: string;
+	/** Current value */
+	value: T;
+	/** Whether the component is disabled */
+	disabled?: boolean;
+	/** Callback when value changes */
+	onChange: (value: T) =&gt; void;
+	/** Form context for autosave integration */
+	form?: FormContextValue;
+	/** Placeholder text when value is empty */
+	placeholder?: string;
+	/** Size of the component */
+	size?: ClickToEditSize;
+	/** Render function for the input when editing (legacy prop, prefer ClickToEdit.Input) */
+	renderInput?: (context: ClickToEditInputContext&lt;T&gt;) =&gt; ReactNode;
+	/** Render function for the text when not editing (legacy prop, prefer ClickToEdit.Text) */
+	renderText?: () =&gt; ReactNode;
+	/** Child elements, typically ClickToEdit.Input and ClickToEdit.Text */
+	children?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+/**
+ * Checks if a value should be considered &quot;empty&quot; for placeholder purposes.
+ */
+function isEmptyValue&lt;T&gt;(value: T): boolean {
+	if (value === null || value === undefined || value === &#x27;&#x27;) {
+		return true;
+	}
+	if (Array.isArray(value) &amp;&amp; value.length === 0) {
+		return true;
+	}
+	return false;
+}
+
+const KEYBOARD_KEYS = {
+	ENTER: &#x27;Enter&#x27;,
+	SPACE: &#x27; &#x27;,
+	ESC: &#x27;Escape&#x27;,
+} as const;
+
+/**
+ * A wrapper component for displaying text that the user can click on to edit.
+ *
+ * Matches the Luna::ClickToEdit Ember component API.
+ */
+function ClickToEditInner&lt;T&gt;({
+	id: providedId,
+	value,
+	disabled = false,
+	onChange,
+	form,
+	placeholder,
+	size = &#x27;md&#x27;,
+	renderInput: renderInputProp,
+	renderText: renderTextProp,
+	children,
+	className,
+	ref,
+	...rest
+}: ClickToEditProps&lt;T&gt; &amp; Omit&lt;React.HTMLAttributes&lt;HTMLDivElement&gt;, &#x27;onChange&#x27;&gt;) {
+	// Extract slots from children
+	const {
+		renderInput: renderInputSlot,
+		renderText: renderTextSlot,
+		inputSlotProps,
+	} = extractClickToEditSlots&lt;T&gt;(children);
+
+	// Use slots if provided, otherwise fallback to props
+	const renderInput = renderInputSlot ?? renderInputProp;
+	const renderText = renderTextSlot ?? renderTextProp;
+
+	if (!renderText) {
+		throw new Error(&#x27;ClickToEdit requires renderText prop or ClickToEdit.Text children&#x27;);
+	}
+
+	const generatedId = useId();
+	const inputId = `${providedId || generatedId}--target`;
+	const [isEditing, setIsEditing] = useState(false);
+	const [enableAutofocusToText, setEnableAutofocusToText] = useState(false);
+	const originalValueRef = useRef&lt;T&gt;(value);
+	const textRef = useRef&lt;HTMLDivElement&gt;(null);
+
+	const showPlaceholder = isEmptyValue(value);
+
+	// Autofocus the input element when entering edit mode.
+	// Note: We experienced focus being lost when switching from an iframe to this input
+	// (e.g. compare view with Ember in iframe). Not considered a real issue for now.
+	useEffect(() =&gt; {
+		if (isEditing) {
+			const inputElement = document.getElementById(inputId);
+			if (inputElement) {
+				inputElement.focus();
+			}
+		}
+	}, [isEditing, inputId]);
+
+	// Autofocus back to text element after exiting edit mode via keyboard
+	useEffect(() =&gt; {
+		if (!isEditing &amp;&amp; enableAutofocusToText &amp;&amp; textRef.current) {
+			textRef.current.focus();
+			// Reset the flag after focusing
+			const timeoutId = setTimeout(() =&gt; {
+				setEnableAutofocusToText(false);
+			}, 0);
+			return () =&gt; clearTimeout(timeoutId);
+		}
+	}, [isEditing, enableAutofocusToText]);
+
+	const handleEnableEditing = useCallback(
+		(event: React.MouseEvent&lt;HTMLDivElement&gt;) =&gt; {
+			if (disabled) {
+				return;
+			}
+
+			// Don&#x27;t enable editing if clicking on a link
+			if (
+				event.target instanceof HTMLAnchorElement ||
+				(event.target instanceof HTMLElement &amp;&amp; event.target.closest(&#x27;a&#x27;))
+			) {
+				return;
+			}
+
+			originalValueRef.current = value;
+			setIsEditing(true);
+		},
+		[disabled, value],
+	);
+
+	const handleDisableEditing = useCallback(() =&gt; {
+		// Don&#x27;t disable editing if user refocused input during save animation
+		const inputElement = document.getElementById(inputId);
+		if (document.activeElement === inputElement) {
+			return;
+		}
+
+		setIsEditing(false);
+	}, [inputId]);
+
+	const handleChange = useCallback(
+		(newValue: T) =&gt; {
+			onChange(newValue);
+		},
+		[onChange],
+	);
+
+	const handleInputKeyDown = useCallback(
+		(event: React.KeyboardEvent&lt;HTMLDivElement&gt;) =&gt; {
+			if (event.key === KEYBOARD_KEYS.ESC) {
+				// Set data attribute so we can check for it in the focusout handler
+				// and prevent autosave behavior
+				const inputEl = document.getElementById(inputId);
+				if (inputEl) {
+					inputEl.setAttribute(&#x27;data-is-esc&#x27;, &#x27;true&#x27;);
+				}
+
+				// Reset to original value
+				onChange(originalValueRef.current);
+				setIsEditing(false);
+			}
+		},
+		[inputId, onChange],
+	);
+
+	const handleTextKeyDown = useCallback(
+		(event: React.KeyboardEvent&lt;HTMLDivElement&gt;) =&gt; {
+			if (event.key === KEYBOARD_KEYS.ENTER || event.key === KEYBOARD_KEYS.SPACE) {
+				event.preventDefault();
+
+				originalValueRef.current = value;
+				setIsEditing(true);
+				setEnableAutofocusToText(true);
+			}
+		},
+		[value],
+	);
+
+	const inputContext: ClickToEditInputContext&lt;T&gt; = {
+		didAutosave: handleDisableEditing,
+		disabled,
+		form,
+		id: inputId,
+		onChange: handleChange,
+		placeholder,
+		size,
+		value,
+		variant: &#x27;transparent&#x27;,
+	};
+
+	if (isEditing) {
+		const defaultInputRenderer = (context: ClickToEditInputContext&lt;T&gt;) =&gt; {
+			const { children: _ignoredChildren, ...slotProps } = (inputSlotProps ?? {}) as Record&lt;string, unknown&gt;;
+			const dataTestId =
+				typeof slotProps[&#x27;data-testid&#x27;] === &#x27;string&#x27; ? (slotProps[&#x27;data-testid&#x27;] as string) : undefined;
+			return (
+				&lt;div {...(slotProps as React.HTMLAttributes&lt;HTMLDivElement&gt;)}&gt;
+					&lt;div
+						className={inputStyles.TextInput}
+						data-variant={context.variant}
+						data-size={context.size}
+						data-textarea=&quot;false&quot;
+						data-disabled=&quot;false&quot;
+						data-luna-feature=&quot;meld&quot;
+						data-qid-component-type=&quot;Luna::Input&quot;
+						data-focused=&quot;true&quot;
+						data-errored=&quot;false&quot;
+					&gt;
+						&lt;input
+							id={context.id}
+							className={inputStyles.input}
+							value={String(context.value ?? &#x27;&#x27;)}
+							placeholder={context.placeholder}
+							onChange={(event) =&gt; context.onChange(event.target.value as unknown as T)}
+							onBlur={() =&gt; context.didAutosave()}
+							data-testid={dataTestId ? `${dataTestId}-input` : undefined}
+						/&gt;
+					&lt;/div&gt;
+				&lt;/div&gt;
+			);
+		};
+		return (
+			&lt;ClickToEditContext.Provider value={inputContext as ClickToEditInputContext&lt;unknown&gt;}&gt;
+				&lt;div
+					ref={ref}
+					className={className}
+					onKeyDown={handleInputKeyDown}
+					data-qid-component-type=&quot;Luna::ClickToEdit&quot;
+					data-editing=&quot;true&quot;
+					{...rest}
+				&gt;
+					{(renderInput ?? defaultInputRenderer)(inputContext)}
+				&lt;/div&gt;
+			&lt;/ClickToEditContext.Provider&gt;
+		);
+	}
+
+	return (
+		&lt;div
+			ref={(node) =&gt; {
+				// Handle both the forwarded ref and our internal ref
+				textRef.current = node;
+				if (typeof ref === &#x27;function&#x27;) {
+					ref(node);
+				} else if (ref) {
+					ref.current = node;
+				}
+			}}
+			id={providedId}
+			className={cn(styles.text, className)}
+			role={disabled ? undefined : &#x27;button&#x27;}
+			tabIndex={disabled ? -1 : 0}
+			data-size={size}
+			data-disabled={disabled ? &#x27;true&#x27; : undefined}
+			data-qid-component-type=&quot;Luna::ClickToEdit&quot;
+			onClick={handleEnableEditing}
+			onKeyDown={handleTextKeyDown}
+			{...rest}
+		&gt;
+			&lt;div className={styles.internal}&gt;
+				{showPlaceholder ? &lt;span className={styles.placeholder}&gt;{placeholder}&lt;/span&gt; : renderText()}
+			&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+/**
+ * A wrapper component for displaying text that the user can click on to edit.
+ *
+ * Matches the Luna::ClickToEdit Ember component API.
+ *
+ * @example
+ * ```tsx
+ * // Using compound components (recommended)
+ * &lt;ClickToEdit value={text} onChange={setText}&gt;
+ *   &lt;ClickToEdit.Input&gt;
+ *     {(ctx) =&gt; &lt;Input id={ctx.id} value={ctx.value} onChange={ctx.onChange} /&gt;}
+ *   &lt;/ClickToEdit.Input&gt;
+ *   &lt;ClickToEdit.Text&gt;
+ *     {() =&gt; &lt;span&gt;{text}&lt;/span&gt;}
+ *   &lt;/ClickToEdit.Text&gt;
+ * &lt;/ClickToEdit&gt;
+ *
+ * // Using legacy render props (deprecated)
+ * &lt;ClickToEdit
+ *   value={text}
+ *   onChange={setText}
+ *   renderInput={(ctx) =&gt; &lt;Input id={ctx.id} value={ctx.value} onChange={ctx.onChange} /&gt;}
+ *   renderText={() =&gt; &lt;span&gt;{text}&lt;/span&gt;}
+ * /&gt;
+ * ```
+ */
+export const ClickToEdit = Object.assign(ClickToEditInner, {
+	Input,
+	Text,
+});
+
+export default ClickToEdit;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="checkbox-tree.html" class="nav-btn">← checkbox-tree</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="code.html" class="nav-btn">code →</a>
+  </div>
+</body>
+</html>

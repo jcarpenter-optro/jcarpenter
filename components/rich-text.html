@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>rich-text — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>rich-text</h1>
+    <span class="badge badge-ember">Ember only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>rich-text</strong> exists only in the Ember/Glimmer library and has not yet been ported to React. It should be considered part of the React migration backlog.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">bubble-menu.gts</div><pre class="language-typescript">import type { Editor, SingleCommands } from &#x27;@tiptap/core&#x27;;
+
+import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+
+import { attachBubbleMenu, editorStateIsActive, runCommand } from &#x27;@auditboard/rich-text/lib/bubble-menu&#x27;;
+
+import IconButton from &#x27;../icon-button.gts&#x27;;
+import XStack from &#x27;../x-stack.gts&#x27;;
+import { Highlight } from &#x27;./bubble-menu/highlight.gts&#x27;;
+
+export interface BubbleMenuSignature {
+	Args: {
+		editor: Editor;
+	};
+}
+
+type SupportedCommandKeys = keyof SingleCommands | &#x27;toggleHighlight&#x27; | &#x27;toggleBulletList&#x27; | &#x27;toggleOrderedList&#x27;;
+
+function hasCommand(editor: Editor, commandKey: string): commandKey is keyof SingleCommands {
+	return editor.commands[commandKey as keyof SingleCommands] !== undefined;
+}
+
+const RunButton: TOC&lt;{
+	Args: {
+		command: SupportedCommandKeys;
+		editor: Editor;
+		icon: string;
+		tooltip: string;
+		stateName: string;
+	};
+}&gt; = &lt;template&gt;
+	{{#if (hasCommand @editor @command)}}
+		{{#let (editorStateIsActive @editor @stateName) as |active|}}
+			&lt;IconButton
+				@icon={{@icon}}
+				@tooltip={{@tooltip}}
+				@variant={{if active &quot;blue&quot; &quot;transparent&quot;}}
+				@size=&quot;xs&quot;
+				{{on &quot;click&quot; (fn runCommand @editor @command)}}
+				data-qid-rich-text-bubble-menu-button={{@command}}
+				data-active={{String active}}
+			/&gt;
+		{{/let}}
+	{{/if}}
+&lt;/template&gt;;
+
+export const BubbleMenu: TOC&lt;BubbleMenuSignature&gt; = &lt;template&gt;
+	&lt;div class=&quot;bubble-menu&quot; data-qid-component-type=&quot;Luna::RichText::BubbleMenu&quot; {{attachBubbleMenu @editor}}&gt;
+		&lt;XStack @spacing=&quot;sm&quot;&gt;
+			{{! @glint-expect-error incorrect command type }}
+			&lt;RunButton @editor={{@editor}} @tooltip=&quot;Bold&quot; @command=&quot;toggleBold&quot; @icon=&quot;bold&quot; @stateName=&quot;bold&quot; /&gt;
+			{{! @glint-expect-error incorrect command type }}
+			&lt;RunButton @editor={{@editor}} @tooltip=&quot;Italic&quot; @command=&quot;toggleItalic&quot; @icon=&quot;italic&quot; @stateName=&quot;italic&quot; /&gt;
+			&lt;RunButton
+				@editor={{@editor}}
+				@tooltip=&quot;Underline&quot;
+				{{! @glint-expect-error incorrect command type }}
+				@command=&quot;toggleUnderline&quot;
+				@icon=&quot;underline&quot;
+				@stateName=&quot;underline&quot;
+			/&gt;
+			&lt;RunButton
+				@editor={{@editor}}
+				@tooltip=&quot;Bulleted List&quot;
+				@command=&quot;toggleBulletList&quot;
+				@icon=&quot;list-ul&quot;
+				@stateName=&quot;bulletList&quot;
+			/&gt;
+			&lt;RunButton
+				@editor={{@editor}}
+				@tooltip=&quot;Ordered List&quot;
+				@command=&quot;toggleOrderedList&quot;
+				@icon=&quot;list-ol&quot;
+				@stateName=&quot;orderedList&quot;
+			/&gt;
+
+			{{#if (hasCommand @editor &quot;toggleHighlight&quot;)}}
+				&lt;Highlight @editor={{@editor}} /&gt;
+			{{/if}}
+		&lt;/XStack&gt;
+	&lt;/div&gt;
+&lt;/template&gt;;
+</pre><div class="file-tab">colors.gts</div><pre class="language-typescript">import type { LunaColor } from &#x27;../../types.ts&#x27;;
+import type { LunaButtonArgs } from &#x27;../button.gts&#x27;;
+
+export interface Color {
+	id: string;
+	name: string;
+	lunaColor: LunaColor;
+	buttonVariant: LunaButtonArgs[&#x27;variant&#x27;];
+}
+
+export const COLORS: Color[] = [
+	{ id: &#x27;var(--luna-orange-300)&#x27;, name: &#x27;Orange&#x27;, lunaColor: &#x27;orange-300&#x27;, buttonVariant: &#x27;orange&#x27; },
+	{ id: &#x27;var(--luna-green-300)&#x27;, name: &#x27;Green&#x27;, lunaColor: &#x27;green-300&#x27;, buttonVariant: &#x27;green&#x27; },
+	{ id: &#x27;var(--luna-blue-300)&#x27;, name: &#x27;Blue&#x27;, lunaColor: &#x27;blue-300&#x27;, buttonVariant: &#x27;blue&#x27; },
+	{ id: &#x27;var(--luna-red-300)&#x27;, name: &#x27;Red&#x27;, lunaColor: &#x27;red-300&#x27;, buttonVariant: &#x27;red&#x27; },
+];
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="range.html" class="nav-btn">← range</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="rich-text-editor.html" class="nav-btn">rich-text-editor →</a>
+  </div>
+</body>
+</html>

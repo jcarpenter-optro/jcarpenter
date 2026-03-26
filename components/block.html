@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>block — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>block</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>block</strong> implementations exist. The Ember version is 41 lines and the React version is 150 lines. The React version is notably larger (150 vs 41 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">block.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+
+import type { LunaColor } from &#x27;../types.ts&#x27;;
+
+export type Slot = &#x27;header&#x27; | &#x27;sidebar&#x27; | &#x27;body&#x27; | &#x27;toolkit&#x27; | &#x27;drawer&#x27;;
+
+export interface LunaBlockSignature {
+	Element: HTMLDivElement;
+	Args: {
+		padding?: string;
+		background?: LunaColor;
+		scroll?: boolean;
+		sticky?: string;
+		slot?: Slot;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+/**
+ * Renders a content block, similar to a div. The benefit is access to all the Luna design tokens via arguments.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/block.md)
+ */
+const LunaBlock: TOC&lt;LunaBlockSignature&gt; = &lt;template&gt;
+	&lt;div
+		class=&quot;Block&quot;
+		data-padding={{@padding}}
+		data-background={{@background}}
+		data-scroll={{@scroll}}
+		data-sticky={{@sticky}}
+		data-slot={{@slot}}
+		data-qid-component-type=&quot;Luna::Block&quot;
+		...attributes
+	&gt;
+		{{yield}}
+	&lt;/div&gt;
+&lt;/template&gt;;
+
+export default LunaBlock;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">block.tsx</div><pre class="language-typescript">import { type ReactNode } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+
+import styles from &#x27;./block.module.css&#x27;;
+
+export type BlockPadding = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27; | &#x27;xl&#x27; | &#x27;2xl&#x27;;
+export type BlockSlot = &#x27;header&#x27; | &#x27;sidebar&#x27; | &#x27;body&#x27; | &#x27;toolkit&#x27; | &#x27;drawer&#x27;;
+export type BlockSticky = &#x27;top&#x27; | &#x27;left&#x27;;
+
+// Color types matching Luna design tokens
+export type BlockBackground =
+	| &#x27;white&#x27;
+	| &#x27;gray-50&#x27;
+	| &#x27;gray-100&#x27;
+	| &#x27;gray-200&#x27;
+	| &#x27;gray-300&#x27;
+	| &#x27;gray-400&#x27;
+	| &#x27;gray-500&#x27;
+	| &#x27;gray-600&#x27;
+	| &#x27;gray-700&#x27;
+	| &#x27;gray-800&#x27;
+	| &#x27;gray-900&#x27;
+	| &#x27;grayA-50&#x27;
+	| &#x27;grayA-100&#x27;
+	| &#x27;grayA-200&#x27;
+	| &#x27;grayA-300&#x27;
+	| &#x27;grayA-400&#x27;
+	| &#x27;grayA-500&#x27;
+	| &#x27;grayA-600&#x27;
+	| &#x27;grayA-700&#x27;
+	| &#x27;grayA-800&#x27;
+	| &#x27;grayA-900&#x27;
+	| &#x27;blue-50&#x27;
+	| &#x27;blue-100&#x27;
+	| &#x27;blue-200&#x27;
+	| &#x27;blue-300&#x27;
+	| &#x27;blue-400&#x27;
+	| &#x27;blue-500&#x27;
+	| &#x27;blue-600&#x27;
+	| &#x27;blue-700&#x27;
+	| &#x27;blue-800&#x27;
+	| &#x27;blue-900&#x27;
+	| &#x27;red-50&#x27;
+	| &#x27;red-100&#x27;
+	| &#x27;red-200&#x27;
+	| &#x27;red-300&#x27;
+	| &#x27;red-400&#x27;
+	| &#x27;red-500&#x27;
+	| &#x27;red-600&#x27;
+	| &#x27;red-700&#x27;
+	| &#x27;red-800&#x27;
+	| &#x27;red-900&#x27;
+	| &#x27;orange-50&#x27;
+	| &#x27;orange-100&#x27;
+	| &#x27;orange-200&#x27;
+	| &#x27;orange-300&#x27;
+	| &#x27;orange-400&#x27;
+	| &#x27;orange-500&#x27;
+	| &#x27;orange-600&#x27;
+	| &#x27;orange-700&#x27;
+	| &#x27;orange-800&#x27;
+	| &#x27;orange-900&#x27;
+	| &#x27;green-50&#x27;
+	| &#x27;green-100&#x27;
+	| &#x27;green-200&#x27;
+	| &#x27;green-300&#x27;
+	| &#x27;green-400&#x27;
+	| &#x27;green-500&#x27;
+	| &#x27;green-600&#x27;
+	| &#x27;green-700&#x27;
+	| &#x27;green-800&#x27;
+	| &#x27;green-900&#x27;
+	| &#x27;purple-50&#x27;
+	| &#x27;purple-100&#x27;
+	| &#x27;purple-200&#x27;
+	| &#x27;purple-300&#x27;
+	| &#x27;purple-400&#x27;
+	| &#x27;purple-500&#x27;
+	| &#x27;purple-600&#x27;
+	| &#x27;purple-700&#x27;
+	| &#x27;purple-800&#x27;
+	| &#x27;purple-900&#x27;
+	| &#x27;teal-50&#x27;
+	| &#x27;teal-100&#x27;
+	| &#x27;teal-200&#x27;
+	| &#x27;teal-300&#x27;
+	| &#x27;teal-400&#x27;
+	| &#x27;teal-500&#x27;
+	| &#x27;teal-600&#x27;
+	| &#x27;teal-700&#x27;
+	| &#x27;teal-800&#x27;
+	| &#x27;teal-900&#x27;
+	| &#x27;yellow-50&#x27;
+	| &#x27;yellow-100&#x27;
+	| &#x27;yellow-200&#x27;
+	| &#x27;yellow-300&#x27;
+	| &#x27;yellow-400&#x27;
+	| &#x27;yellow-500&#x27;
+	| &#x27;yellow-600&#x27;
+	| &#x27;yellow-700&#x27;
+	| &#x27;yellow-800&#x27;
+	| &#x27;yellow-900&#x27;;
+
+interface BlockBaseProps {
+	/** Padding size */
+	padding?: BlockPadding;
+	/** Background color from Luna design tokens */
+	background?: BlockBackground;
+	/** Enable overflow scrolling */
+	scroll?: boolean;
+	/** Make the block sticky positioned */
+	sticky?: BlockSticky;
+	/** Grid area slot assignment */
+	slot?: BlockSlot;
+	/** Additional CSS class */
+	className?: string;
+	/** Child content */
+	children?: ReactNode;
+}
+
+export type BlockProps = ComponentPropsWithRef&lt;BlockBaseProps, HTMLDivElement&gt;;
+
+/**
+ * Renders a content block, similar to a div. The benefit is access to all the Luna design tokens via arguments.
+ *
+ * Matches the Luna::Block Ember component API and styling.
+ */
+export function Block(props: BlockProps) {
+	const { ref, padding, background, scroll, sticky, slot, className, children, ...rest } = props;
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.Block, className)}
+			data-padding={padding}
+			data-background={background}
+			data-scroll={scroll || undefined}
+			data-sticky={sticky}
+			data-slot={slot}
+			data-qid-component-type=&quot;Luna::Block&quot;
+			{...rest}
+		&gt;
+			{children}
+		&lt;/div&gt;
+	);
+}
+
+export default Block;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="banner.html" class="nav-btn">← banner</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="button.html" class="nav-btn">button →</a>
+  </div>
+</body>
+</html>

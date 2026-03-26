@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>select-time — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>select-time</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>select-time</strong> implementations exist. The Ember version is 684 lines and the React version is 677 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">select-time.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports */
+import { assert } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { concat, fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import type { Task } from &#x27;ember-concurrency&#x27;;
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import formatDate from &#x27;ember-intl/helpers/format-date&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import set from &#x27;ember-set-helper/helpers/set&#x27;;
+import and from &#x27;ember-truth-helpers/helpers/and&#x27;;
+import eq from &#x27;ember-truth-helpers/helpers/eq&#x27;;
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import notEq from &#x27;ember-truth-helpers/helpers/not-eq&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import requirementArg from &#x27;../helpers/requirement-arg.ts&#x27;;
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import autofocus from &#x27;../modifiers/autofocus.ts&#x27;;
+import { createDateFrom24HourTimeString } from &#x27;../utils/date.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import type { LunaButtonArgs } from &#x27;./button.gts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import Divider from &#x27;./divider.gts&#x27;;
+import { labelIdForField } from &#x27;./field.gts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.ts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import Input from &#x27;./input.gts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import type { LunaPopupSignature, OnCloseSource } from &#x27;./popup.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+import XStack from &#x27;./x-stack.gts&#x27;;
+
+export interface SelectTimeSignature {
+	Element: HTMLDivElement;
+	Args: {
+		class?: string;
+		placeholder?: string;
+		size?: &#x27;md&#x27; | &#x27;lg&#x27;;
+		active?: boolean;
+		onChange?: (value: string | null) =&gt; unknown;
+		value: string | null;
+		id?: string;
+		requirements?: Requirements;
+		form?: LunaFormBlockValue;
+		name?: string;
+		disabled?: boolean;
+		/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+		serverErrors?: Array&lt;{ message?: string } | string&gt;;
+		shouldRenderAsDiv?: boolean;
+		ariaLabel?: string;
+		ariaLabelledBy?: string;
+		ariaDescribedBy?: string;
+		didAutosave?: () =&gt; void;
+	} &amp; Pick&lt;LunaButtonArgs, &#x27;variant&#x27;&gt; &amp;
+		Pick&lt;LunaPopupSignature[&#x27;Args&#x27;], &#x27;placement&#x27;&gt;;
+	Blocks: {
+		icon?: [];
+		trigger?: [value: string];
+	};
+}
+
+let nextInputId = 0;
+
+/**
+ * A component for selecting a specific time.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/select-time.md)
+ */
+export default class SelectTime extends Component&lt;SelectTimeSignature&gt; {
+	@service declare intl: IntlService;
+
+	@consume(&#x27;luna-input-id&#x27;) declare inputId: string;
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: SelectTimeSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+		assert(&#x27;You cannot provide both ariaLabel and ariaLabelledBy&#x27;, !args.ariaLabel || !args.ariaLabelledBy);
+
+		this._configureLocale();
+		this._initValues();
+
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			name: args.name,
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: this.args.ariaDescribedBy ?? null,
+
+			get value() {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get serverErrors() {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+
+			get selectorIsVisible() {
+				return that.showPopup;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	popupId = `${guidFor(this)}--popup`;
+
+	@tracked showPopup = false;
+
+	/**
+	 * Text value of focused input
+	 */
+	@tracked private _focusedValue: string | number | null = null;
+
+	/**
+	 * Input name that currently has focus
+	 */
+	@tracked private _focusedInput: string | null = null;
+
+	@tracked useAmPm = false;
+
+	/**
+	 * The potentially new value of the input from the user interacting
+	 * with the time picker. Used in all calculations and comparisons but
+	 * not used in the input field until the user confirms the change.
+	 * Reset when the popup opens.
+	 */
+	@tracked private newValue: Date | null = null;
+
+	_configureLocale() {
+		const date = new Date();
+		date.setHours(20);
+		date.setMinutes(0);
+
+		// Compare the formatted time string to determine 12/24h format
+		const useAmPm = this.intl.formatTime(date, { hour: &#x27;numeric&#x27;, minute: &#x27;numeric&#x27; }).startsWith(&#x27;8:00&#x27;);
+		this.useAmPm = useAmPm;
+	}
+
+	_initValues() {
+		this._focusedInput = null;
+		this._focusedValue = null;
+	}
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-select-time-${nextInputId++}`;
+	}
+
+	private get initialValue(): Date | null {
+		return this.args.value ? createDateFrom24HourTimeString(this.args.value) : null;
+	}
+
+	private get value(): Date {
+		return this.newValue ?? createDateFrom24HourTimeString(this.args.value);
+	}
+
+	get displayValue() {
+		if (this.showPopup) {
+			assert(&#x27;initialValue must exist&#x27;, this.initialValue);
+			return this.initialValue;
+		}
+		return this.value;
+	}
+
+	get triggerIsActive() {
+		return this.args.active ?? this.showPopup;
+	}
+
+	/** Get hour value in 24h format */
+	private get hour() {
+		return this.value.getHours();
+	}
+
+	/** Set hour value in 24h format */
+	private set hour(value: number | null) {
+		if (value !== null) {
+			this.newValue = new Date(this.value.setHours(Math.min(Math.max(Number(value), 0), 23)));
+		}
+	}
+
+	/** Get hour value in 12/24h format based on locale */
+	get hourInputValue() {
+		if (this._focusedInput === &#x27;hour&#x27;) {
+			return this._focusedValue;
+		}
+		if (this.useAmPm) {
+			if (this.hour === 0) {
+				return 12;
+			}
+			assert(&#x27;Expected hour to be a number&#x27;, typeof this.hour === &#x27;number&#x27;);
+			if (this.hour &gt; 12) {
+				return this.hour - 12;
+			}
+			return this.hour;
+		}
+		return this.hour;
+	}
+
+	private get minute() {
+		return this.value.getMinutes();
+	}
+
+	private set minute(value) {
+		if (value !== null) {
+			this.newValue = new Date(this.value.setMinutes(Number(value)));
+		}
+	}
+
+	/**
+	 * Whether the text entry is enabled. When true, alters the popup aria-label.
+	 * Redeclared and bound in the instance initializer of the consuming app.
+	 * See `client/app/initializers/luna.ts` for example implementation.
+	 */
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get textEntryIsEnabled() {
+		return false;
+	}
+
+	get popupAriaLabel() {
+		if (!this.args.placeholder &amp;&amp; !this.args.value) {
+			if (this.textEntryIsEnabled) {
+				return this.intl.t(&#x27;input.select-date.placeholder&#x27;, {
+					textEntry: true,
+					kind: &#x27;single&#x27;,
+				});
+			}
+			return this.intl.t(&#x27;input.select-date.placeholder&#x27;, {
+				textEntry: false,
+				kind: &#x27;single&#x27;,
+			});
+		}
+		return;
+	}
+
+	/** Get minute value with leading zero if single digit */
+	get minuteInputValue() {
+		if (this._focusedInput === &#x27;minute&#x27;) {
+			return this._focusedValue;
+		}
+		return `${this.minute}`.padStart(2, &#x27;0&#x27;);
+	}
+
+	get ampm() {
+		return this.value.getHours() &gt;= 12 ? &#x27;PM&#x27; : &#x27;AM&#x27;;
+	}
+
+	set ampm(value) {
+		if (value === &#x27;AM&#x27; &amp;&amp; this.value.getHours() &gt;= 12) {
+			this.hour = this.value.getHours() - 12;
+		} else if (value === &#x27;PM&#x27; &amp;&amp; this.value.getHours() &lt; 12) {
+			this.hour = this.value.getHours() + 12;
+		}
+	}
+
+	get labelId() {
+		return this.inputId ? labelIdForField(this.inputId) : null;
+	}
+
+	@action
+	private async handleChange(value: string | null) {
+		if (value === null) {
+			await this.args.onChange?.(null);
+			this.manager.onChange();
+		} else {
+			this.newValue = createDateFrom24HourTimeString(value);
+			assert(&#x27;Expected hour to be a number&#x27;, typeof this.hour === &#x27;number&#x27;);
+			await this.args.onChange?.(`${this.hour}:${`${this.minute}`.padStart(2, &#x27;0&#x27;)}`);
+			this.manager.onChange();
+		}
+	}
+
+	onFocusIn = () =&gt; {
+		if (this.args.shouldRenderAsDiv) {
+			return;
+		}
+		this.manager.focusIn();
+	};
+
+	@action
+	maybeOpenTimePicker() {
+		if (this.args.shouldRenderAsDiv) {
+			return;
+		}
+		this._initValues();
+		this.showPopup = true;
+	}
+
+	@action
+	onCloseTimePicker(trigger: OnCloseSource) {
+		if (trigger === &#x27;esc&#x27;) {
+			this._initValues();
+		} else if (trigger === &#x27;manual&#x27;) {
+			// only happens if clear button is clicked
+			void this.handleChange(null);
+		} else {
+			// &#x27;enter&#x27; or &#x27;click-outside&#x27;
+			assert(&#x27;Expected hour to be a number&#x27;, typeof this.hour === &#x27;number&#x27;);
+			void this.handleChange(`${this.hour}:${this.minute &lt; 10 ? &#x27;0&#x27; : &#x27;&#x27;}${this.minute}`);
+		}
+		this.newValue = null;
+		this.showPopup = false;
+	}
+
+	@action
+	onChangeHour(value: string | number | null, { shouldMaybeAutofocus = true } = {}) {
+		let hourString = value === null ? &#x27;&#x27; : `${value}`.replace(/[^0-9]/g, &#x27;&#x27;);
+		let hourNumeric = hourString.length ? Number(hourString) : null;
+
+		if (hourString.length) {
+			if (hourNumeric !== null &amp;&amp; ((this.useAmPm &amp;&amp; hourNumeric &gt; 12) || (!this.useAmPm &amp;&amp; hourNumeric &gt; 23))) {
+				const hourPart = `${hourNumeric}`.split(&#x27;&#x27;)[0];
+				assert(&#x27;Expected hourPart&#x27;, hourPart);
+				hourString = hourPart;
+				hourNumeric = Number(hourString);
+				if (this.useAmPm &amp;&amp; this.ampm === &#x27;PM&#x27;) {
+					this.hour = hourNumeric + 12;
+				} else {
+					this.hour = hourNumeric;
+				}
+			} else if (this.useAmPm &amp;&amp; this.ampm === &#x27;PM&#x27; &amp;&amp; hourNumeric !== null &amp;&amp; hourNumeric &lt; 12) {
+				this.hour = hourNumeric + 12;
+			} else if (this.useAmPm &amp;&amp; this.ampm === &#x27;AM&#x27; &amp;&amp; hourNumeric === 12) {
+				this.hour = 0;
+			} else {
+				this.hour = hourNumeric;
+			}
+		}
+
+		this._focusedValue = hourString;
+
+		if (this._focusedValue.length === 2 &amp;&amp; shouldMaybeAutofocus) {
+			const minuteEl = document.querySelector(&#x27;[data-input-minute]&#x27;);
+			assert(&#x27;Expected minute input to exist&#x27;, minuteEl instanceof HTMLElement);
+			minuteEl.focus();
+		}
+	}
+
+	@action
+	onChangeMinute(value: string | number | null, { shouldMaybeAutofocus = true } = {}) {
+		let minuteString = value === null ? &#x27;&#x27; : `${value}`.replace(/[^0-9]/g, &#x27;&#x27;);
+
+		if (minuteString.length) {
+			let minute = Number(minuteString);
+			if (minute &gt; 59) {
+				const minutePart = `${minute}`.split(&#x27;&#x27;)[0];
+				assert(&#x27;Expected minutePart&#x27;, minutePart);
+				minuteString = minutePart;
+				minute = Number(minuteString);
+			}
+			this.minute = minute;
+		}
+
+		this._focusedValue = minuteString;
+
+		if (this._focusedValue.length === 2 &amp;&amp; this.useAmPm &amp;&amp; shouldMaybeAutofocus) {
+			if (this.ampm === &#x27;AM&#x27;) {
+				const amEl = document.querySelector(&#x27;[data-btn-am]&#x27;);
+				assert(&#x27;Expected AM button to exist&#x27;, amEl instanceof HTMLElement);
+				amEl.focus();
+			} else {
+				const pmEl = document.querySelector(&#x27;[data-btn-pm]&#x27;);
+				assert(&#x27;Expected PM button to exist&#x27;, pmEl instanceof HTMLElement);
+				pmEl.focus();
+			}
+		}
+	}
+
+	@action
+	handleKeypress(event: KeyboardEvent) {
+		assert(
+			&#x27;Expected event target to be an input or button&#x27;,
+			event.target instanceof HTMLInputElement || event.target instanceof HTMLButtonElement,
+		);
+		const { name } = event.target;
+		const enter = event.key === KEYBOARD_KEYS.ENTER;
+		const arrowUp = event.key === KEYBOARD_KEYS.UP_ARROW;
+		const arrowDown = event.key === KEYBOARD_KEYS.DOWN_ARROW;
+		const arrowLeft = event.key === KEYBOARD_KEYS.LEFT_ARROW;
+		const arrowRight = event.key === KEYBOARD_KEYS.RIGHT_ARROW;
+
+		const keyIsArrow = (arrowUp || arrowDown || arrowLeft || arrowRight) &amp;&amp; !event.shiftKey;
+
+		const valueNumeric = !isNaN(Number(this._focusedValue)) ? Number(this._focusedValue) : null;
+
+		if (name === &#x27;hour&#x27;) {
+			if (arrowUp) {
+				if (valueNumeric === null || (this.useAmPm &amp;&amp; valueNumeric &gt;= 12) || (!this.useAmPm &amp;&amp; valueNumeric &gt;= 23)) {
+					this._focusedValue = this.useAmPm ? 1 : 0;
+				} else {
+					this._focusedValue = valueNumeric + 1;
+				}
+			}
+			if (arrowDown) {
+				if (valueNumeric === null || (this.useAmPm &amp;&amp; valueNumeric === 1) || (!this.useAmPm &amp;&amp; valueNumeric === 0)) {
+					this._focusedValue = this.useAmPm ? 12 : 23;
+				} else {
+					this._focusedValue = valueNumeric - 1;
+				}
+			}
+			if (arrowUp || arrowDown) {
+				this.onChangeHour(this._focusedValue, {
+					shouldMaybeAutofocus: false,
+				});
+			}
+		} else if (name === &#x27;minute&#x27;) {
+			if (arrowUp) {
+				if (valueNumeric === null || valueNumeric &gt;= 59) {
+					this._focusedValue = 0;
+				} else {
+					this._focusedValue = valueNumeric + 1;
+				}
+			}
+			if (arrowDown) {
+				if (valueNumeric === null || valueNumeric === 0) {
+					this._focusedValue = 59;
+				} else {
+					this._focusedValue = valueNumeric - 1;
+				}
+			}
+			if (arrowUp || arrowDown) {
+				this.onChangeMinute(this._focusedValue, {
+					shouldMaybeAutofocus: false,
+				});
+			}
+		} else if ((name === &#x27;ampm-am&#x27; || name === &#x27;ampm-pm&#x27;) &amp;&amp; keyIsArrow) {
+			this.ampm = this.ampm === &#x27;PM&#x27; ? &#x27;AM&#x27; : &#x27;PM&#x27;;
+			const ampmEl = document.querySelector(`[name=&quot;ampm-${this.ampm.toLowerCase()}&quot;]`);
+			assert(&#x27;Expected AM/PM element to exist&#x27;, ampmEl instanceof HTMLElement);
+			ampmEl.focus();
+		}
+
+		if (enter) {
+			if (name === &#x27;hour&#x27;) {
+				this.onChangeHour(this._focusedValue);
+			} else if (name === &#x27;minute&#x27;) {
+				this.onChangeMinute(this._focusedValue);
+			}
+			this.onCloseTimePicker(&#x27;enter&#x27;);
+		}
+
+		if (keyIsArrow || enter) {
+			event.preventDefault();
+		}
+	}
+
+	@action
+	handleFocus(event: FocusEvent) {
+		assert(&#x27;Expected event target to be an input&#x27;, event.target instanceof HTMLInputElement);
+		this._focusedInput = event.target.name;
+		this._focusedValue = event.target.value;
+		event.target.select();
+	}
+
+	@action
+	handleBlur() {
+		this._focusedInput = null;
+		this._focusedValue = null;
+	}
+
+	@action
+	onClose(closeTask: Task&lt;void, []&gt;, value: string | null) {
+		void this.handleChange(value);
+		void closeTask.perform();
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;SelectTime {{@class}}&quot;
+			data-size={{or @size &quot;md&quot;}}
+			data-disabled={{toString0 @disabled}}
+			data-focused={{toString0 this.manager.inputHasFocus}}
+			data-errored={{toString0 this.manager.showErrorMessage}}
+			data-qid-component-type=&quot;Luna::SelectTime&quot;
+			...attributes
+		&gt;
+			&lt;Button
+				@variant={{or @variant &quot;white&quot;}}
+				@width=&quot;full&quot;
+				@size={{or @size &quot;md&quot;}}
+				@errored={{this.manager.showErrorMessage}}
+				@disabled={{@disabled}}
+				@active={{this.triggerIsActive}}
+				@shouldRenderAsDiv={{@shouldRenderAsDiv}}
+				id={{this.id}}
+				aria-haspopup={{unless @shouldRenderAsDiv &quot;dialog&quot;}}
+				aria-controls={{unless @shouldRenderAsDiv this.popupId}}
+				aria-label={{@ariaLabel}}
+				aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+				aria-describedby={{this.manager.ariaDescribedBy}}
+				aria-required={{if (requirementArg @requirements &quot;required&quot;) &quot;true&quot; &quot;false&quot;}}
+				role={{unless @shouldRenderAsDiv &quot;combobox&quot;}}
+				aria-expanded={{toString0 this.triggerIsActive}}
+				aria-invalid={{toString0 this.manager.showErrorMessage}}
+				{{on &quot;focus&quot; this.onFocusIn}}
+				{{on &quot;click&quot; this.maybeOpenTimePicker}}
+			&gt;
+				{{#if (has-block &quot;icon&quot;)}}
+					&lt;div class=&quot;pre-icon&quot;&gt;
+						{{yield to=&quot;icon&quot;}}
+					&lt;/div&gt;
+				{{else if (notEq @variant &quot;transparent&quot;)}}
+					&lt;Icon @class={{scopedClass &quot;pre-icon&quot;}} @icon=&quot;module-timesheets&quot; @size=&quot;sm&quot; /&gt;
+				{{/if}}
+
+				{{#if @value}}
+					{{#if (has-block &quot;trigger&quot;)}}
+						&lt;div class=&quot;label&quot; data-test-select-time-label&gt;
+							{{yield @value to=&quot;trigger&quot;}}
+						&lt;/div&gt;
+					{{else if this.displayValue}}
+						&lt;div class=&quot;label&quot; data-test-select-time-label&gt;
+							{{formatDate this.displayValue hour=&quot;numeric&quot; minute=&quot;numeric&quot;}}
+						&lt;/div&gt;
+					{{/if}}
+				{{else}}
+					&lt;div class=&quot;label&quot; data-placeholder data-test-select-time-label&gt;
+						{{@placeholder}}
+					&lt;/div&gt;
+				{{/if}}
+
+				{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+					&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+				{{/if}}
+
+				&lt;Icon @class={{scopedClass &quot;post-icon&quot;}} @icon=&quot;chevron-down&quot; @size=&quot;sm&quot; /&gt;
+			&lt;/Button&gt;
+
+			&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}}&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+
+			{{#if this.showPopup}}
+				&lt;Popup
+					class=&quot;popup&quot;
+					role=&quot;dialog&quot;
+					aria-label={{this.popupAriaLabel}}
+					@id={{this.popupId}}
+					@show={{this.showPopup}}
+					@relativeTo={{concat &quot;#&quot; this.id}}
+					@placement={{or @placement &quot;bottom-start&quot;}}
+					@trapFocus={{true}}
+					@onClose={{this.onCloseTimePicker}}
+					as |popup|
+				&gt;
+					&lt;div class=&quot;inputs&quot;&gt;
+						&lt;XStack width=&quot;auto&quot;&gt;
+							&lt;Input
+								@size=&quot;sm&quot;
+								size=&quot;2&quot;
+								maxlength=&quot;2&quot;
+								inputmode=&quot;numeric&quot;
+								pattern=&quot;[0-9]*&quot;
+								placeholder=&quot;00&quot;
+								name=&quot;hour&quot;
+								autocomplete=&quot;off&quot;
+								data-test-select-time-hour
+								data-input-hour
+								@value={{this.hourInputValue}}
+								@onChange={{this.onChangeHour}}
+								{{autofocus}}
+								{{on &quot;keydown&quot; this.handleKeypress}}
+								{{on &quot;focus&quot; this.handleFocus}}
+								{{on &quot;blur&quot; this.handleBlur}}
+							/&gt;
+							&lt;Text @font=&quot;500&quot; @align=&quot;center&quot; @weight=&quot;strong&quot;&gt;
+								:
+							&lt;/Text&gt;
+							&lt;Input
+								@size=&quot;sm&quot;
+								size=&quot;2&quot;
+								maxlength=&quot;2&quot;
+								inputmode=&quot;numeric&quot;
+								pattern=&quot;[0-9]*&quot;
+								placeholder=&quot;00&quot;
+								name=&quot;minute&quot;
+								autocomplete=&quot;off&quot;
+								data-test-select-time-minute
+								data-input-minute
+								@value={{this.minuteInputValue}}
+								@onChange={{this.onChangeMinute}}
+								{{on &quot;keydown&quot; this.handleKeypress}}
+								{{on &quot;focus&quot; this.handleFocus}}
+								{{on &quot;blur&quot; this.handleBlur}}
+							/&gt;
+						&lt;/XStack&gt;
+						{{#if this.useAmPm}}
+							&lt;XStack @width=&quot;auto&quot; @spacing=&quot;none&quot; name=&quot;ampm&quot; data-luna-feature=&quot;meld&quot;&gt;
+								&lt;Button
+									@variant={{if (eq this.ampm &quot;AM&quot;) &quot;blue&quot; &quot;white&quot;}}
+									@size=&quot;sm&quot;
+									name=&quot;ampm-am&quot;
+									data-test-select-time-ampm=&quot;am&quot;
+									data-btn-am
+									{{on &quot;click&quot; (set this &quot;ampm&quot; &quot;AM&quot;)}}
+									{{on &quot;keydown&quot; this.handleKeypress}}
+								&gt;
+									{{t &quot;input.selectRecurrence.am&quot;}}
+								&lt;/Button&gt;
+
+								&lt;Button
+									@variant={{if (eq this.ampm &quot;PM&quot;) &quot;blue&quot; &quot;white&quot;}}
+									@size=&quot;sm&quot;
+									name=&quot;ampm-pm&quot;
+									data-test-select-time-ampm=&quot;pm&quot;
+									data-btn-pm
+									{{on &quot;click&quot; (set this &quot;ampm&quot; &quot;PM&quot;)}}
+									{{on &quot;keydown&quot; this.handleKeypress}}
+								&gt;
+									{{t &quot;input.selectRecurrence.pm&quot;}}
+								&lt;/Button&gt;
+							&lt;/XStack&gt;
+						{{/if}}
+					&lt;/div&gt;
+
+					{{#if (and @value (not (requirementArg @requirements &quot;required&quot;)))}}
+						&lt;Divider class=&quot;divider&quot; /&gt;
+
+						&lt;Button
+							class=&quot;clear&quot;
+							data-test-clear-date
+							@width=&quot;full&quot;
+							@size=&quot;sm&quot;
+							@variant=&quot;transparent&quot;
+							{{on &quot;click&quot; (fn this.onClose popup.closeTask null)}}
+						&gt;
+							{{t &quot;input.select-time.clear&quot;}}
+						&lt;/Button&gt;
+					{{/if}}
+
+				&lt;/Popup&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">select-time.tsx</div><pre class="language-typescript">import { type ReactNode, useCallback, useId, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type InputManagerOptions, useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { Button, type ButtonVariant } from &#x27;../button/button&#x27;;
+import { Divider } from &#x27;../divider/divider&#x27;;
+import { useFieldContext } from &#x27;../field/field-context&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { Input } from &#x27;../input/input&#x27;;
+import { InputError } from &#x27;../input-error/input-error&#x27;;
+import { type OnCloseSource, Popup, type PopupPlacement } from &#x27;../popup/popup&#x27;;
+import { Spinner } from &#x27;../spinner/spinner&#x27;;
+import { Text } from &#x27;../text/text&#x27;;
+import { XStack } from &#x27;../x-stack/x-stack&#x27;;
+
+import styles from &#x27;./select-time.module.css&#x27;;
+
+export type SelectTimeSize = &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface SelectTimeProps {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Currently selected time value in &quot;HH:MM&quot; 24-hour format */
+	value?: string | null;
+	/** Called when time selection changes */
+	onChange?: (value: string | null) =&gt; unknown;
+	/** Placeholder text when no value is selected */
+	placeholder?: string;
+	/** Size of the trigger button */
+	size?: SelectTimeSize;
+	/** Visual variant of the trigger button */
+	variant?: ButtonVariant;
+	/** Whether the trigger button appears active */
+	active?: boolean;
+	/** Disable the input */
+	disabled?: boolean;
+	/** Custom ID for the trigger */
+	id?: string;
+	/** Input requirements for validation */
+	requirements?: {
+		required?: boolean;
+	};
+	/** Name for form submission */
+	name?: string;
+	/** Popup placement relative to trigger */
+	placement?: PopupPlacement;
+	/** Render as a non-interactive div */
+	shouldRenderAsDiv?: boolean;
+	/** @deprecated Use form validators instead */
+	serverErrors?: Array&lt;{ message?: string } | string&gt;;
+	/** ARIA label for the trigger */
+	ariaLabel?: string;
+	/** ARIA labelledby reference */
+	ariaLabelledBy?: string;
+	/** ARIA describedby reference */
+	ariaDescribedBy?: string;
+	/** Called after autosave completes */
+	didAutosave?: () =&gt; void;
+	/** Additional CSS class for the wrapper */
+	className?: string;
+	/** Force 24-hour format (by default, uses locale detection) */
+	use24Hour?: boolean;
+	/** Custom trigger render function */
+	children?: (value: string | null) =&gt; ReactNode;
+}
+
+let nextInputId = 0;
+
+/**
+ * Creates a Date object from a 24-hour time string (HH:MM)
+ */
+function createDateFrom24HourTimeString(timeString: string | null | undefined): Date {
+	const date = new Date();
+	if (!timeString) {
+		// Default to 12:00 AM (midnight, which is hour 0 in 24-hour format)
+		date.setHours(0, 0, 0, 0);
+		return date;
+	}
+
+	const [hourStr, minuteStr] = timeString.split(&#x27;:&#x27;);
+	const hour = parseInt(hourStr ?? &#x27;0&#x27;, 10);
+	const minute = parseInt(minuteStr ?? &#x27;0&#x27;, 10);
+
+	date.setHours(hour, minute, 0, 0);
+	return date;
+}
+
+/**
+ * Detects whether to use 12-hour or 24-hour format based on locale
+ */
+function detectUse12HourFormat(): boolean {
+	try {
+		const date = new Date();
+		date.setHours(20, 0, 0, 0);
+		// If formatted time starts with &quot;8:00&quot;, it&#x27;s 12-hour format
+		const formatted = new Intl.DateTimeFormat(navigator.language, {
+			hour: &#x27;numeric&#x27;,
+			minute: &#x27;numeric&#x27;,
+		}).format(date);
+		return formatted.startsWith(&#x27;8:00&#x27;) || formatted.startsWith(&#x27;8：00&#x27;);
+	} catch {
+		// Default to 12-hour format if detection fails
+		return true;
+	}
+}
+
+/**
+ * Formats a Date object for display
+ */
+function formatTimeForDisplay(date: Date, useAmPm: boolean): string {
+	return new Intl.DateTimeFormat(navigator.language, {
+		hour: &#x27;numeric&#x27;,
+		minute: &#x27;2-digit&#x27;,
+		hour12: useAmPm,
+	}).format(date);
+}
+
+/**
+ * A component for selecting a specific time.
+ * Uses a popup with hour and minute inputs, and AM/PM toggle for 12-hour format.
+ */
+export function SelectTime(props: SelectTimeProps) {
+	const {
+		ref,
+		value,
+		onChange,
+		placeholder,
+		size = &#x27;md&#x27;,
+		variant = &#x27;white&#x27;,
+		active,
+		disabled = false,
+		id: providedId,
+		requirements,
+		name,
+		placement = &#x27;bottom-start&#x27;,
+		shouldRenderAsDiv = false,
+		serverErrors,
+		ariaLabel,
+		ariaLabelledBy,
+		ariaDescribedBy,
+		didAutosave,
+		className,
+		use24Hour,
+		children,
+	} = props;
+	const generatedId = useId();
+	const fieldContext = useFieldContext();
+	const id = providedId ?? fieldContext?.inputId ?? `luna-select-time-${nextInputId++}`;
+	const popupId = `${id}--popup`;
+
+	const formContext = useFormContext();
+	const triggerRef = useRef&lt;HTMLButtonElement&gt;(null);
+
+	// Determine if we use 12-hour or 24-hour format
+	const useAmPm = useMemo(() =&gt; {
+		if (use24Hour !== undefined) {
+			return !use24Hour;
+		}
+		return detectUse12HourFormat();
+	}, [use24Hour]);
+
+	// Track popup visibility
+	const [showPopup, setShowPopup] = useState(false);
+
+	// Internal state for editing
+	const [newValue, setNewValue] = useState&lt;Date | null&gt;(null);
+	const [focusedInput, setFocusedInput] = useState&lt;&#x27;hour&#x27; | &#x27;minute&#x27; | null&gt;(null);
+	const [focusedValue, setFocusedValue] = useState&lt;string | number | null&gt;(null);
+
+	const valueIsUnchangedRef = useRef(true);
+
+	// Refs for inputs
+	const hourInputRef = useRef&lt;HTMLInputElement&gt;(null);
+	const minuteInputRef = useRef&lt;HTMLInputElement&gt;(null);
+
+	// Initialize/reset the editing state
+	const initValues = useCallback(() =&gt; {
+		setFocusedInput(null);
+		setFocusedValue(null);
+	}, []);
+
+	// Get initial value as Date
+	const initialValue = useMemo(() =&gt; {
+		return value ? createDateFrom24HourTimeString(value) : null;
+	}, [value]);
+
+	// Get current editing value as Date
+	const currentValue = useMemo(() =&gt; {
+		return newValue ?? createDateFrom24HourTimeString(value);
+	}, [newValue, value]);
+
+	// Get display value (shows initial value when popup is open)
+	const displayValue = useMemo(() =&gt; {
+		if (showPopup) {
+			return initialValue;
+		}
+		return currentValue;
+	}, [showPopup, initialValue, currentValue]);
+
+	// Get hour in 24h format
+	const hour = currentValue.getHours();
+
+	// Get minute
+	const minute = currentValue.getMinutes();
+
+	// Get AM/PM
+	const ampm = hour &gt;= 12 ? &#x27;PM&#x27; : &#x27;AM&#x27;;
+
+	// Get hour input value (respects 12/24 hour format)
+	const hourInputValue = useMemo(() =&gt; {
+		if (focusedInput === &#x27;hour&#x27;) {
+			return focusedValue;
+		}
+		if (useAmPm) {
+			if (hour === 0) return 12;
+			if (hour &gt; 12) return hour - 12;
+			return hour;
+		}
+		return hour;
+	}, [focusedInput, focusedValue, useAmPm, hour]);
+
+	// Get minute input value (with leading zero)
+	const minuteInputValue = useMemo(() =&gt; {
+		if (focusedInput === &#x27;minute&#x27;) {
+			return focusedValue;
+		}
+		return `${minute}`.padStart(2, &#x27;0&#x27;);
+	}, [focusedInput, focusedValue, minute]);
+
+	// Input manager for form integration
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		name,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		didAutosave: useCallback(() =&gt; {
+			valueIsUnchangedRef.current = true;
+			didAutosave?.();
+		}, [didAutosave]),
+		ariaDescribedBy: ariaDescribedBy ?? null,
+		value,
+		isDisabled: disabled,
+		requirements,
+		serverErrors,
+		formContext,
+		selectorIsVisible: showPopup,
+	} as InputManagerOptions);
+
+	// Computed
+	const triggerIsActive = active ?? showPopup;
+
+	// Update hour value
+	const setHour = useCallback(
+		(newHour: number | null) =&gt; {
+			if (newHour !== null) {
+				const date = new Date(currentValue);
+				date.setHours(Math.min(Math.max(Number(newHour), 0), 23));
+				setNewValue(date);
+			}
+		},
+		[currentValue],
+	);
+
+	// Update minute value
+	const setMinute = useCallback(
+		(newMinute: number | null) =&gt; {
+			if (newMinute !== null) {
+				const date = new Date(currentValue);
+				date.setMinutes(Math.min(Math.max(Number(newMinute), 0), 59));
+				setNewValue(date);
+			}
+		},
+		[currentValue],
+	);
+
+	// Toggle AM/PM
+	const setAmPm = useCallback(
+		(newAmPm: &#x27;AM&#x27; | &#x27;PM&#x27;) =&gt; {
+			const date = new Date(currentValue);
+			const currentHour = date.getHours();
+			if (newAmPm === &#x27;AM&#x27; &amp;&amp; currentHour &gt;= 12) {
+				date.setHours(currentHour - 12);
+			} else if (newAmPm === &#x27;PM&#x27; &amp;&amp; currentHour &lt; 12) {
+				date.setHours(currentHour + 12);
+			}
+			setNewValue(date);
+		},
+		[currentValue],
+	);
+
+	// Handle change
+	const handleChange = useCallback(
+		async (timeValue: string | null) =&gt; {
+			if (timeValue === null) {
+				await onChange?.(null);
+				manager.onChange();
+			} else {
+				const date = createDateFrom24HourTimeString(timeValue);
+				const hours = date.getHours();
+				const minutes = date.getMinutes();
+				await onChange?.(`${hours}:${`${minutes}`.padStart(2, &#x27;0&#x27;)}`);
+				manager.onChange();
+			}
+		},
+		[onChange, manager],
+	);
+
+	// Handle focus in
+	const handleFocusIn = useCallback(() =&gt; {
+		if (!shouldRenderAsDiv) {
+			manager.focusIn();
+		}
+	}, [shouldRenderAsDiv, manager]);
+
+	// Open popup
+	const handleOpen = useCallback(() =&gt; {
+		if (shouldRenderAsDiv || disabled) return;
+
+		initValues();
+		setNewValue(null);
+		setShowPopup(true);
+	}, [shouldRenderAsDiv, disabled, initValues]);
+
+	// Close popup
+	const handleClose = useCallback(
+		(source: OnCloseSource) =&gt; {
+			if (source === &#x27;esc&#x27;) {
+				// Reset state on escape
+				initValues();
+			} else if (source === &#x27;manual&#x27;) {
+				// Clear button clicked
+				handleChange(null);
+			} else {
+				// &#x27;enter&#x27; or &#x27;click-outside&#x27; - apply value
+				const hours = currentValue.getHours();
+				const minutes = currentValue.getMinutes();
+				handleChange(`${hours}:${minutes &lt; 10 ? &#x27;0&#x27; : &#x27;&#x27;}${minutes}`);
+			}
+			setNewValue(null);
+			setShowPopup(false);
+		},
+		[initValues, handleChange, currentValue],
+	);
+
+	// Handle hour change
+	const handleHourChange = useCallback(
+		(inputValue: string, { shouldMaybeAutofocus = true } = {}) =&gt; {
+			let hourString = inputValue.replace(/[^0-9]/g, &#x27;&#x27;);
+			let hourNumeric = hourString.length ? Number(hourString) : null;
+
+			if (hourString.length &amp;&amp; hourNumeric !== null) {
+				if ((useAmPm &amp;&amp; hourNumeric &gt; 12) || (!useAmPm &amp;&amp; hourNumeric &gt; 23)) {
+					const hourPart = `${hourNumeric}`.split(&#x27;&#x27;)[0];
+					hourString = hourPart ?? &#x27;&#x27;;
+					hourNumeric = Number(hourString);
+				}
+
+				if (useAmPm &amp;&amp; ampm === &#x27;PM&#x27; &amp;&amp; hourNumeric &lt; 12) {
+					setHour(hourNumeric + 12);
+				} else if (useAmPm &amp;&amp; ampm === &#x27;AM&#x27; &amp;&amp; hourNumeric === 12) {
+					setHour(0);
+				} else {
+					setHour(hourNumeric);
+				}
+			}
+
+			setFocusedValue(hourString);
+
+			// Auto-focus minute input when 2 digits entered
+			if (hourString.length === 2 &amp;&amp; shouldMaybeAutofocus) {
+				minuteInputRef.current?.focus();
+			}
+		},
+		[useAmPm, ampm, setHour],
+	);
+
+	// Handle minute change
+	const handleMinuteChange = useCallback(
+		(inputValue: string, { shouldMaybeAutofocus = true } = {}) =&gt; {
+			let minuteString = inputValue.replace(/[^0-9]/g, &#x27;&#x27;);
+
+			if (minuteString.length) {
+				let minuteNum = Number(minuteString);
+				if (minuteNum &gt; 59) {
+					const minutePart = `${minuteNum}`.split(&#x27;&#x27;)[0];
+					minuteString = minutePart ?? &#x27;&#x27;;
+					minuteNum = Number(minuteString);
+				}
+				setMinute(minuteNum);
+			}
+
+			setFocusedValue(minuteString);
+
+			// Auto-focus AM/PM button when 2 digits entered
+			if (minuteString.length === 2 &amp;&amp; useAmPm &amp;&amp; shouldMaybeAutofocus) {
+				const btnSelector = ampm === &#x27;AM&#x27; ? &#x27;[data-btn-am]&#x27; : &#x27;[data-btn-pm]&#x27;;
+				const btn = document.querySelector(btnSelector) as HTMLElement | null;
+				btn?.focus();
+			}
+		},
+		[useAmPm, ampm, setMinute],
+	);
+
+	// Handle keydown
+	const handleKeyDown = useCallback(
+		(event: React.KeyboardEvent&lt;HTMLInputElement | HTMLButtonElement&gt;) =&gt; {
+			const target = event.target as HTMLInputElement | HTMLButtonElement;
+			const inputName = target.name;
+
+			const isEnter = event.key === &#x27;Enter&#x27;;
+			const isArrowUp = event.key === &#x27;ArrowUp&#x27;;
+			const isArrowDown = event.key === &#x27;ArrowDown&#x27;;
+			const isArrowLeft = event.key === &#x27;ArrowLeft&#x27;;
+			const isArrowRight = event.key === &#x27;ArrowRight&#x27;;
+			const isArrow = (isArrowUp || isArrowDown || isArrowLeft || isArrowRight) &amp;&amp; !event.shiftKey;
+
+			const valueNumeric = !isNaN(Number(focusedValue)) ? Number(focusedValue) : null;
+
+			if (inputName === &#x27;hour&#x27;) {
+				if (isArrowUp) {
+					let newVal: number;
+					if (valueNumeric === null || (useAmPm &amp;&amp; valueNumeric &gt;= 12) || (!useAmPm &amp;&amp; valueNumeric &gt;= 23)) {
+						newVal = useAmPm ? 1 : 0;
+					} else {
+						newVal = valueNumeric + 1;
+					}
+					setFocusedValue(newVal);
+					handleHourChange(String(newVal), { shouldMaybeAutofocus: false });
+				}
+				if (isArrowDown) {
+					let newVal: number;
+					if (valueNumeric === null || (useAmPm &amp;&amp; valueNumeric === 1) || (!useAmPm &amp;&amp; valueNumeric === 0)) {
+						newVal = useAmPm ? 12 : 23;
+					} else {
+						newVal = valueNumeric - 1;
+					}
+					setFocusedValue(newVal);
+					handleHourChange(String(newVal), { shouldMaybeAutofocus: false });
+				}
+			} else if (inputName === &#x27;minute&#x27;) {
+				if (isArrowUp) {
+					let newVal: number;
+					if (valueNumeric === null || valueNumeric &gt;= 59) {
+						newVal = 0;
+					} else {
+						newVal = valueNumeric + 1;
+					}
+					setFocusedValue(newVal);
+					handleMinuteChange(String(newVal), { shouldMaybeAutofocus: false });
+				}
+				if (isArrowDown) {
+					let newVal: number;
+					if (valueNumeric === null || valueNumeric === 0) {
+						newVal = 59;
+					} else {
+						newVal = valueNumeric - 1;
+					}
+					setFocusedValue(newVal);
+					handleMinuteChange(String(newVal), { shouldMaybeAutofocus: false });
+				}
+			} else if ((inputName === &#x27;ampm-am&#x27; || inputName === &#x27;ampm-pm&#x27;) &amp;&amp; isArrow) {
+				const newAmPm = ampm === &#x27;PM&#x27; ? &#x27;AM&#x27; : &#x27;PM&#x27;;
+				setAmPm(newAmPm);
+				const btnSelector = `[name=&quot;ampm-${newAmPm.toLowerCase()}&quot;]`;
+				const btn = document.querySelector(btnSelector) as HTMLElement | null;
+				btn?.focus();
+			}
+
+			if (isEnter) {
+				handleClose(&#x27;enter&#x27;);
+			}
+
+			if (isArrow || isEnter) {
+				event.preventDefault();
+			}
+		},
+		[focusedValue, useAmPm, ampm, handleHourChange, handleMinuteChange, setAmPm, handleClose],
+	);
+
+	// Handle input focus
+	const handleInputFocus = useCallback((event: React.FocusEvent&lt;HTMLInputElement&gt;) =&gt; {
+		const target = event.target;
+		setFocusedInput(target.name as &#x27;hour&#x27; | &#x27;minute&#x27;);
+		setFocusedValue(target.value);
+		target.select();
+	}, []);
+
+	// Handle input blur
+	const handleInputBlur = useCallback(() =&gt; {
+		setFocusedInput(null);
+		setFocusedValue(null);
+	}, []);
+
+	// Handle clear
+	const handleClear = useCallback(() =&gt; {
+		handleClose(&#x27;manual&#x27;);
+	}, [handleClose]);
+
+	// Get aria-labelledby
+	const computedAriaLabelledBy = useMemo(() =&gt; {
+		if (ariaLabelledBy) return ariaLabelledBy;
+		if (!ariaLabel) {
+			// Use generated label ID if available
+			return generatedId ? `${generatedId}-label` : undefined;
+		}
+		return undefined;
+	}, [ariaLabelledBy, ariaLabel, generatedId]);
+
+	// Determine if we should show the clear button
+	const showClearButton = value &amp;&amp; !requirements?.required;
+
+	// Format the display value
+	const formattedDisplayValue = useMemo(() =&gt; {
+		if (!displayValue) return null;
+		return formatTimeForDisplay(displayValue, useAmPm);
+	}, [displayValue, useAmPm]);
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.SelectTime, className)}
+			data-size={size}
+			data-disabled={disabled ? &#x27;true&#x27; : undefined}
+			data-focused={manager.inputHasFocus ? &#x27;true&#x27; : undefined}
+			data-errored={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+			data-qid-component-type=&quot;Luna::SelectTime&quot;
+		&gt;
+			&lt;Button
+				ref={triggerRef}
+				id={id}
+				variant={variant}
+				size={size}
+				width=&quot;full&quot;
+				errored={manager.showErrorMessage}
+				disabled={disabled}
+				active={triggerIsActive}
+				role={!shouldRenderAsDiv ? &#x27;combobox&#x27; : undefined}
+				aria-haspopup={!shouldRenderAsDiv ? &#x27;dialog&#x27; : undefined}
+				aria-controls={!shouldRenderAsDiv ? popupId : undefined}
+				aria-expanded={!shouldRenderAsDiv ? showPopup : undefined}
+				aria-label={ariaLabel}
+				aria-labelledby={computedAriaLabelledBy}
+				aria-describedby={manager.ariaDescribedBy}
+				aria-required={requirements?.required ? &#x27;true&#x27; : &#x27;false&#x27;}
+				aria-invalid={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+				onFocus={handleFocusIn}
+				onClick={handleOpen}
+			&gt;
+				{variant !== &#x27;transparent&#x27; &amp;&amp; &lt;Icon className={styles.preIcon} icon=&quot;module-timesheets&quot; size=&quot;sm&quot; /&gt;}
+
+				{value ? (
+					children ? (
+						&lt;div className={styles.label} data-test-select-time-label&gt;
+							{children(value)}
+						&lt;/div&gt;
+					) : displayValue ? (
+						&lt;div className={styles.label} data-test-select-time-label&gt;
+							{formattedDisplayValue}
+						&lt;/div&gt;
+					) : null
+				) : (
+					&lt;div className={styles.label} data-placeholder data-test-select-time-label&gt;
+						{placeholder}
+					&lt;/div&gt;
+				)}
+
+				{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+					&lt;Spinner size=&quot;sm&quot; transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined} /&gt;
+				)}
+
+				&lt;Icon className={styles.postIcon} icon=&quot;chevron-down&quot; size=&quot;sm&quot; /&gt;
+			&lt;/Button&gt;
+
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+
+			{showPopup &amp;&amp; (
+				&lt;Popup
+					className={styles.popup}
+					id={popupId}
+					show={showPopup}
+					relativeTo={triggerRef}
+					placement={placement}
+					trapFocus
+					onClose={handleClose}
+				&gt;
+					&lt;div className={styles.inputs}&gt;
+						&lt;XStack className={styles.timeInputs}&gt;
+							&lt;Input
+								ref={hourInputRef}
+								size=&quot;sm&quot;
+								name=&quot;hour&quot;
+								value={String(hourInputValue ?? &#x27;&#x27;)}
+								onChange={handleHourChange}
+								onFocus={handleInputFocus}
+								onBlur={handleInputBlur}
+								onKeyDown={handleKeyDown}
+								placeholder=&quot;00&quot;
+								autoComplete=&quot;off&quot;
+								inputMode=&quot;numeric&quot;
+								maxLength={2}
+								data-test-select-time-hour
+								data-input-hour
+								autoFocus
+							/&gt;
+							&lt;Text font=&quot;500&quot; weight=&quot;strong&quot;&gt;
+								:
+							&lt;/Text&gt;
+							&lt;Input
+								ref={minuteInputRef}
+								size=&quot;sm&quot;
+								name=&quot;minute&quot;
+								value={String(minuteInputValue ?? &#x27;&#x27;)}
+								onChange={handleMinuteChange}
+								onFocus={handleInputFocus}
+								onBlur={handleInputBlur}
+								onKeyDown={handleKeyDown}
+								placeholder=&quot;00&quot;
+								autoComplete=&quot;off&quot;
+								inputMode=&quot;numeric&quot;
+								maxLength={2}
+								data-test-select-time-minute
+								data-input-minute
+							/&gt;
+						&lt;/XStack&gt;
+
+						{useAmPm &amp;&amp; (
+							&lt;XStack className={styles.ampmButtons} data-luna-feature=&quot;meld&quot;&gt;
+								&lt;Button
+									variant={ampm === &#x27;AM&#x27; ? &#x27;blue&#x27; : &#x27;white&#x27;}
+									size=&quot;sm&quot;
+									name=&quot;ampm-am&quot;
+									data-test-select-time-ampm=&quot;am&quot;
+									data-btn-am
+									onClick={() =&gt; setAmPm(&#x27;AM&#x27;)}
+									onKeyDown={handleKeyDown}
+								&gt;
+									AM
+								&lt;/Button&gt;
+								&lt;Button
+									variant={ampm === &#x27;PM&#x27; ? &#x27;blue&#x27; : &#x27;white&#x27;}
+									size=&quot;sm&quot;
+									name=&quot;ampm-pm&quot;
+									data-test-select-time-ampm=&quot;pm&quot;
+									data-btn-pm
+									onClick={() =&gt; setAmPm(&#x27;PM&#x27;)}
+									onKeyDown={handleKeyDown}
+								&gt;
+									PM
+								&lt;/Button&gt;
+							&lt;/XStack&gt;
+						)}
+					&lt;/div&gt;
+
+					{showClearButton &amp;&amp; (
+						&lt;&gt;
+							&lt;Divider className={styles.divider} /&gt;
+							&lt;Button
+								className={styles.clear}
+								data-test-clear-date
+								width=&quot;full&quot;
+								size=&quot;sm&quot;
+								variant=&quot;transparent&quot;
+								onClick={handleClear}
+							&gt;
+								Clear Time
+							&lt;/Button&gt;
+						&lt;/&gt;
+					)}
+				&lt;/Popup&gt;
+			)}
+		&lt;/div&gt;
+	);
+}
+
+export default SelectTime;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="select-recurrence-termination.html" class="nav-btn">← select-recurrence-termination</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="selected-list.html" class="nav-btn">selected-list →</a>
+  </div>
+</body>
+</html>

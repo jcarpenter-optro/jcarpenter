@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>growl — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>growl</h1>
+    <span class="badge badge-react">React only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>growl</strong> exists only in the React library. It has not yet been ported to Ember/Glimmer and may represent a newer pattern being introduced via the React migration.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">growl-context.tsx</div><pre class="language-typescript">import { createContext, type ReactNode, useCallback, useContext, useMemo } from &#x27;react&#x27;;
+
+import { Toast } from &#x27;@base-ui-components/react/toast&#x27;;
+
+import { useAnnouncerOptional } from &#x27;../a11y-announcer&#x27;;
+
+/**
+ * The type/variant of a growl notification
+ */
+export type GrowlType = &#x27;success&#x27; | &#x27;error&#x27; | &#x27;warning&#x27; | &#x27;info&#x27; | &#x27;broadcast&#x27;;
+
+/**
+ * Options for creating a growl notification
+ */
+export interface GrowlOptions {
+	/** Optional header text */
+	header?: string;
+	/** Whether the growl should stay until manually dismissed (default: auto-dismiss after 7 seconds) */
+	sticky?: boolean;
+	/** Unique identifier for the growl - if provided, will replace any existing growl with the same uuid */
+	uuid?: string;
+}
+
+/**
+ * Data passed to the custom growl renderer
+ */
+export interface GrowlData {
+	/** Function to close/dismiss this growl */
+	close: () =&gt; void;
+	/** The header text */
+	header: string;
+	/** Whether the message contains trusted HTML (SafeString) */
+	isTrusted: boolean;
+	/** The message content */
+	message: string;
+	/** Whether this growl persists until manually dismissed */
+	sticky: boolean;
+	/** Optional unique identifier */
+	uuid?: string;
+	/** The growl type/variant */
+	type: GrowlType;
+}
+
+/**
+ * A growl component that renders the notification UI
+ */
+export type GrowlComponent = React.ComponentType&lt;{ data: GrowlData }&gt;;
+
+/**
+ * Context value provided by GrowlProvider
+ */
+export interface GrowlContextValue {
+	/** Show a success growl */
+	success: (Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; void;
+	/** Show an error growl */
+	error: (Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; void;
+	/** Show a warning growl */
+	warning: (Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; void;
+	/** Show an info growl */
+	info: (Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; void;
+	/** Show a broadcast growl */
+	broadcast: (Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; void;
+	/** The underlying toast manager for advanced usage */
+	toastManager: ReturnType&lt;typeof Toast.useToastManager&gt;;
+}
+
+const GrowlContext = createContext&lt;GrowlContextValue | null&gt;(null);
+
+/** Default timeout for auto-dismissing growls (7 seconds) */
+const DEFAULT_TIMEOUT = 7000;
+
+export interface GrowlProviderProps {
+	/** Child components */
+	children: ReactNode;
+	/** Maximum number of growls to show at once (default: 5) */
+	limit?: number;
+	/** Custom timeout for auto-dismissing growls in ms (default: 7000) */
+	timeout?: number;
+}
+
+/**
+ * Provider that manages growl notifications.
+ * Must wrap any components using the useGrowl hook.
+ *
+ * @example
+ * ```tsx
+ * &lt;GrowlProvider&gt;
+ *   &lt;App /&gt;
+ *   &lt;GrowlViewport /&gt;
+ * &lt;/GrowlProvider&gt;
+ * ```
+ */
+export function GrowlProvider({ children, limit = 5, timeout = DEFAULT_TIMEOUT }: GrowlProviderProps) {
+	return (
+		&lt;Toast.Provider limit={limit} timeout={timeout}&gt;
+			&lt;GrowlProviderInner&gt;{children}&lt;/GrowlProviderInner&gt;
+		&lt;/Toast.Provider&gt;
+	);
+}
+
+/**
+ * Inner provider that has access to the toast manager context
+ */
+function GrowlProviderInner({ children }: { children: ReactNode }) {
+	const toastManager = Toast.useToastManager();
+	const announcer = useAnnouncerOptional();
+
+	const showGrowl = useCallback(
+		(
+			type: GrowlType,
+			Component: GrowlComponent,
+			message: string,
+			options: GrowlOptions = {},
+			urgency: &#x27;polite&#x27; | &#x27;assertive&#x27; = &#x27;polite&#x27;,
+		) =&gt; {
+			const { header = &#x27;&#x27;, sticky = false, uuid } = options;
+
+			// If uuid exists, close any existing growl with the same uuid
+			if (uuid) {
+				const existingToast = toastManager.toasts.find((t) =&gt; (t.data as GrowlData | undefined)?.uuid === uuid);
+				if (existingToast) {
+					toastManager.close(existingToast.id);
+				}
+			}
+
+			const growlData: GrowlData = {
+				close: () =&gt; {
+					// This will be updated once we have the toast ID
+				},
+				header,
+				isTrusted: false, // React handles XSS protection
+				message,
+				sticky,
+				uuid,
+				type,
+			};
+
+			const toastId = toastManager.add({
+				// Use sticky timeout (0 means no auto-dismiss)
+				timeout: sticky ? 0 : undefined,
+				type,
+				data: {
+					...growlData,
+					Component,
+				},
+			});
+
+			// Update the close function with the actual toast ID
+			growlData.close = () =&gt; toastManager.close(toastId);
+
+			// Announce to screen readers
+			announcer?.announce(message, { urgency });
+		},
+		[toastManager, announcer],
+	);
+
+	const success = useCallback(
+		(Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; {
+			showGrowl(&#x27;success&#x27;, Component, message, options, &#x27;polite&#x27;);
+		},
+		[showGrowl],
+	);
+
+	const error = useCallback(
+		(Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; {
+			showGrowl(&#x27;error&#x27;, Component, message, options, &#x27;assertive&#x27;);
+		},
+		[showGrowl],
+	);
+
+	const warning = useCallback(
+		(Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; {
+			showGrowl(&#x27;warning&#x27;, Component, message, options, &#x27;polite&#x27;);
+		},
+		[showGrowl],
+	);
+
+	const info = useCallback(
+		(Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; {
+			showGrowl(&#x27;info&#x27;, Component, message, options, &#x27;polite&#x27;);
+		},
+		[showGrowl],
+	);
+
+	const broadcast = useCallback(
+		(Component: GrowlComponent, message: string, options?: GrowlOptions) =&gt; {
+			showGrowl(&#x27;broadcast&#x27;, Component, message, options, &#x27;polite&#x27;);
+		},
+		[showGrowl],
+	);
+
+	const contextValue = useMemo&lt;GrowlContextValue&gt;(
+		() =&gt; ({
+			success,
+			error,
+			warning,
+			info,
+			broadcast,
+			toastManager,
+		}),
+		[success, error, warning, info, broadcast, toastManager],
+	);
+
+	return &lt;GrowlContext.Provider value={contextValue}&gt;{children}&lt;/GrowlContext.Provider&gt;;
+}
+
+/**
+ * Hook to access the growl notification system.
+ *
+ * @throws Error if used outside of GrowlProvider
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const growl = useGrowl();
+ *
+ *   const handleSuccess = () =&gt; {
+ *     growl.success(SuccessGrowl, &#x27;Operation completed!&#x27;, { header: &#x27;Success&#x27; });
+ *   };
+ *
+ *   return &lt;button onClick={handleSuccess}&gt;Do Something&lt;/button&gt;;
+ * }
+ * ```
+ */
+export function useGrowl(): GrowlContextValue {
+	const context = useContext(GrowlContext);
+	if (!context) {
+		throw new Error(&#x27;useGrowl must be used within a GrowlProvider&#x27;);
+	}
+	return context;
+}
+
+/**
+ * Hook to optionally access the growl notification system.
+ * Returns null if not within a GrowlProvider.
+ */
+export function useGrowlOptional(): GrowlContextValue | null {
+	return useContext(GrowlContext);
+}
+</pre><div class="file-tab">growl-item.tsx</div><pre class="language-typescript">import { Toast } from &#x27;@base-ui-components/react/toast&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { Heading } from &#x27;../heading&#x27;;
+import { Icon } from &#x27;../icon&#x27;;
+import { IconButton } from &#x27;../icon-button&#x27;;
+import { Text } from &#x27;../text&#x27;;
+
+import type { GrowlData, GrowlType } from &#x27;./growl-context&#x27;;
+
+import styles from &#x27;./growl.module.css&#x27;;
+
+export interface GrowlItemProps {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** The growl data passed from the GrowlViewport */
+	data: GrowlData;
+	/** Additional CSS class */
+	className?: string;
+	/** Children content (additional body content) */
+	children?: React.ReactNode;
+}
+
+/** Icons for each growl type - using filled icons to match Ember */
+const TYPE_ICONS: Record&lt;GrowlType, string&gt; = {
+	success: &#x27;circle-check-fill&#x27;,
+	error: &#x27;circle-important-fill&#x27;,
+	warning: &#x27;warning-fill&#x27;,
+	info: &#x27;circle-info-fill&#x27;,
+	broadcast: &#x27;circle-info-fill&#x27;,
+};
+
+/**
+ * Default growl item component that displays a notification with an icon,
+ * header, message, and close button.
+ *
+ * This is a base implementation that can be used directly or as a reference
+ * for creating custom growl components.
+ *
+ * @example
+ * ```tsx
+ * // Using the default GrowlItem
+ * growl.success(GrowlItem, &#x27;Operation completed!&#x27;, { header: &#x27;Success&#x27; });
+ *
+ * // Creating a custom growl component
+ * function MyCustomGrowl({ data }: { data: GrowlData }) {
+ *   return (
+ *     &lt;div className=&quot;custom-growl&quot;&gt;
+ *       &lt;span&gt;{data.message}&lt;/span&gt;
+ *       &lt;button onClick={data.close}&gt;Dismiss&lt;/button&gt;
+ *     &lt;/div&gt;
+ *   );
+ * }
+ * ```
+ */
+export function GrowlItem(props: GrowlItemProps) {
+	const { ref, data, className, children } = props;
+	const { close, header, message, type, uuid } = data;
+	const icon = TYPE_ICONS[type];
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.GrowlItem, className)}
+			data-type={type}
+			data-qid-component-type=&quot;Luna::GrowlItem&quot;
+			data-qid={uuid}
+		&gt;
+			&lt;div className={styles.IconWrapper} data-type={type}&gt;
+				&lt;Icon icon={icon} size=&quot;md&quot; /&gt;
+			&lt;/div&gt;
+
+			&lt;div className={styles.Body}&gt;
+				{header &amp;&amp; &lt;Toast.Title render={&lt;Heading level={3} className={styles.Header} /&gt;}&gt;{header}&lt;/Toast.Title&gt;}
+
+				&lt;Toast.Description render={&lt;Text className={styles.Message} /&gt;}&gt;{message}&lt;/Toast.Description&gt;
+
+				{children}
+			&lt;/div&gt;
+
+			&lt;Toast.Close
+				render={
+					&lt;IconButton
+						icon=&quot;close&quot;
+						tooltip=&quot;Dismiss&quot;
+						variant=&quot;transparent&quot;
+						size=&quot;sm&quot;
+						onClick={close}
+						className={styles.CloseButton}
+						data-testid=&quot;growl-close-button&quot;
+					/&gt;
+				}
+			/&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default GrowlItem;
+</pre><div class="file-tab">growl-viewport.tsx</div><pre class="language-typescript">/**
+ * Viewport that renders growl notifications. Structure is intentional:
+ * GrowlProvider (context) holds API; GrowlViewport renders the toast list;
+ * GrowlItem is the default UI. No duplicated logic—ToastData here is the
+ * toast payload shape from Base UI.
+ */
+import { useMemo } from &#x27;react&#x27;;
+
+import { Toast } from &#x27;@base-ui-components/react/toast&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import type { GrowlComponent, GrowlData } from &#x27;./growl-context&#x27;;
+
+import styles from &#x27;./growl.module.css&#x27;;
+
+export interface GrowlViewportProps extends React.HTMLAttributes&lt;HTMLDivElement&gt; {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Additional CSS class */
+	className?: string;
+}
+
+interface ToastData {
+	Component: GrowlComponent;
+	close: () =&gt; void;
+	header: string;
+	isTrusted: boolean;
+	message: string;
+	sticky: boolean;
+	uuid?: string;
+	type: string;
+}
+
+interface GrowlToastItemProps {
+	toast: ReturnType&lt;typeof Toast.useToastManager&gt;[&#x27;toasts&#x27;][number];
+	onClose: (id: string) =&gt; void;
+}
+
+/**
+ * Individual growl toast item - extracted to follow React hooks rules
+ */
+function GrowlToastItem({ toast, onClose }: GrowlToastItemProps) {
+	const data = toast.data as ToastData | undefined;
+	const Component = data?.Component;
+
+	const growlData: GrowlData = useMemo(
+		() =&gt; ({
+			close: () =&gt; onClose(toast.id),
+			header: data?.header ?? &#x27;&#x27;,
+			isTrusted: data?.isTrusted ?? false,
+			message: data?.message ?? &#x27;&#x27;,
+			sticky: data?.sticky ?? false,
+			uuid: data?.uuid,
+			type: (data?.type as GrowlData[&#x27;type&#x27;]) ?? &#x27;info&#x27;,
+		}),
+		[toast.id, data, onClose],
+	);
+
+	if (!Component) {
+		return null;
+	}
+
+	return (
+		&lt;Toast.Root
+			key={toast.id}
+			toast={toast}
+			className={styles.Root}
+			data-type={growlData.type}
+			data-qid={growlData.uuid}
+		&gt;
+			&lt;Toast.Content className={styles.Content}&gt;
+				&lt;Component data={growlData} /&gt;
+			&lt;/Toast.Content&gt;
+		&lt;/Toast.Root&gt;
+	);
+}
+
+/**
+ * Viewport that renders growl notifications.
+ * Should be placed inside a GrowlProvider, typically at the app root.
+ *
+ * Renders in the top-right corner of the screen.
+ *
+ * @example
+ * ```tsx
+ * &lt;GrowlProvider&gt;
+ *   &lt;App /&gt;
+ *   &lt;GrowlViewport /&gt;
+ * &lt;/GrowlProvider&gt;
+ * ```
+ */
+export function GrowlViewport(props: GrowlViewportProps) {
+	const { ref, className, ...rest } = props;
+	const toastManager = Toast.useToastManager();
+
+	return (
+		&lt;Toast.Portal&gt;
+			&lt;Toast.Viewport
+				ref={ref}
+				className={cn(styles.Viewport, className)}
+				data-qid-component-type=&quot;Luna::Growl::Viewport&quot;
+				{...rest}
+			&gt;
+				{toastManager.toasts.map((toast) =&gt; (
+					&lt;GrowlToastItem key={toast.id} toast={toast} onClose={toastManager.close} /&gt;
+				))}
+			&lt;/Toast.Viewport&gt;
+		&lt;/Toast.Portal&gt;
+	);
+}
+
+export default GrowlViewport;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="frame.html" class="nav-btn">← frame</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="heading.html" class="nav-btn">heading →</a>
+  </div>
+</body>
+</html>

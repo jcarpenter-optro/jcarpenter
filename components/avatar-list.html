@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>avatar-list — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>avatar-list</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>avatar-list</strong> implementations exist. The Ember version is 140 lines and the React version is 147 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">avatar-list.gts</div><pre class="language-typescript">import type { WithBoundArgs } from &#x27;@glint/template&#x27;;
+
+import { concat, hash } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import setHelper from &#x27;ember-set-helper/helpers/set&#x27;;
+
+import tooltip from &#x27;../modifiers/tooltip.ts&#x27;;
+import type { LunaAvatarArgs } from &#x27;./avatar.gts&#x27;;
+import type LunaAvatar from &#x27;./avatar.gts&#x27;;
+import Avatar from &#x27;./avatar.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+import XStack from &#x27;./x-stack.gts&#x27;;
+import YStack from &#x27;./y-stack.gts&#x27;;
+
+type UserLike = Pick&lt;LunaAvatarArgs, &#x27;image&#x27; | &#x27;name&#x27; | &#x27;initials&#x27; | &#x27;status&#x27; | &#x27;bgColor&#x27; | &#x27;fullName&#x27; | &#x27;id&#x27;&gt;;
+const LunaAvatarLi = Avatar as WithBoundArgs&lt;typeof Avatar&lt;&#x27;li&#x27;&gt;, &#x27;class&#x27; | &#x27;tag&#x27;&gt;;
+
+interface AvatarListSignature {
+	Element: HTMLUListElement;
+	Args: {
+		maxCount: number;
+		users: UserLike[];
+	};
+	Blocks: {
+		visible: [
+			{
+				Avatar: typeof LunaAvatarLi;
+				user: UserLike;
+			},
+		];
+		remaining: [
+			{
+				Avatar: typeof LunaAvatar;
+				user: UserLike;
+			},
+		];
+	};
+}
+
+/**
+ * Renders a list of Avatar components with support for overflow.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/avatar-list.md)
+ */
+export default class AvatarList extends Component&lt;AvatarListSignature&gt; {
+	targetId = `${guidFor(this)}--target`;
+	@tracked show = false;
+
+	get visibleUsers() {
+		return Boolean(this.args.maxCount) &amp;&amp; Boolean(this.args.users.length)
+			? this.args.users.slice(0, this.args.maxCount)
+			: this.args.users;
+	}
+
+	get remainingUsers() {
+		return Boolean(this.args.maxCount) &amp;&amp; Boolean(this.args.users.length)
+			? this.args.users.slice(this.args.maxCount, this.args.users.length)
+			: [];
+	}
+
+	&lt;template&gt;
+		&lt;ul class=&quot;AvatarList&quot; data-qid-component-type=&quot;Luna::AvatarList&quot; ...attributes&gt;
+			{{#each this.visibleUsers as |user|}}
+				{{#if (has-block &quot;visible&quot;)}}
+					{{yield (hash Avatar=(component LunaAvatarLi class=(scopedClass &quot;avatar&quot;) tag=&quot;li&quot;) user=user) to=&quot;visible&quot;}}
+				{{else}}
+					&lt;Avatar
+						@image={{user.image}}
+						@name={{user.name}}
+						@initials={{user.initials}}
+						@status={{user.status}}
+						@bgColor={{user.bgColor}}
+						@tag=&quot;li&quot;
+						data-avatar-list=&quot;true&quot;
+						class={{scopedClass &quot;avatar&quot;}}
+						{{! The Avatar component has screen reader content that makes the announcement of this tooltip redundant }}
+						{{tooltip user.name shouldAnnounce=false}}
+					/&gt;
+				{{/if}}
+			{{/each}}
+
+			{{#if this.remainingUsers.length}}
+				&lt;li class=&quot;button-wrapper&quot;&gt;
+					&lt;Avatar
+						@tag=&quot;button&quot;
+						{{! gray-200 }}
+						@bgColor=&quot;#E2E8F0&quot;
+						id={{this.targetId}}
+						aria-label={{concat &quot;Show a list of &quot; this.remainingUsers.length &quot; remaining users.&quot;}}
+						class={{scopedClass &quot;popup-button avatar&quot;}}
+						data-test-overflow-users
+						{{on &quot;click&quot; (setHelper this &quot;show&quot; true)}}
+					&gt;
+						+{{this.remainingUsers.length}}
+					&lt;/Avatar&gt;
+				&lt;/li&gt;
+
+				&lt;Popup
+					@show={{this.show}}
+					@trapFocus={{true}}
+					@relativeTo={{concat &quot;#&quot; this.targetId}}
+					@placement=&quot;bottom&quot;
+					@onClose={{setHelper this &quot;show&quot; false}}
+					class=&quot;popup&quot;
+					aria-label={{t &quot;avatar-list.additional-users&quot;}}
+				&gt;
+					&lt;YStack @spacing=&quot;md&quot; @tag=&quot;ul&quot;&gt;
+						{{#each this.remainingUsers as |user|}}
+							{{#if (has-block &quot;remaining&quot;)}}
+								{{yield (hash Avatar=Avatar user=user) to=&quot;remaining&quot;}}
+							{{else}}
+								&lt;XStack @tag=&quot;li&quot; tabindex=&quot;0&quot;&gt;
+									&lt;Avatar
+										@image={{user.image}}
+										@name={{user.name}}
+										@initials={{user.initials}}
+										@status={{user.status}}
+										@bgColor={{user.bgColor}}
+										aria-hidden=&quot;true&quot;
+										data-test-overflow-user
+									/&gt;
+									&lt;Text @font=&quot;200&quot;&gt;
+										{{user.name}}
+									&lt;/Text&gt;
+								&lt;/XStack&gt;
+							{{/if}}
+						{{/each}}
+					&lt;/YStack&gt;
+				&lt;/Popup&gt;
+			{{/if}}
+		&lt;/ul&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">avatar-list.tsx</div><pre class="language-typescript">import { useCallback, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Avatar, type AvatarProps } from &#x27;../avatar&#x27;;
+import { Popup } from &#x27;../popup&#x27;;
+import { Text } from &#x27;../text&#x27;;
+import { Tooltip } from &#x27;../tooltip&#x27;;
+import { XStack } from &#x27;../x-stack&#x27;;
+import { YStack } from &#x27;../y-stack&#x27;;
+
+import styles from &#x27;./avatar-list.module.css&#x27;;
+
+export type AvatarListUser = {
+	id?: AvatarProps[&#x27;id&#x27;];
+	image?: AvatarProps[&#x27;image&#x27;];
+	name: AvatarProps[&#x27;name&#x27;];
+	initials?: AvatarProps[&#x27;initials&#x27;];
+	status?: AvatarProps[&#x27;status&#x27;];
+	bgColor?: AvatarProps[&#x27;bgColor&#x27;];
+	fullName?: AvatarProps[&#x27;fullName&#x27;];
+};
+
+interface AvatarListBaseProps {
+	/** Maximum number of avatars to show inline */
+	maxCount: number;
+	/** Array of user objects to display */
+	users: AvatarListUser[];
+	/** Custom render function for visible users */
+	renderVisibleUser?: (user: AvatarListUser, index: number) =&gt; React.ReactNode;
+	/** Custom render function for remaining users in popup */
+	renderRemainingUser?: (user: AvatarListUser, index: number) =&gt; React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export type AvatarListProps = ComponentPropsWithRef&lt;AvatarListBaseProps, HTMLUListElement&gt;;
+
+/**
+ * Displays a list of avatars with overflow handling.
+ * Shows the first maxCount users inline with overlapping avatars,
+ * and remaining users in a popup triggered by a &quot;+N&quot; button.
+ */
+export function AvatarList(props: AvatarListProps) {
+	const { ref, maxCount, users, renderVisibleUser, renderRemainingUser, className, ...rest } = props;
+	const [showPopup, setShowPopup] = useState(false);
+	const overflowButtonRef = useRef&lt;HTMLButtonElement&gt;(null);
+
+	// Split users into visible and remaining
+	const visibleUsers = useMemo(() =&gt; users.slice(0, maxCount), [users, maxCount]);
+	const remainingUsers = useMemo(() =&gt; users.slice(maxCount), [users, maxCount]);
+	const remainingCount = remainingUsers.length;
+
+	const handleOverflowClick = useCallback(() =&gt; {
+		setShowPopup(true);
+	}, []);
+
+	const handlePopupClose = useCallback(() =&gt; {
+		setShowPopup(false);
+	}, []);
+
+	// Default render for visible users
+	const defaultRenderVisibleUser = useCallback(
+		(user: AvatarListUser) =&gt; (
+			&lt;Tooltip content={user.name || user.fullName}&gt;
+				&lt;Avatar
+					image={user.image}
+					name={user.name}
+					initials={user.initials}
+					status={user.status}
+					bgColor={user.bgColor}
+					id={user.id}
+					size=&quot;sm&quot;
+					className={styles.avatar}
+				/&gt;
+			&lt;/Tooltip&gt;
+		),
+		[],
+	);
+
+	// Default render for remaining users in popup
+	const defaultRenderRemainingUser = useCallback(
+		(user: AvatarListUser) =&gt; (
+			&lt;XStack spacing=&quot;sm&quot; align=&quot;center&quot;&gt;
+				&lt;Avatar
+					image={user.image}
+					name={user.name}
+					initials={user.initials}
+					status={user.status}
+					bgColor={user.bgColor}
+					id={user.id}
+					size=&quot;sm&quot;
+				/&gt;
+				&lt;Text font=&quot;200&quot;&gt;{user.name || user.fullName}&lt;/Text&gt;
+			&lt;/XStack&gt;
+		),
+		[],
+	);
+
+	return (
+		&lt;&gt;
+			&lt;ul ref={ref} className={cn(styles.AvatarList, className)} data-qid-component-type=&quot;Luna::AvatarList&quot; {...rest}&gt;
+				{visibleUsers.map((user, index) =&gt; (
+					&lt;li key={user.id ?? index} className={styles.avatar}&gt;
+						{renderVisibleUser ? renderVisibleUser(user, index) : defaultRenderVisibleUser(user)}
+					&lt;/li&gt;
+				))}
+				{remainingCount &gt; 0 &amp;&amp; (
+					&lt;li className={styles.buttonWrapper}&gt;
+						&lt;Avatar
+							ref={overflowButtonRef}
+							tag=&quot;button&quot;
+							size=&quot;sm&quot;
+							bgColor=&quot;#E2E8F0&quot;
+							className={cn(styles.avatar, styles.popupButton)}
+							onClick={handleOverflowClick}
+							aria-label={`Show ${remainingCount} more users`}
+							data-testid=&quot;avatar-list-overflow-button&quot;
+						&gt;
+							+{remainingCount}
+						&lt;/Avatar&gt;
+					&lt;/li&gt;
+				)}
+			&lt;/ul&gt;
+			{remainingCount &gt; 0 &amp;&amp; (
+				&lt;Popup
+					show={showPopup}
+					relativeTo={overflowButtonRef}
+					placement=&quot;bottom-start&quot;
+					onClose={handlePopupClose}
+					className={styles.popup}
+					data-testid=&quot;avatar-list-popup&quot;
+				&gt;
+					&lt;YStack spacing=&quot;md&quot;&gt;
+						{remainingUsers.map((user, index) =&gt; (
+							&lt;div key={user.id ?? index}&gt;
+								{renderRemainingUser ? renderRemainingUser(user, index) : defaultRenderRemainingUser(user)}
+							&lt;/div&gt;
+						))}
+					&lt;/YStack&gt;
+				&lt;/Popup&gt;
+			)}
+		&lt;/&gt;
+	);
+}
+
+export default AvatarList;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="avatar.html" class="nav-btn">← avatar</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="badge.html" class="nav-btn">badge →</a>
+  </div>
+</body>
+</html>

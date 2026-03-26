@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>select-recurrence — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>select-recurrence</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>select-recurrence</strong> implementations exist. The Ember version is 325 lines and the React version is 790 lines. The React version is notably larger (790 vs 325 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">select-recurrence.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports, ember/no-at-ember-render-modifiers, ember/no-tracked-properties-from-args */
+import { dedupeTracked } from &#x27;tracked-toolbox&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { concat, fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import didUpdate from &#x27;@ember/render-modifiers/modifiers/did-update&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import type { Task } from &#x27;ember-concurrency&#x27;;
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import and from &#x27;ember-truth-helpers/helpers/and&#x27;;
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import requirementArg from &#x27;../helpers/requirement-arg.ts&#x27;;
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { RRule } from &#x27;../utils/rrule.ts&#x27;;
+import type { LunaButtonArgs } from &#x27;./button.gts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import { labelIdForField } from &#x27;./field.gts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import type { LunaPopupSignature } from &#x27;./popup.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+import type { LunaSelectRecurrenceBuilderSignature } from &#x27;./select-recurrence/builder.gts&#x27;;
+import Builder from &#x27;./select-recurrence/builder.gts&#x27;;
+import type { PresetId } from &#x27;./select-recurrence/const.ts&#x27;;
+import { PRESETS } from &#x27;./select-recurrence/const.ts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+
+interface SelectRecurrenceSignature {
+	Element: HTMLDivElement;
+	Args: {
+		value: string;
+		active?: boolean;
+		placeholder?: string;
+		class?: string;
+		size?: &#x27;lg&#x27;;
+		onCancel: (reason: string) =&gt; void;
+		onChange: (selection: string) =&gt; unknown;
+		id?: string;
+		requirements?: Requirements;
+		form?: LunaFormBlockValue;
+		name?: string;
+		disabled?: boolean;
+		/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+		serverErrors?: Array&lt;{ message?: string } | string&gt;;
+		ariaLabel?: string;
+		ariaLabelledBy?: string;
+		ariaDescribedBy?: string;
+		didAutosave?: () =&gt; void;
+	} &amp; Pick&lt;LunaButtonArgs, &#x27;variant&#x27;&gt; &amp;
+		Pick&lt;LunaPopupSignature[&#x27;Args&#x27;], &#x27;placement&#x27;&gt; &amp;
+		Pick&lt;LunaSelectRecurrenceBuilderSignature[&#x27;Args&#x27;], &#x27;minFrequency&#x27; | &#x27;singleWeeklyDay&#x27; | &#x27;allowCustom&#x27;&gt; &amp; {
+			/** An explicit allowlist of preset IDs to show. Overrides @minFrequency when provided. */
+			presetIds?: PresetId[];
+		};
+	Blocks: {
+		icon: [];
+		trigger: [value: string];
+	};
+}
+
+let SelectID = 0;
+let nextInputId = 0;
+
+/**
+ * A component for selecting recurrence patterns.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/select-recurrence.md)
+ */
+export default class SelectRecurrence extends Component&lt;SelectRecurrenceSignature&gt; {
+	// declare is preferred over bang, but we need this in the constructor
+	@service intl!: IntlService;
+
+	popupId = `selectRecurrence${SelectID++}--popup`;
+
+	@consume(&#x27;luna-input-id&#x27;) inputId!: string;
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: SelectRecurrenceSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+		assert(&#x27;You cannot provide both ariaLabel and ariaLabelledBy&#x27;, !args.ariaLabel || !args.ariaLabelledBy);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			name: args.name,
+			didAutosave: this.didAutosave.bind(this),
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: this.args.ariaDescribedBy ?? null,
+
+			get value() {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get serverErrors() {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+
+			get selectorIsVisible() {
+				return that.showPopup;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	@tracked showPopup = false;
+	@tracked rule = new RRule(this.args.value, this.intl);
+	@tracked selection = this.args.value;
+
+	@dedupeTracked valueIsUnchanged = true;
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-select-recurrence-${nextInputId++}`;
+	}
+
+	get labelId() {
+		return this.inputId ? labelIdForField(this.inputId) : null;
+	}
+
+	get triggerIsActive() {
+		return this.args.active ?? this.showPopup;
+	}
+
+	get formattedSelection() {
+		return this.args.value ? this.rule.localeRecurrenceString : null;
+	}
+
+	get presets() {
+		const { minFrequency: min, presetIds, requirements } = this.args;
+		let presets;
+
+		if (presetIds) {
+			presets = PRESETS.filter((preset) =&gt; presetIds.includes(preset.id));
+		} else if (min) {
+			presets = PRESETS.filter((preset) =&gt; preset.minFrequency.includes(min));
+		} else {
+			presets = [...PRESETS];
+		}
+
+		if (requirements?.required) {
+			presets = presets.filter((p) =&gt; p.id !== &#x27;none&#x27;);
+		}
+
+		return presets;
+	}
+
+	get placement() {
+		return this.args.placement ?? &#x27;bottom&#x27;;
+	}
+
+	@action
+	onRuleUpdate() {
+		this.rule = new RRule(this.args.value, this.intl);
+	}
+
+	@action
+	openSelector() {
+		this.selection = this.args.value;
+		this.valueIsUnchanged = true;
+		this.showPopup = true;
+	}
+
+	@action
+	async willCloseSelector(reason: string) {
+		if (this.valueIsUnchanged) {
+			return this.args.onCancel?.(reason);
+		}
+
+		await this.args.onChange?.(this.selection);
+		this.manager.onChange();
+	}
+
+	@action
+	onCloseSelector() {
+		this.showPopup = false;
+	}
+
+	@action
+	onChange(closeTask: Task&lt;void, []&gt;, value: string) {
+		this.valueIsUnchanged = false;
+		this.selection = value;
+		void closeTask.perform();
+	}
+
+	@action
+	didAutosave() {
+		this.valueIsUnchanged = true;
+		this.args.didAutosave?.();
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+	&lt;template&gt;
+		&lt;div
+			class=&quot;SelectRecurrence {{@class}}&quot;
+			data-size={{or @size &quot;md&quot;}}
+			data-disabled={{toString0 @disabled}}
+			data-qid-component-type=&quot;Luna::SelectRecurrence&quot;
+			data-focused={{toString0 this.manager.inputHasFocus}}
+			data-errored={{toString0 this.manager.showErrorMessage}}
+			{{didUpdate this.onRuleUpdate @value}}
+			...attributes
+		&gt;
+			&lt;Button
+				@variant={{or @variant &quot;white&quot;}}
+				@width=&quot;full&quot;
+				@size={{or @size &quot;md&quot;}}
+				@errored={{this.manager.showErrorMessage}}
+				@disabled={{@disabled}}
+				@active={{this.triggerIsActive}}
+				id={{this.id}}
+				role=&quot;combobox&quot;
+				aria-controls={{this.popupId}}
+				aria-expanded={{toString0 this.showPopup}}
+				aria-owns={{this.popupId}}
+				aria-haspopup=&quot;dialog&quot;
+				aria-required={{if (requirementArg @requirements &quot;required&quot;) &quot;true&quot; &quot;false&quot;}}
+				aria-label={{@ariaLabel}}
+				aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+				aria-describedby={{this.manager.ariaDescribedBy}}
+				aria-invalid={{toString0 this.manager.showErrorMessage}}
+				{{on &quot;focus&quot; this.manager.focusIn}}
+				{{on &quot;click&quot; this.openSelector}}
+			&gt;
+				{{#if (has-block &quot;icon&quot;)}}
+					&lt;div class=&quot;pre-icon&quot;&gt;
+						{{yield to=&quot;icon&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+
+				&lt;div class=&quot;label&quot;&gt;
+					{{#if (has-block &quot;trigger&quot;)}}
+						{{yield @value to=&quot;trigger&quot;}}
+					{{else}}
+						{{or this.formattedSelection (t &quot;input.selectRecurrence.presets.none&quot;)}}
+					{{/if}}
+				&lt;/div&gt;
+
+				{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+					&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+				{{/if}}
+
+				&lt;Icon @class={{scopedClass &quot;icon&quot;}} @icon=&quot;chevron-down&quot; @size=&quot;sm&quot; /&gt;
+			&lt;/Button&gt;
+
+			&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}}&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+
+			{{#if this.showPopup}}
+				&lt;Popup
+					class=&quot;popup&quot;
+					role=&quot;dialog&quot;
+					aria-label={{if (and (not @placeholder) (not @value)) (t &quot;input.select-recurrence.placeholder&quot;)}}
+					@id={{this.popupId}}
+					@show={{this.showPopup}}
+					@relativeTo={{concat &quot;#&quot; this.id}}
+					@placement={{this.placement}}
+					@trapFocus={{true}}
+					@willClose={{this.willCloseSelector}}
+					@onClose={{this.onCloseSelector}}
+					as |popup|
+				&gt;
+					&lt;Builder
+						@value={{@value}}
+						@onChange={{fn this.onChange popup.closeTask}}
+						@presets={{this.presets}}
+						@minFrequency={{@minFrequency}}
+						@onCancelTask={{popup.closeTask}}
+						@singleWeeklyDay={{@singleWeeklyDay}}
+						@allowCustom={{@allowCustom}}
+					/&gt;
+				&lt;/Popup&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">builder.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useMemo, useState } from &#x27;react&#x27;;
+
+import { createDefaultIntl, FREQ, type IntlLike, RRule, RRULE_REGEX } from &#x27;@soxhub/luna-utils/rrule&#x27;;
+
+import { Button } from &#x27;../button/button&#x27;;
+import { CheckboxElement } from &#x27;../checkbox/checkbox-element&#x27;;
+import { Divider } from &#x27;../divider/divider&#x27;;
+import { Field } from &#x27;../field/field&#x27;;
+import { Form } from &#x27;../form/form&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { IconButton } from &#x27;../icon-button/icon-button&#x27;;
+import { Input } from &#x27;../input/input&#x27;;
+import { Menu } from &#x27;../menu/menu&#x27;;
+import { Notice } from &#x27;../notice/notice&#x27;;
+import { Select } from &#x27;../select/select&#x27;;
+import { Text } from &#x27;../text/text&#x27;;
+import { XStack } from &#x27;../x-stack/x-stack&#x27;;
+import { YStack } from &#x27;../y-stack/y-stack&#x27;;
+
+import { type Frequency, type Preset, PRESETS } from &#x27;./const&#x27;;
+
+import styles from &#x27;./builder.module.css&#x27;;
+
+export interface SelectRecurrenceBuilderProps {
+	value: string;
+	presets: Preset[];
+	minFrequency?: Frequency;
+	singleWeeklyDay?: boolean;
+	allowCustom?: boolean;
+	onChange: (value: string) =&gt; void;
+	onCancel: () =&gt; void;
+	intl?: IntlLike;
+}
+
+/**
+ * Compares rule values ignoring termination (COUNT/UNTIL)
+ */
+function eqRule(value: string, rule: string | null): boolean {
+	const valueString = value?.match(RRULE_REGEX)?.[0]?.slice(6) || &#x27;&#x27;;
+	const ruleString = rule || &#x27;&#x27;;
+
+	let valueWithoutTermination = valueString
+		.split(&#x27;;&#x27;)
+		.filter((item) =&gt; {
+			return !(item.startsWith(&#x27;COUNT&#x27;) || item.startsWith(&#x27;UNTIL&#x27;));
+		})
+		.join(&#x27;;&#x27;);
+
+	if (!valueWithoutTermination) {
+		if (!ruleString) {
+			return true;
+		}
+		return false;
+	}
+
+	valueWithoutTermination = `RRULE:${valueWithoutTermination}`;
+
+	return ruleString === valueWithoutTermination;
+}
+
+/**
+ * Builder component for configuring recurrence rules.
+ */
+export function SelectRecurrenceBuilder({
+	value,
+	presets,
+	minFrequency,
+	singleWeeklyDay,
+	allowCustom,
+	onChange,
+	onCancel,
+	intl: intlProp,
+}: SelectRecurrenceBuilderProps) {
+	const intl = useMemo(() =&gt; intlProp ?? createDefaultIntl(), [intlProp]);
+
+	// Initialize rule from value
+	const [rule, setRule] = useState(() =&gt; new RRule(value, intl));
+
+	// Determine if showing custom view
+	const [isCustom, setIsCustom] = useState(() =&gt; {
+		const hasValue = value || value === &#x27;&#x27;;
+		const matchesPreset = PRESETS.find((preset) =&gt; eqRule(value, preset.value));
+		return (hasValue &amp;&amp; !matchesPreset) || false;
+	});
+
+	// Cache whether current rule is custom for checkmark display
+	const isCustomRule = useMemo(() =&gt; {
+		const hasValue = value || value === &#x27;&#x27;;
+		const matchesPreset = PRESETS.find((preset) =&gt; eqRule(value, preset.value));
+		return (hasValue &amp;&amp; !matchesPreset) || false;
+	}, [value]);
+
+	// Update rule when value changes
+	useEffect(() =&gt; {
+		setRule(new RRule(value, intl));
+	}, [value, intl]);
+
+	// Filter frequency options based on minFrequency
+	const freqOptions = useMemo(() =&gt; {
+		if (!minFrequency) {
+			return rule.freqOptions;
+		}
+		const index = Object.keys(FREQ).indexOf(minFrequency);
+		return rule.freqOptions.slice(index);
+	}, [rule, minFrequency]);
+
+	/**
+	 * Clones the current rule state into a fresh RRule so accumulated
+	 * (uncommitted) edits are preserved across field changes.
+	 */
+	const cloneRule = useCallback(() =&gt; new RRule(rule.string, intl), [rule, intl]);
+
+	/**
+	 * Extracts the raw value from a Select onChange payload.
+	 * The Select component wraps options as SelectOption objects, so onChange
+	 * delivers `{ value, label }` rather than the bare `T` value.
+	 */
+	const extractValue = (val: unknown): string | null =&gt; {
+		if (val === null || val === undefined) return null;
+		if (typeof val === &#x27;object&#x27; &amp;&amp; &#x27;value&#x27; in (val as Record&lt;string, unknown&gt;)) {
+			return (val as { value: string }).value;
+		}
+		return typeof val === &#x27;string&#x27; ? val : null;
+	};
+
+	const handleSaveRule = useCallback(async () =&gt; {
+		onChange(rule.string);
+	}, [rule, onChange]);
+
+	const handleSwitchToCustom = useCallback(() =&gt; {
+		setIsCustom(true);
+	}, []);
+
+	const handleSelectPreset = useCallback(
+		(preset: Preset) =&gt; {
+			const newRule = new RRule(value, intl);
+			newRule.resetRecurrence();
+			newRule.parseRule(preset.value);
+			onChange(newRule.string);
+		},
+		[value, intl, onChange],
+	);
+
+	const handleFrequencyChange = useCallback(
+		(val: unknown) =&gt; {
+			const freqValue = extractValue(val);
+			const newRule = cloneRule();
+			newRule.freq = freqValue;
+			newRule.byDay = null;
+			newRule.byMonthDay = null;
+			setRule(newRule);
+		},
+		[cloneRule],
+	);
+
+	const handleIntervalChange = useCallback(
+		(intervalValue: string) =&gt; {
+			const newRule = cloneRule();
+			newRule.interval = intervalValue ? Number(intervalValue) : null;
+			setRule(newRule);
+		},
+		[cloneRule],
+	);
+
+	const handleByDayToggle = useCallback(
+		(dayValue: string) =&gt; {
+			const newRule = cloneRule();
+			newRule.toggleByDayValue(dayValue as &#x27;MO&#x27; | &#x27;TU&#x27; | &#x27;WE&#x27; | &#x27;TH&#x27; | &#x27;FR&#x27; | &#x27;SA&#x27; | &#x27;SU&#x27;);
+			setRule(newRule);
+		},
+		[cloneRule],
+	);
+
+	const handleByDaySelect = useCallback(
+		(val: unknown) =&gt; {
+			const dayValue = extractValue(val) as &#x27;MO&#x27; | &#x27;TU&#x27; | &#x27;WE&#x27; | &#x27;TH&#x27; | &#x27;FR&#x27; | &#x27;SA&#x27; | &#x27;SU&#x27; | null;
+			const newRule = cloneRule();
+			if (newRule.freq === FREQ.weekly) {
+				newRule.byDay = dayValue;
+			} else if (newRule.freq === FREQ.monthly) {
+				if (dayValue) {
+					newRule.setByDayValueAsOption({ value: dayValue, label: &#x27;&#x27; });
+				} else {
+					newRule.setByDayValueAsOption(null);
+				}
+			}
+			setRule(newRule);
+		},
+		[cloneRule],
+	);
+
+	const handleTimeOfMonthChange = useCallback(
+		(val: unknown) =&gt; {
+			const rawValue = extractValue(val) as &#x27;DATE&#x27; | &#x27;DAY&#x27; | &#x27;LAST&#x27; | null;
+			if (rawValue) {
+				const newRule = cloneRule();
+				const option = newRule.timeOfMonthOptions.find((o) =&gt; o.value === rawValue);
+				if (option) {
+					newRule.updateTimeOfMonth(option);
+				}
+				setRule(newRule);
+			}
+		},
+		[cloneRule],
+	);
+
+	const handleByMonthDayChange = useCallback(
+		(val: unknown) =&gt; {
+			const rawValue = extractValue(val);
+			const newRule = cloneRule();
+			newRule.byMonthDay = rawValue;
+			setRule(newRule);
+		},
+		[cloneRule],
+	);
+
+	const handleSelectionChange = useCallback(
+		(val: unknown) =&gt; {
+			const rawValue = extractValue(val) as &#x27;1&#x27; | &#x27;2&#x27; | &#x27;3&#x27; | &#x27;4&#x27; | &#x27;-1&#x27; | null;
+			if (rawValue) {
+				const newRule = cloneRule();
+				const option = newRule.selectionOptions.find((o) =&gt; o.value === rawValue);
+				if (option) {
+					newRule.setSelectionValue(option);
+				}
+				setRule(newRule);
+			}
+		},
+		[cloneRule],
+	);
+
+	const stringIncludesText = (byDay: string | null, dayValue: string): boolean =&gt; {
+		return byDay?.includes(dayValue) ?? false;
+	};
+
+	// Custom builder view
+	if (isCustom) {
+		return (
+			&lt;div className={styles.Builder} data-qid-select-recurrence-builder&gt;
+				&lt;YStack spacing=&quot;md&quot;&gt;
+					&lt;XStack spacing=&quot;md&quot;&gt;
+						&lt;IconButton
+							size=&quot;sm&quot;
+							variant=&quot;gray&quot;
+							tooltip={intl.t(&#x27;input.selectRecurrence.custom.back&#x27;)}
+							icon=&quot;arrow-left&quot;
+							data-qid-recurrence-back
+							onClick={() =&gt; setIsCustom(false)}
+						/&gt;
+						&lt;Text font=&quot;200&quot; weight=&quot;strong&quot; color=&quot;gray-900&quot;&gt;
+							{intl.t(&#x27;input.selectRecurrence.customize&#x27;)}
+						&lt;/Text&gt;
+					&lt;/XStack&gt;
+
+					&lt;Form onSubmit={handleSaveRule}&gt;
+						{() =&gt; (
+							&lt;YStack spacing=&quot;md&quot;&gt;
+								&lt;XStack spacing=&quot;md&quot; width=&quot;full&quot;&gt;
+									&lt;Field
+										className={styles.every}
+										label={intl.t(&#x27;input.selectRecurrence.field.every&#x27;)}
+										input={({ id }) =&gt; (
+											&lt;Input
+												id={id}
+												type=&quot;number&quot;
+												value={rule.interval?.toString() ?? &#x27;&#x27;}
+												onChange={handleIntervalChange}
+												requirements={{ min: 1 }}
+												placeholder=&quot;1&quot;
+												min={1}
+												data-qid-recurrence-interval
+											/&gt;
+										)}
+									/&gt;
+									&lt;Field
+										className={styles.frequency}
+										label={intl.t(&#x27;input.selectRecurrence.field.frequency&#x27;)}
+										input={({ id }) =&gt; (
+											&lt;Select
+												id={id}
+												value={rule.freq}
+												options={freqOptions}
+												onChange={handleFrequencyChange}
+												requirements={{ required: true }}
+												searchKeys={[&#x27;label&#x27;]}
+												data-qid-recurrence-frequency
+											/&gt;
+										)}
+									/&gt;
+								&lt;/XStack&gt;
+
+								{rule.isWeekly &amp;&amp; (
+									&lt;Field
+										className={styles.frequency}
+										label={intl.t(&#x27;input.selectRecurrence.field.repeat-on&#x27;)}
+										input={({ id }) =&gt;
+											singleWeeklyDay ? (
+												&lt;Select
+													id={id}
+													value={rule.byDayValueAsOption?.value ?? null}
+													options={rule.byDayOptions}
+													onChange={handleByDaySelect}
+													requirements={{ required: true }}
+													searchKeys={[&#x27;label&#x27;]}
+													data-qid-recurrence-by-day-of-week
+												/&gt;
+											) : (
+												&lt;div className={styles.checkboxList}&gt;
+													{rule.byDayOptions.map((option) =&gt; (
+														&lt;label
+															key={option.value}
+															className={styles.checkbox}
+															data-selected={stringIncludesText(rule.byDay, option.value) ? &#x27;&#x27; : undefined}
+														&gt;
+															{option.label}
+
+															{stringIncludesText(rule.byDay, option.value) ? (
+																&lt;div className={styles.iconWrapper}&gt;
+																	&lt;Icon icon=&quot;check&quot; size=&quot;sm&quot; /&gt;
+																&lt;/div&gt;
+															) : (
+																&lt;CheckboxElement size=&quot;sm&quot; value={false} className={styles.checkboxElement} /&gt;
+															)}
+
+															&lt;input
+																className={styles.checkboxInput}
+																value={String(stringIncludesText(rule.byDay, option.value))}
+																data-qid-recurrence-by-day-of-week={option.value}
+																type=&quot;checkbox&quot;
+																onChange={() =&gt; handleByDayToggle(option.value)}
+															/&gt;
+														&lt;/label&gt;
+													))}
+												&lt;/div&gt;
+											)
+										}
+									/&gt;
+								)}
+
+								{rule.isMonthly &amp;&amp; (
+									&lt;XStack&gt;
+										&lt;Field
+											className={styles.timeOfMonth}
+											label={intl.t(&#x27;input.selectRecurrence.field.time-of-month&#x27;)}
+											input={() =&gt; (
+												&lt;Select
+													value={rule.timeOfMonth.value}
+													options={rule.timeOfMonthOptions}
+													onChange={handleTimeOfMonthChange}
+													requirements={{ required: true }}
+													searchKeys={[&#x27;label&#x27;]}
+													data-qid-recurrence-time-of-month
+												/&gt;
+											)}
+										/&gt;
+
+										{rule.timeOfMonth.value === &#x27;DATE&#x27; &amp;&amp; (
+											&lt;Field
+												className={styles.dayOfMonth}
+												label={intl.t(&#x27;input.selectRecurrence.field.day&#x27;)}
+												input={({ id }) =&gt; (
+													&lt;Select
+														id={id}
+														value={rule.byMonthDay}
+														options={rule.byMonthDayOptions}
+														onChange={handleByMonthDayChange}
+														searchKeys={[&#x27;label&#x27;]}
+														data-qid-recurrence-by-month-day
+													/&gt;
+												)}
+											/&gt;
+										)}
+
+										{rule.timeOfMonth.value === &#x27;LAST&#x27; &amp;&amp; &lt;div className={styles.dayOfWeekWrapper} /&gt;}
+
+										{rule.timeOfMonth.value === &#x27;DAY&#x27; &amp;&amp; (
+											&lt;XStack spacing=&quot;md&quot; className={styles.dayOfWeekWrapper}&gt;
+												&lt;Field
+													className={styles.selection}
+													label={intl.t(&#x27;input.selectRecurrence.field.selection&#x27;)}
+													input={({ id }) =&gt; (
+														&lt;Select
+															id={id}
+															value={rule.selectionValue?.value ?? null}
+															options={rule.selectionOptions}
+															onChange={handleSelectionChange}
+															requirements={{ required: true }}
+															searchKeys={[&#x27;label&#x27;]}
+															data-qid-recurrence-selection
+														/&gt;
+													)}
+												/&gt;
+												&lt;Field
+													className={styles.dayOfWeek}
+													label={intl.t(&#x27;input.selectRecurrence.field.day&#x27;)}
+													input={({ id }) =&gt; (
+														&lt;Select
+															id={id}
+															value={rule.byDayValueAsOption?.value ?? null}
+															options={rule.byDayOptions}
+															onChange={handleByDaySelect}
+															requirements={{ required: true }}
+															searchKeys={[&#x27;label&#x27;]}
+															data-qid-recurrence-by-day
+														/&gt;
+													)}
+												/&gt;
+											&lt;/XStack&gt;
+										)}
+									&lt;/XStack&gt;
+								)}
+
+								{rule.willSkipMonths &amp;&amp; (
+									&lt;Notice variant=&quot;orange&quot; data-qid-recurrence-skip-months-warning&gt;
+										{intl.t(&#x27;input.selectRecurrence.skip-months&#x27;, { count: rule.byMonthDay ?? rule.dtStartDay })}
+									&lt;/Notice&gt;
+								)}
+
+								&lt;XStack spacing=&quot;md&quot; width=&quot;full&quot; className={styles.actions}&gt;
+									&lt;div style={{ flex: 1 }} /&gt;
+									&lt;Button variant=&quot;transparent&quot; data-qid-recurrence-cancel onClick={onCancel}&gt;
+										{intl.t(&#x27;input.selectRecurrence.cancel&#x27;)}
+									&lt;/Button&gt;
+									&lt;Button type=&quot;submit&quot; variant=&quot;blue&quot; data-qid-recurrence-save&gt;
+										{intl.t(&#x27;input.selectRecurrence.apply&#x27;)}
+									&lt;/Button&gt;
+								&lt;/XStack&gt;
+							&lt;/YStack&gt;
+						)}
+					&lt;/Form&gt;
+				&lt;/YStack&gt;
+			&lt;/div&gt;
+		);
+	}
+
+	// Preset list view
+	return (
+		&lt;Menu data-qid-select-recurrence-presets&gt;
+			{presets.map((preset) =&gt; (
+				&lt;Menu.Option
+					key={preset.id}
+					selected={eqRule(value, preset.value)}
+					data-qid-select-recurrence-preset={preset.id}
+					onClick={() =&gt; handleSelectPreset(preset)}
+				&gt;
+					{intl.t(preset.labelKey)}
+				&lt;/Menu.Option&gt;
+			))}
+
+			{allowCustom !== false &amp;&amp; (
+				&lt;&gt;
+					&lt;Divider className={styles.divider} tag=&quot;div&quot; /&gt;
+
+					&lt;Menu.Option
+						selected={isCustomRule}
+						data-qid-select-recurrence-preset=&quot;custom&quot;
+						onClick={handleSwitchToCustom}
+					&gt;
+						{intl.t(&#x27;input.selectRecurrence.presets.custom&#x27;)}
+					&lt;/Menu.Option&gt;
+				&lt;/&gt;
+			)}
+		&lt;/Menu&gt;
+	);
+}
+
+export default SelectRecurrenceBuilder;
+</pre><div class="file-tab">select-recurrence.tsx</div><pre class="language-typescript">import { type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { createDefaultIntl, type IntlLike, RRule } from &#x27;@soxhub/luna-utils/rrule&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type InputManagerOptions, useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { Button, type ButtonVariant } from &#x27;../button/button&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { InputError } from &#x27;../input-error/input-error&#x27;;
+import { type OnCloseSource, Popup, type PopupPlacement } from &#x27;../popup/popup&#x27;;
+import { Spinner } from &#x27;../spinner/spinner&#x27;;
+
+import { SelectRecurrenceBuilder } from &#x27;./builder&#x27;;
+import { type Frequency, type PresetId, PRESETS } from &#x27;./const&#x27;;
+
+import styles from &#x27;./select-recurrence.module.css&#x27;;
+
+export type SelectRecurrenceSize = &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface SelectRecurrenceProps {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** The full recurrence rule string */
+	value: string;
+	/** Called when recurrence changes */
+	onChange: (value: string) =&gt; unknown;
+	/** Called when selection is cancelled */
+	onCancel?: (reason: string) =&gt; void;
+	/** Whether the trigger button appears active */
+	active?: boolean;
+	/** Placeholder text when no value is selected */
+	placeholder?: string;
+	/** Size of the trigger button */
+	size?: SelectRecurrenceSize;
+	/** Visual variant of the trigger button */
+	variant?: ButtonVariant;
+	/** Disable the input */
+	disabled?: boolean;
+	/** Custom ID for the trigger */
+	id?: string;
+	/** Input requirements for validation */
+	requirements?: {
+		required?: boolean;
+	};
+	/** Name for form submission */
+	name?: string;
+	/** Popup placement relative to trigger */
+	placement?: PopupPlacement;
+	/** Minimum frequency to show in options */
+	minFrequency?: Frequency;
+	/** Explicit list of preset IDs to show (overrides minFrequency filtering) */
+	presetIds?: PresetId[];
+	/** Whether to show the custom recurrence option (default: true) */
+	allowCustom?: boolean;
+	/** Only allow selecting a single day for weekly recurrence */
+	singleWeeklyDay?: boolean;
+	/** @deprecated Use form validators instead */
+	serverErrors?: Array&lt;{ message?: string } | string&gt;;
+	/** ARIA label for the trigger */
+	ariaLabel?: string;
+	/** ARIA labelledby reference */
+	ariaLabelledBy?: string;
+	/** ARIA describedby reference */
+	ariaDescribedBy?: string;
+	/** Called after autosave completes */
+	didAutosave?: () =&gt; void;
+	/** Additional CSS class for the wrapper */
+	className?: string;
+	/** Optional custom intl implementation */
+	intl?: IntlLike;
+	/** Custom icon slot */
+	iconSlot?: ReactNode;
+	/** Custom trigger render function */
+	children?: (value: string) =&gt; ReactNode;
+}
+
+let nextInputId = 0;
+
+/**
+ * A component for selecting recurrence patterns.
+ */
+export function SelectRecurrence(props: SelectRecurrenceProps) {
+	const {
+		ref,
+		value,
+		onChange,
+		onCancel,
+		active,
+		placeholder,
+		size = &#x27;md&#x27;,
+		variant = &#x27;white&#x27;,
+		disabled = false,
+		id: providedId,
+		requirements,
+		name,
+		placement = &#x27;bottom&#x27;,
+		minFrequency,
+		presetIds,
+		allowCustom,
+		singleWeeklyDay,
+		serverErrors,
+		ariaLabel,
+		ariaLabelledBy,
+		ariaDescribedBy,
+		didAutosave,
+		className,
+		intl: intlProp,
+		iconSlot,
+		children,
+	} = props;
+	const generatedId = useId();
+	const id = providedId ?? `luna-select-recurrence-${nextInputId++}`;
+	const popupId = `${id}--popup`;
+
+	const formContext = useFormContext();
+	const triggerRef = useRef&lt;HTMLButtonElement&gt;(null);
+	const intl = useMemo(() =&gt; intlProp ?? createDefaultIntl(), [intlProp]);
+
+	// Parse the RRule when value changes
+	const [rule, setRule] = useState(() =&gt; new RRule(value, intl));
+
+	// Track popup visibility
+	const [showPopup, setShowPopup] = useState(false);
+
+	// Track internal selection
+	const [selection, setSelection] = useState&lt;string&gt;(value);
+
+	const valueIsUnchangedRef = useRef(true);
+
+	// Update rule when value prop changes
+	useEffect(() =&gt; {
+		setRule(new RRule(value, intl));
+	}, [value, intl]);
+
+	// Compute presets based on requirements, presetIds, and minFrequency
+	const presets = useMemo(() =&gt; {
+		let filteredPresets = [...PRESETS];
+
+		// Remove &quot;none&quot; option if required
+		if (requirements?.required) {
+			filteredPresets = filteredPresets.filter((p) =&gt; p.id !== &#x27;none&#x27;);
+		}
+
+		// Filter by explicit presetIds (overrides minFrequency)
+		if (presetIds) {
+			filteredPresets = filteredPresets.filter((preset) =&gt; presetIds.includes(preset.id));
+		} else if (minFrequency) {
+			filteredPresets = filteredPresets.filter((preset) =&gt; preset.minFrequency.includes(minFrequency));
+		}
+
+		return filteredPresets;
+	}, [requirements?.required, presetIds, minFrequency]);
+
+	// Input manager for form integration
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		name,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		didAutosave: useCallback(() =&gt; {
+			valueIsUnchangedRef.current = true;
+			didAutosave?.();
+		}, [didAutosave]),
+		ariaDescribedBy: ariaDescribedBy ?? null,
+		value,
+		isDisabled: disabled,
+		requirements,
+		serverErrors,
+		formContext,
+		selectorIsVisible: showPopup,
+	} as InputManagerOptions);
+
+	// Computed
+	const triggerIsActive = active ?? showPopup;
+
+	const formattedSelection = useMemo(() =&gt; {
+		if (!value) return null;
+		return rule.localeRecurrenceString || null;
+	}, [value, rule]);
+
+	// Handlers
+	const handleFocusIn = useCallback(() =&gt; {
+		manager.focusIn();
+	}, [manager]);
+
+	const handleOpen = useCallback(() =&gt; {
+		if (disabled) return;
+		setSelection(value);
+		valueIsUnchangedRef.current = true;
+		setShowPopup(true);
+	}, [disabled, value]);
+
+	const handleWillClose = useCallback(
+		async (source: OnCloseSource, event: unknown) =&gt; {
+			if (source === &#x27;click-outside&#x27; &amp;&amp; event instanceof Event) {
+				const target = (event as MouseEvent).target as HTMLElement | null;
+				if (target?.closest?.(&#x27;[role=&quot;listbox&quot;], [role=&quot;option&quot;], [data-qid-component-type=&quot;Luna::Select&quot;]&#x27;)) {
+					return false;
+				}
+			}
+
+			if (valueIsUnchangedRef.current) {
+				onCancel?.(source);
+				return;
+			}
+
+			await onChange(selection);
+			manager.onChange();
+		},
+		[selection, onCancel, onChange, manager],
+	);
+
+	const handleClose = useCallback(() =&gt; {
+		setShowPopup(false);
+	}, []);
+
+	const handleBuilderChange = useCallback(
+		(newValue: string) =&gt; {
+			valueIsUnchangedRef.current = false;
+			setSelection(newValue);
+			// Close popup and apply change
+			setShowPopup(false);
+			onChange(newValue);
+			manager.setValueIsUnchanged(false);
+			manager.onChange();
+		},
+		[onChange, manager],
+	);
+
+	const handleBuilderCancel = useCallback(() =&gt; {
+		setShowPopup(false);
+	}, []);
+
+	// Get computed aria-labelledby
+	const computedAriaLabelledBy = useMemo(() =&gt; {
+		if (ariaLabelledBy) return ariaLabelledBy;
+		if (!ariaLabel) {
+			return generatedId ? `${generatedId}-label` : undefined;
+		}
+		return undefined;
+	}, [ariaLabelledBy, ariaLabel, generatedId]);
+
+	return (
+		&lt;div
+			ref={ref}
+			className={cn(styles.SelectRecurrence, className)}
+			data-size={size}
+			data-disabled={disabled ? &#x27;true&#x27; : undefined}
+			data-qid-component-type=&quot;Luna::SelectRecurrence&quot;
+			data-focused={manager.inputHasFocus ? &#x27;true&#x27; : undefined}
+			data-errored={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+		&gt;
+			&lt;Button
+				ref={triggerRef}
+				id={id}
+				variant={variant}
+				size={size}
+				width=&quot;full&quot;
+				errored={manager.showErrorMessage}
+				disabled={disabled}
+				active={triggerIsActive}
+				role=&quot;combobox&quot;
+				aria-controls={popupId}
+				aria-expanded={showPopup}
+				aria-owns={popupId}
+				aria-haspopup=&quot;dialog&quot;
+				aria-required={requirements?.required ? &#x27;true&#x27; : &#x27;false&#x27;}
+				aria-label={ariaLabel}
+				aria-labelledby={computedAriaLabelledBy}
+				aria-describedby={manager.ariaDescribedBy}
+				aria-invalid={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+				onFocus={handleFocusIn}
+				onClick={handleOpen}
+			&gt;
+				{iconSlot ? &lt;div className={styles.preIcon}&gt;{iconSlot}&lt;/div&gt; : null}
+
+				&lt;div className={styles.label}&gt;
+					{children
+						? children(value)
+						: (formattedSelection ?? placeholder ?? intl.t(&#x27;input.selectRecurrence.presets.none&#x27;))}
+				&lt;/div&gt;
+
+				{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+					&lt;Spinner size=&quot;sm&quot; transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined} /&gt;
+				)}
+
+				&lt;Icon className={styles.icon} icon=&quot;chevron-down&quot; size=&quot;sm&quot; /&gt;
+			&lt;/Button&gt;
+
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+
+			{showPopup &amp;&amp; (
+				&lt;Popup
+					className={styles.popup}
+					id={popupId}
+					show={showPopup}
+					relativeTo={triggerRef}
+					placement={placement}
+					trapFocus
+					role=&quot;dialog&quot;
+					aria-label={!placeholder &amp;&amp; !value ? intl.t(&#x27;input.selectRecurrence.presets.none&#x27;) : undefined}
+					willClose={handleWillClose}
+					onClose={handleClose}
+				&gt;
+					&lt;SelectRecurrenceBuilder
+						value={value}
+						presets={presets}
+						minFrequency={minFrequency}
+						singleWeeklyDay={singleWeeklyDay}
+						allowCustom={allowCustom}
+						onChange={handleBuilderChange}
+						onCancel={handleBuilderCancel}
+						intl={intl}
+					/&gt;
+				&lt;/Popup&gt;
+			)}
+		&lt;/div&gt;
+	);
+}
+
+export default SelectRecurrence;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="select-multiple.html" class="nav-btn">← select-multiple</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="select-recurrence-start-date.html" class="nav-btn">select-recurrence-start-date →</a>
+  </div>
+</body>
+</html>

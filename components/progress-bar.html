@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>progress-bar — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>progress-bar</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>progress-bar</strong> implementations exist. The Ember version is 126 lines and the React version is 149 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">progress-bar.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { assert } from &#x27;@ember/debug&#x27;;
+import { concat, hash } from &#x27;@ember/helper&#x27;;
+import { htmlSafe } from &#x27;@ember/template&#x27;;
+
+import formatNumber from &#x27;ember-intl/helpers/format-number&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import { eq, not, or } from &#x27;ember-truth-helpers&#x27;;
+
+import tooltip from &#x27;../modifiers/tooltip.ts&#x27;;
+import type { LunaColor } from &#x27;../types.ts&#x27;;
+import { lunaColorVar, setCssVar } from &#x27;../utils/css.ts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+
+export interface ProgressBarSignature {
+	Element: HTMLElement;
+	Args: {
+		value: number;
+		max?: number;
+		label?: string | undefined;
+		showDetails?: &#x27;percent&#x27; | &#x27;count&#x27;;
+		size?: &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+		color?: LunaColor;
+		labelLayout?: &#x27;hidden&#x27; | &#x27;top-left&#x27; | &#x27;top-right&#x27; | &#x27;inline&#x27;;
+		precision?: number;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+// remove when we upgrade to ember-source@5.2, and replace with built-in uniqueId
+let barCount = 0;
+function uniqueId(): string {
+	return `bar-${barCount++}`;
+}
+
+const DEFAULT_LAYOUT: ProgressBarSignature[&#x27;Args&#x27;][&#x27;labelLayout&#x27;] = &#x27;top-left&#x27;;
+const DEFAULT_SIZE: ProgressBarSignature[&#x27;Args&#x27;][&#x27;size&#x27;] = &#x27;sm&#x27;;
+const DEFAULT_MAX = 100;
+
+function argWithDefault&lt;Value&gt;(value: Value, defaultValue: Exclude&lt;Value, undefined | null&gt;) {
+	return value ?? defaultValue;
+}
+
+function percentage(value: number, max: number = DEFAULT_MAX): number {
+	if (max === 0) {
+		return 0;
+	}
+	return Math.min(1, value / max);
+}
+
+function variableForColor(color: LunaColor) {
+	return setCssVar(&#x27;luna-progress-bar-color&#x27;, lunaColorVar(color));
+}
+
+/**
+ * How far along are you? Only the progress bar knows.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/progress-bar.md)
+ */
+export const ProgressBar: TOC&lt;ProgressBarSignature&gt; = &lt;template&gt;
+	{{#let
+		(hash
+			uniqueId=(uniqueId)
+			hiddenLabel=(or (eq @labelLayout &quot;inline&quot;) (eq @labelLayout &quot;hidden&quot;))
+			percentage=(formatNumber (percentage @value @max) style=&quot;percent&quot; minimumFractionDigits=@precision)
+		)
+		as |state|
+	}}
+		&lt;div
+			class=&quot;ProgressBar&quot;
+			data-qid-component-type=&quot;Luna::ProgressBar&quot;
+			data-label-layout={{argWithDefault @labelLayout DEFAULT_LAYOUT}}
+			data-size={{argWithDefault @size DEFAULT_SIZE}}
+			style={{if @color (variableForColor @color)}}
+			...attributes
+			{{tooltip @label disabled=(not (eq @labelLayout &quot;hidden&quot;))}}
+		&gt;
+			{{assert &quot;You must pass a @label arg or use the &lt;:label&gt; block&quot; @label}}
+
+			{{#unless state.hiddenLabel}}
+				&lt;Text
+					data-qid-progress-bar-label
+					id={{state.uniqueId}}
+					class=&quot;label-wrapper&quot;
+					@tag=&quot;label&quot;
+					@weight=&quot;weak&quot;
+					@font=&quot;200&quot;
+					@clamp={{1}}
+				&gt;
+					{{@label}}
+				&lt;/Text&gt;
+			{{/unless}}
+
+			{{#if @showDetails}}
+				&lt;div data-qid-progress-bar-detail class=&quot;detail-wrapper&quot;&gt;
+					&lt;Text @clamp={{1}} @font=&quot;200&quot; @tag=&quot;div&quot; @weight=&quot;weak&quot;&gt;
+						{{#if (eq @showDetails &quot;percent&quot;)}}
+							{{state.percentage}}
+						{{else if (eq @showDetails &quot;count&quot;)}}
+							{{t &quot;progress-bar.details&quot; value=@value max=@max}}
+						{{/if}}
+					&lt;/Text&gt;
+				&lt;/div&gt;
+			{{/if}}
+
+			&lt;div
+				data-qid-progress-bar-bar
+				role=&quot;progressbar&quot;
+				aria-valuemin=&quot;0&quot;
+				aria-valuemax={{@max}}
+				aria-valuenow={{@value}}
+				aria-valuetext={{state.percentage}}
+				aria-labelledby={{unless state.hiddenLabel state.uniqueId false}}
+				aria-label={{if state.hiddenLabel (t &quot;progress-bar.label&quot; label=@label percent=state.percentage)}}
+				class=&quot;progressbar-bg&quot;
+				data-value-percentage={{state.percentage}}
+			&gt;
+				&lt;div class=&quot;progressbar-value&quot; style={{htmlSafe (concat &quot;width:&quot; state.percentage)}}&gt;&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	{{/let}}
+&lt;/template&gt;;
+
+export default ProgressBar;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">progress-bar.tsx</div><pre class="language-typescript">import { useId } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { Text } from &#x27;../text&#x27;;
+
+import styles from &#x27;./progress-bar.module.css&#x27;;
+
+export type ProgressBarSize = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+export type ProgressBarLabelLayout = &#x27;hidden&#x27; | &#x27;top-left&#x27; | &#x27;top-right&#x27; | &#x27;inline&#x27;;
+export type ProgressBarShowDetails = &#x27;percent&#x27; | &#x27;count&#x27;;
+export type LunaColor = string; // TODO: Import from types when available
+
+interface ProgressBarProps extends React.HTMLAttributes&lt;HTMLDivElement&gt; {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Current progress value */
+	value: number;
+	/** Maximum value (default: 100) */
+	max?: number;
+	/** Label text (required) */
+	label: string;
+	/** Show details: &#x27;percent&#x27; or &#x27;count&#x27; */
+	showDetails?: ProgressBarShowDetails;
+	/** Size of the progress bar */
+	size?: ProgressBarSize;
+	/** Color of the progress bar */
+	color?: LunaColor;
+	/** Label layout position */
+	labelLayout?: ProgressBarLabelLayout;
+	/** Number of decimal places for percentage (default: 0) */
+	precision?: number;
+}
+
+const DEFAULT_LAYOUT: ProgressBarLabelLayout = &#x27;top-left&#x27;;
+const DEFAULT_SIZE: ProgressBarSize = &#x27;sm&#x27;;
+const DEFAULT_MAX = 100;
+
+function percentage(value: number, max: number = DEFAULT_MAX): number {
+	if (max === 0) {
+		return 0;
+	}
+	return Math.min(1, value / max);
+}
+
+function formatPercentage(value: number, max: number, precision: number = 0): string {
+	const percent = percentage(value, max);
+	return new Intl.NumberFormat(&#x27;en-US&#x27;, {
+		style: &#x27;percent&#x27;,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	}).format(percent);
+}
+
+function formatCount(value: number, max: number): string {
+	return `${value}/${max}`;
+}
+
+function getColorStyle(color?: LunaColor): React.CSSProperties | undefined {
+	if (!color) {
+		return undefined;
+	}
+	// Convert Luna color format (e.g., &quot;green-300&quot;) to CSS variable
+	// Handle both formats: &quot;green-300&quot; and &quot;gray-a-100&quot;
+	const cssVarName = `--luna-${color}`;
+	return {
+		[`--luna-progress-bar-color`]: `var(${cssVarName})`,
+	} as React.CSSProperties;
+}
+
+/**
+ * How far along are you? Only the progress bar knows.
+ *
+ * Matches the Luna::ProgressBar Ember component API and styling.
+ */
+export function ProgressBar(props: ProgressBarProps) {
+	const {
+		ref,
+		value,
+		max = DEFAULT_MAX,
+		label,
+		showDetails,
+		size = DEFAULT_SIZE,
+		color,
+		labelLayout = DEFAULT_LAYOUT,
+		precision = 0,
+		className,
+		...rest
+	} = props;
+
+	const uniqueId = useId();
+	const hiddenLabel = labelLayout === &#x27;inline&#x27; || labelLayout === &#x27;hidden&#x27;;
+	const percentText = formatPercentage(value, max, precision);
+	const detailText =
+		showDetails === &#x27;percent&#x27; ? percentText : showDetails === &#x27;count&#x27; ? formatCount(value, max) : undefined;
+
+	const progressBarClassName = cn(styles.ProgressBar, className);
+	const colorStyle = getColorStyle(color);
+
+	return (
+		&lt;div
+			ref={ref}
+			className={progressBarClassName}
+			data-qid-component-type=&quot;Luna::ProgressBar&quot;
+			data-label-layout={labelLayout}
+			data-size={size}
+			style={colorStyle}
+			{...rest}
+		&gt;
+			{!hiddenLabel &amp;&amp; (
+				&lt;Text
+					data-qid-progress-bar-label
+					id={uniqueId}
+					className={styles[&#x27;label-wrapper&#x27;]}
+					tag=&quot;label&quot;
+					weight=&quot;weak&quot;
+					font=&quot;200&quot;
+					clamp={1}
+				&gt;
+					{label}
+				&lt;/Text&gt;
+			)}
+
+			{showDetails &amp;&amp; (
+				&lt;div data-qid-progress-bar-detail className={styles[&#x27;detail-wrapper&#x27;]}&gt;
+					&lt;Text clamp={1} font=&quot;200&quot; tag=&quot;div&quot; weight=&quot;weak&quot;&gt;
+						{detailText}
+					&lt;/Text&gt;
+				&lt;/div&gt;
+			)}
+
+			&lt;div
+				data-qid-progress-bar-bar
+				role=&quot;progressbar&quot;
+				aria-valuemin={0}
+				aria-valuemax={max}
+				aria-valuenow={value}
+				aria-valuetext={percentText}
+				aria-labelledby={hiddenLabel ? undefined : uniqueId}
+				aria-label={hiddenLabel ? `${label}: ${percentText}` : undefined}
+				className={styles[&#x27;progressbar-bg&#x27;]}
+				data-value-percentage={percentText}
+			&gt;
+				&lt;div className={styles[&#x27;progressbar-value&#x27;]} style={{ width: percentText }}&gt;&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default ProgressBar;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="portal.html" class="nav-btn">← portal</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="radio-button.html" class="nav-btn">radio-button →</a>
+  </div>
+</body>
+</html>

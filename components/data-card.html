@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>data-card — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>data-card</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>data-card</strong> implementations exist. The Ember version is 136 lines and the React version is 172 lines. The React version is notably larger (172 vs 136 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">data-card.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { htmlSafe } from &#x27;@ember/template&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import type { LunaSize } from &#x27;../types.ts&#x27;;
+import Badge from &#x27;./badge.gts&#x27;;
+import Link from &#x27;./link.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+
+/**
+ * Signature for the KeyValue sub-component yielded within DataCard&#x27;s `:fields` block.
+ * Each KeyValue renders a label/value pair in the card&#x27;s fields row.
+ */
+interface KeyValueSignature {
+	Element: HTMLDivElement;
+	Args: {
+		/** The label identifying a specific data point */
+		key: string;
+		/** The corresponding detail for its associated key */
+		value: string | null | undefined;
+	};
+}
+
+const KeyValue: TOC&lt;KeyValueSignature&gt; = &lt;template&gt;
+	&lt;div class=&quot;DataCard__key-value&quot; role=&quot;listitem&quot; ...attributes&gt;
+		&lt;span class=&quot;DataCard__key&quot; role=&quot;term&quot; data-qid-data-card-key&gt;{{@key}}&lt;/span&gt;
+		&lt;span class=&quot;DataCard__value&quot; role=&quot;definition&quot; data-qid-data-card-value&gt;
+			{{#if @value}}
+				{{@value}}
+			{{else}}
+				&lt;span data-qid-data-card-value-placeholder&gt;
+					&lt;Text @color=&quot;gray-300&quot;&gt;—&lt;/Text&gt;
+				&lt;/span&gt;
+			{{/if}}
+		&lt;/span&gt;
+	&lt;/div&gt;
+&lt;/template&gt;;
+
+/**
+ * Signature for the DataCard component.
+ *
+ * DataCard serves as an entry point to more detailed information,
+ * providing a scannable overview of essential data at a glance.
+ */
+export interface DataCardSignature {
+	Element: HTMLElement;
+	Args: {
+		/** A unique identifier referencing the primary source associated with the card */
+		id?: string;
+		/** The primary headline of the card */
+		title: string;
+		/** When provided, renders the title as a link to this URL */
+		href?: string;
+		/** Supporting text that provides additional context or explanation */
+		description?: string;
+		/** Max width using a Luna size token value (e.g., 64, 80, 96). Omit for fluid width. */
+		width?: LunaSize;
+	};
+	Blocks: {
+		/** A high-level status indicator. Yields a pre-configured `Badge` component */
+		status: [typeof Badge];
+		/** Key/value pairs displayed in a row. Yields a `KeyValue` sub-component */
+		fields: [typeof KeyValue];
+	};
+}
+
+/**
+ * A data card component that provides a scannable overview of essential data.
+ *
+ * @example
+ * ```gts
+ * &lt;DataCard
+ *   @id=&quot;CTRL-001&quot;
+ *   @title=&quot;Control Name&quot;
+ *   @href=&quot;/controls/1&quot;
+ *   @description=&quot;A brief description of the control&quot;
+ * &gt;
+ *   &lt;:status as |Badge|&gt;
+ *     &lt;Badge&gt;Default&lt;/Badge&gt;
+ *   &lt;/:status&gt;
+ *   &lt;:fields as |KeyValue|&gt;
+ *     &lt;KeyValue @key=&quot;Owner&quot; @value=&quot;Jane Doe&quot; /&gt;
+ *     &lt;KeyValue @key=&quot;Due Date&quot; @value=&quot;2026-03-15&quot; /&gt;
+ *   &lt;/:fields&gt;
+ * &lt;/DataCard&gt;
+ * ```
+ */
+export default class DataCard extends Component&lt;DataCardSignature&gt; {
+	/** Computes max-width from a Luna size token when @width is provided */
+	get widthStyle() {
+		const { width } = this.args;
+		if (width !== undefined) {
+			return htmlSafe(`max-width: var(--luna-size-${width})`);
+		}
+		return undefined;
+	}
+
+	&lt;template&gt;
+		&lt;article class=&quot;DataCard&quot; style={{this.widthStyle}} data-qid-component-type=&quot;Luna::DataCard&quot; ...attributes&gt;
+			&lt;div class=&quot;DataCard__header&quot;&gt;
+				{{#if @id}}
+					&lt;div class=&quot;DataCard__id&quot; data-qid-data-card-id&gt;
+						{{@id}}
+					&lt;/div&gt;
+				{{/if}}
+				{{#if (has-block &quot;status&quot;)}}
+					&lt;div class=&quot;DataCard__status&quot; data-qid-data-card-status&gt;
+						{{yield Badge to=&quot;status&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+			&lt;/div&gt;
+
+			&lt;div class=&quot;DataCard__title&quot; data-qid-data-card-title&gt;
+				{{#if @href}}
+					&lt;Link @href={{@href}}&gt;{{@title}}&lt;/Link&gt;
+				{{else}}
+					{{@title}}
+				{{/if}}
+			&lt;/div&gt;
+
+			{{#if @description}}
+				&lt;div class=&quot;DataCard__description&quot; data-qid-data-card-description&gt;
+					{{@description}}
+				&lt;/div&gt;
+			{{/if}}
+
+			{{#if (has-block &quot;fields&quot;)}}
+				&lt;div class=&quot;DataCard__fields&quot; role=&quot;list&quot; data-qid-data-card-fields&gt;
+					{{yield KeyValue to=&quot;fields&quot;}}
+				&lt;/div&gt;
+			{{/if}}
+		&lt;/article&gt;
+	&lt;/template&gt;
+}
+
+export { KeyValue as DataCardKeyValue };
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">data-card.tsx</div><pre class="language-typescript">import { cn } from &#x27;../../utils/cn&#x27;;
+import type { ComponentProps, ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Badge, type BadgeColor } from &#x27;../badge/badge&#x27;;
+import { Frame } from &#x27;../frame/frame&#x27;;
+import { Link } from &#x27;../link/link&#x27;;
+
+import styles from &#x27;./data-card.module.css&#x27;;
+
+// ---------------------------------------------------------------------------
+// DataCardStatus
+// ---------------------------------------------------------------------------
+
+export type DataCardStatusType = &#x27;success&#x27; | &#x27;warning&#x27; | &#x27;error&#x27; | &#x27;info&#x27; | &#x27;neutral&#x27;;
+
+const STATUS_COLORS: Record&lt;DataCardStatusType, BadgeColor&gt; = {
+	success: &#x27;green&#x27;,
+	warning: &#x27;orange&#x27;,
+	error: &#x27;red&#x27;,
+	info: &#x27;blue&#x27;,
+	neutral: &#x27;gray&#x27;,
+};
+
+export interface DataCardStatusOwnProps {
+	/** Semantic status type that maps to a Badge color. */
+	type: DataCardStatusType;
+	/** Text displayed inside the Badge. */
+	label: string;
+}
+
+export type DataCardStatusProps = ComponentProps&lt;DataCardStatusOwnProps, HTMLSpanElement&gt;;
+
+/**
+ * Status badge rendered inside a DataCard header.
+ */
+export function DataCardStatus({ type, label, className }: DataCardStatusProps) {
+	const color: BadgeColor = STATUS_COLORS[type] ?? &#x27;gray&#x27;;
+
+	return (
+		&lt;Badge color={color} size=&quot;md&quot; weight=&quot;weak&quot; className={className} data-qid-component-type=&quot;Luna::DataCard::Status&quot;&gt;
+			{label}
+		&lt;/Badge&gt;
+	);
+}
+
+// ---------------------------------------------------------------------------
+// DataCardKeyValue
+// ---------------------------------------------------------------------------
+
+export interface DataCardKeyValueOwnProps {
+	/** Label identifying the data point. */
+	dataKey: string;
+	/** Value content. */
+	children?: React.ReactNode;
+}
+
+export type DataCardKeyValueProps = ComponentProps&lt;DataCardKeyValueOwnProps, HTMLDivElement&gt;;
+
+/**
+ * Renders a key/value pair inside a DataCard&#x27;s `data` section.
+ */
+export function DataCardKeyValue({ dataKey, children, className, ...rest }: DataCardKeyValueProps) {
+	return (
+		&lt;div
+			className={cn(styles[&#x27;DataCard__keyValue&#x27;], className)}
+			data-qid-component-type=&quot;Luna::DataCard::KeyValue&quot;
+			{...rest}
+		&gt;
+			&lt;dt className={styles.DataCard__key} data-qid-data-card-key&gt;
+				{dataKey}
+			&lt;/dt&gt;
+			&lt;dd className={styles.DataCard__value} data-qid-data-card-value&gt;
+				{children != null ? (
+					children
+				) : (
+					&lt;span className={styles.DataCard__valuePlaceholder} data-qid-data-card-value-placeholder&gt;
+						—
+					&lt;/span&gt;
+				)}
+			&lt;/dd&gt;
+		&lt;/div&gt;
+	);
+}
+
+// ---------------------------------------------------------------------------
+// DataCard
+// ---------------------------------------------------------------------------
+
+type LunaSize = string;
+
+interface DataCardOwnProps {
+	/** Unique identifier referencing the primary source (e.g., &quot;RISK-42&quot;). */
+	id?: string;
+	/** Primary headline of the card. */
+	title?: string;
+	/** When provided, the title renders as a link to this URL. */
+	titleHref?: string;
+	/** Supporting text providing additional context. */
+	description?: string;
+	/** Optional fixed width using a Luna size token value (e.g., &quot;96&quot;, &quot;80&quot;). Omit for fluid (100%) width. */
+	width?: LunaSize;
+	/** Status badge slot. */
+	status?: React.ReactNode;
+	/** Key-value data section content. Use `&lt;DataCard.KeyValue&gt;` here. */
+	data?: React.ReactNode;
+	/** Children content */
+	children?: React.ReactNode;
+}
+
+export type DataCardProps = ComponentPropsWithRef&lt;DataCardOwnProps, HTMLDivElement&gt;;
+
+/**
+ * A container that displays information on a single topic into a concise,
+ * scannable snapshot, providing a quick overview of key content.
+ */
+export function DataCard(props: DataCardProps) {
+	const { ref, id: cardId, title, titleHref, description, width, status, data, children, className, ...rest } = props;
+
+	const hasHeader = status != null || cardId != null;
+
+	return (
+		&lt;Frame
+			ref={ref}
+			border
+			radius=&quot;md&quot;
+			padding=&quot;xl&quot;
+			className={cn(styles.DataCard, width &amp;&amp; styles[&#x27;DataCard--sized&#x27;], className)}
+			{...(width ? { style: { &#x27;--data-card-max-width&#x27;: `var(--luna-size-${width})` } as React.CSSProperties } : {})}
+			data-qid-component-type=&quot;Luna::DataCard&quot;
+			{...rest}
+		&gt;
+			{hasHeader &amp;&amp; (
+				&lt;div className={styles.DataCard__header}&gt;
+					{cardId != null &amp;&amp; (
+						&lt;span className={styles.DataCard__id} data-qid-data-card-id&gt;
+							{cardId}
+						&lt;/span&gt;
+					)}
+					{status != null &amp;&amp; (
+						&lt;div className={styles.DataCard__status} data-qid-data-card-status&gt;
+							{status}
+						&lt;/div&gt;
+					)}
+				&lt;/div&gt;
+			)}
+
+			{title != null &amp;&amp; (
+				&lt;div className={styles.DataCard__title} data-qid-data-card-title&gt;
+					{titleHref ? &lt;Link href={titleHref}&gt;{title}&lt;/Link&gt; : title}
+				&lt;/div&gt;
+			)}
+
+			{description != null &amp;&amp; (
+				&lt;p className={styles.DataCard__description} data-qid-data-card-description&gt;
+					{description}
+				&lt;/p&gt;
+			)}
+
+			{data != null &amp;&amp; (
+				&lt;dl className={styles.DataCard__data} data-qid-data-card-fields&gt;
+					{data}
+				&lt;/dl&gt;
+			)}
+
+			{children}
+		&lt;/Frame&gt;
+	);
+}
+
+DataCard.Status = DataCardStatus;
+DataCard.KeyValue = DataCardKeyValue;
+
+export default DataCard;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="code.html" class="nav-btn">← code</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="definition-list.html" class="nav-btn">definition-list →</a>
+  </div>
+</body>
+</html>

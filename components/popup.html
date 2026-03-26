@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>popup — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>popup</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>popup</strong> implementations exist. The Ember version is 268 lines and the React version is 349 lines. The React version is notably larger (349 vs 268 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">popup.gts</div><pre class="language-typescript">import { isTesting, macroCondition } from &#x27;@embroider/macros&#x27;;
+import type { Middleware, Placement, Strategy } from &#x27;@floating-ui/dom&#x27;;
+import { offset, size } from &#x27;@floating-ui/dom&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { hash } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import type { Task } from &#x27;ember-concurrency&#x27;;
+import { task, timeout } from &#x27;ember-concurrency&#x27;;
+import perform from &#x27;ember-concurrency/helpers/perform&#x27;;
+import { modifier } from &#x27;ember-modifier&#x27;;
+import { consume, provide } from &#x27;ember-provide-consume-context&#x27;;
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import a11yTrapFocus from &#x27;../modifiers/a11y-trap-focus.ts&#x27;;
+import onClickOutside from &#x27;../modifiers/on-click-outside.ts&#x27;;
+import tetherTo from &#x27;../modifiers/tether-to.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import Announcer from &#x27;./setup/announcer.gts&#x27;;
+
+export type OnCloseSource = &#x27;esc&#x27; | &#x27;enter&#x27; | &#x27;click-outside&#x27; | &#x27;manual&#x27;;
+
+export interface LunaPopupBlockValue {
+	/**
+	 * Task that closes the popup.
+	 *
+	 * `source` is a string that describes the source of the close request, defaults to &#x27;manual&#x27;.
+	 * `event` is the DOM event that triggered the close request, if any.
+	 */
+	closeTask: Task&lt;void, [source?: string, event?: Event]&gt;;
+
+	/**
+	 * ID of the content element. Useful for referencing the popup from a nested component,
+	 * such as when the OptionList checks whether the popup is focused when determining
+	 * how the Enter key should function.
+	 */
+	id?: string;
+}
+
+export interface LunaPopupSignature {
+	Element: HTMLDivElement;
+	Args: {
+		id?: string;
+		variant?: &#x27;light&#x27; | &#x27;dark&#x27; | &#x27;editable-value--schema-table-cell&#x27; | &#x27;editable-value&#x27;;
+		relativeTo?: Element | string;
+		placement?: Placement | &#x27;overlay&#x27;;
+		strategy?: Strategy;
+		trapFocus?: boolean;
+		enableArrow?: boolean;
+		spacing?: number;
+		xSpacing?: number;
+		ySpacing?: number;
+		show?: boolean;
+		disableAnimation?: boolean;
+		excludeAnnouncer?: boolean;
+		willClose?: (source: OnCloseSource, event: unknown) =&gt; Promise&lt;unknown&gt; | Promise&lt;boolean&gt; | void | boolean;
+		onClose?: (source: OnCloseSource, event: unknown) =&gt; void;
+		inheritFieldContext?: boolean;
+	};
+	Blocks: {
+		default: [LunaPopupBlockValue];
+	};
+}
+
+/**
+ * Shows a popup positioned relative to another element. The popup closes if the user presses ESC or clicks outside of it.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/popup.md)
+ */
+export default class Popup extends Component&lt;LunaPopupSignature&gt; {
+	@tracked isClosing = false;
+
+	/**
+	 * The arrow element, if it exists. Registered on render and
+	 * passed to the `tether-to` modifier for positioning.
+	 */
+	@tracked arrowElement: HTMLElement | null = null;
+
+	@consume(&#x27;luna-input-id&#x27;) upstreamLunaId!: string;
+
+	@provide(&#x27;luna-input-id&#x27;)
+	get lunaInputId(): string | undefined {
+		if (this.args.inheritFieldContext) {
+			return this.upstreamLunaId;
+		}
+	}
+
+	@provide(&#x27;luna-form&#x27;)
+	get() {
+		return null;
+	}
+
+	get middleware() {
+		const middleware: Middleware[] = [];
+
+		middleware.push(
+			// https://floating-ui.com/docs/offset#creating-custom-placements
+			offset(({ rects }) =&gt; {
+				if (this.args.placement === &#x27;overlay&#x27;) {
+					return -rects.reference.height / 2 - rects.floating.height / 2;
+				}
+
+				return {
+					mainAxis: this.ySpacing,
+					crossAxis: this.xSpacing,
+				};
+			}),
+		);
+
+		const sizeMiddleware = size({
+			apply: ({ rects, elements, availableHeight }) =&gt; {
+				if (this.args.placement === &#x27;overlay&#x27;) {
+					Object.assign(elements.floating.style, {
+						minWidth: `${rects.reference.width}px`,
+						height: `${rects.reference.height}px`,
+					});
+				}
+
+				/**
+				 * If there&#x27;s still not enough space after the shift, space, set a max-height
+				 * on the popup to prevent it from being cropped by the viewport.
+				 */
+				if (availableHeight &lt; rects.floating.height) {
+					Object.assign(elements.floating.style, {
+						maxHeight: `${availableHeight}px`,
+					});
+
+					/**
+					 * Also set a CSS variable so that components inside the popup
+					 * can optionally reference to adjust their height accordingly.
+					 * Minus 5px to give some visual breathing room for shadows, borders, etc.
+					 *
+					 * We do not set this in tests to avoid flakiness due to varying viewport sizes in test environments.
+					 *
+					 * You must use `var(--luna-popup-max-height, &lt;defaultValue&gt;)` in your child&#x27;s CSS to take advantage of this.
+					 */
+					if (!macroCondition(isTesting())) {
+						elements.floating.style.setProperty(&#x27;--luna-popup-max-height&#x27;, `${availableHeight - 5}px`);
+					}
+				}
+			},
+		});
+
+		middleware.push(sizeMiddleware);
+
+		return middleware;
+	}
+
+	get xSpacing() {
+		if (typeof this.args.xSpacing === &#x27;number&#x27;) {
+			return this.args.xSpacing;
+		}
+
+		return 0;
+	}
+
+	get ySpacing() {
+		if (typeof this.args.ySpacing === &#x27;number&#x27;) {
+			return this.args.ySpacing;
+		}
+
+		return this.args.enableArrow ? 8 : 2;
+	}
+
+	get popupContainer() {
+		const element = document.getElementById(&#x27;luna-popups&#x27;);
+		assert(&#x27;Expected to have #luna-popups&#x27;, element);
+		return element;
+	}
+
+	get placement(): Placement {
+		if (this.args.placement === &#x27;overlay&#x27;) {
+			return &#x27;bottom&#x27;;
+		}
+		return this.args.placement ?? &#x27;bottom&#x27;;
+	}
+
+	get strategy(): Strategy {
+		return this.args.strategy ?? &#x27;absolute&#x27;;
+	}
+
+	get animation() {
+		if (this.args.disableAnimation) {
+			return null;
+		}
+		return this.isClosing ? &#x27;out&#x27; : &#x27;in&#x27;;
+	}
+
+	closeTask = task(
+		{ drop: true },
+		async (
+			/** What caused the closeTask to be called */
+			// We actually need to declare the types here for TS to figure it out.
+			source: OnCloseSource = &#x27;manual&#x27;,
+			/** Event that triggered it */
+			event?: Event,
+		) =&gt; {
+			this.isClosing = (await this.args.willClose?.(source, event)) !== false;
+			if (this.isClosing) {
+				await timeout(isTesting() ? 0 : 100);
+				this.args.onClose?.(source, event);
+				this.isClosing = false;
+			}
+		},
+	);
+
+	registerArrowElement = modifier((element: HTMLElement) =&gt; {
+		this.arrowElement = element;
+	});
+
+	@action
+	async onKeyUp(event: KeyboardEvent) {
+		if (event.key === KEYBOARD_KEYS.ESC) {
+			event.stopPropagation();
+			await this.closeTask.perform(&#x27;esc&#x27;, event);
+		}
+	}
+	&lt;template&gt;
+		{{#if @show}}
+			{{#in-element this.popupContainer insertBefore=null}}
+				&lt;div
+					class=&quot;Popup&quot;
+					data-variant={{or @variant &quot;light&quot;}}
+					data-qid-component-type=&quot;Luna::Popup&quot;
+					data-animation-disabled={{toString0 (or @disableAnimation false)}}
+					data-test-popup
+					{{tetherTo
+						@relativeTo
+						placement=this.placement
+						strategy=this.strategy
+						middleware=this.middleware
+						arrowElement=this.arrowElement
+					}}
+					{{onClickOutside (perform this.closeTask &quot;click-outside&quot;) disabled=(not @onClose)}}
+				&gt;
+					{{#unless @excludeAnnouncer}}
+						&lt;Announcer /&gt;
+					{{/unless}}
+					{{! template-lint-disable no-invalid-interactive }}
+					&lt;div
+						class=&quot;content&quot;
+						id={{@id}}
+						data-animate={{this.animation}}
+						{{on &quot;keyup&quot; this.onKeyUp}}
+						{{a11yTrapFocus disabled=(not @trapFocus)}}
+					&gt;
+						{{#if @enableArrow}}
+							&lt;div {{this.registerArrowElement}} class=&quot;arrow-wrapper&quot;&gt;
+								&lt;div class=&quot;arrow&quot;&gt;&lt;/div&gt;
+							&lt;/div&gt;
+
+						{{/if}}
+
+						&lt;div class=&quot;overflow&quot; ...attributes&gt;
+							{{yield (hash id=@id closeTask=this.closeTask)}}
+						&lt;/div&gt;
+					&lt;/div&gt;
+				&lt;/div&gt;
+			{{/in-element}}
+		{{/if}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">popup.tsx</div><pre class="language-typescript">import {
+	createContext,
+	type MutableRefObject,
+	type ReactNode,
+	type Ref,
+	type RefObject,
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useRef,
+} from &#x27;react&#x27;;
+
+import { Popover } from &#x27;@base-ui-components/react/popover&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./popup.module.css&#x27;;
+
+export type PopupVariant = &#x27;light&#x27; | &#x27;dark&#x27; | &#x27;editable-value&#x27; | &#x27;editable-value--schema-table-cell&#x27;;
+export type PopupPlacement =
+	| &#x27;top&#x27;
+	| &#x27;top-start&#x27;
+	| &#x27;top-end&#x27;
+	| &#x27;bottom&#x27;
+	| &#x27;bottom-start&#x27;
+	| &#x27;bottom-end&#x27;
+	| &#x27;left&#x27;
+	| &#x27;left-start&#x27;
+	| &#x27;left-end&#x27;
+	| &#x27;right&#x27;
+	| &#x27;right-start&#x27;
+	| &#x27;right-end&#x27;
+	| &#x27;overlay&#x27;;
+export type PopupStrategy = &#x27;absolute&#x27; | &#x27;fixed&#x27;;
+export type OnCloseSource = &#x27;esc&#x27; | &#x27;enter&#x27; | &#x27;click-outside&#x27; | &#x27;manual&#x27;;
+
+/**
+ * Context value provided by Popup to its children
+ */
+export interface PopupContextValue {
+	/** Close the popup */
+	close: (source?: OnCloseSource, event?: Event) =&gt; Promise&lt;void&gt;;
+	/** ID of the popup content element */
+	id?: string;
+}
+
+const PopupContext = createContext&lt;PopupContextValue | null&gt;(null);
+
+/**
+ * Hook to access the popup context from within the popup
+ */
+export function usePopupContext(): PopupContextValue | null {
+	return useContext(PopupContext);
+}
+
+export interface PopupProps {
+	/** Forwarded ref to the popup element */
+	&#x27;ref&#x27;?: Ref&lt;HTMLDivElement&gt;;
+	/** Unique identifier for the popup content */
+	&#x27;id&#x27;?: string;
+	/** Visual variant of the popup */
+	&#x27;variant&#x27;?: PopupVariant;
+	/** Element or selector to position the popup relative to */
+	&#x27;relativeTo&#x27;?: Element | string | RefObject&lt;Element | null&gt;;
+	/** Where to place the popup relative to the anchor. &quot;overlay&quot; positions popup directly over the anchor */
+	&#x27;placement&#x27;?: PopupPlacement;
+	/** CSS positioning strategy */
+	&#x27;strategy&#x27;?: PopupStrategy;
+	/** Whether to trap focus within the popup */
+	&#x27;trapFocus&#x27;?: boolean;
+	/** Whether to show an arrow pointing to the anchor */
+	&#x27;enableArrow&#x27;?: boolean;
+	/** Space between anchor and popup (deprecated, use ySpacing) */
+	&#x27;spacing&#x27;?: number;
+	/** Horizontal offset from anchor */
+	&#x27;xSpacing&#x27;?: number;
+	/** Vertical offset from anchor */
+	&#x27;ySpacing&#x27;?: number;
+	/** Whether the popup is visible */
+	&#x27;show&#x27;?: boolean;
+	/** Disable open/close animations */
+	&#x27;disableAnimation&#x27;?: boolean;
+	/** Called before popup closes. Return false or resolve to false to prevent closing */
+	&#x27;willClose&#x27;?: (source: OnCloseSource, event: unknown) =&gt; Promise&lt;unknown&gt; | Promise&lt;boolean&gt; | void | boolean;
+	/** Called when popup is closed */
+	&#x27;onClose&#x27;?: (source: OnCloseSource, event: unknown) =&gt; void;
+	/** Whether to inherit field context from parent */
+	&#x27;inheritFieldContext&#x27;?: boolean;
+	/** Allow content to overflow (e.g., for focus rings that extend beyond bounds) */
+	&#x27;allowOverflow&#x27;?: boolean;
+	/**
+	 * CSS selector to focus when the popup opens. When `trapFocus` is true,
+	 * the first element matching this selector will be focused when the popup opens.
+	 */
+	&#x27;initialFocusSelector&#x27;?: string;
+	/** Popup content - use usePopupContext() hook to access close function and popup id */
+	&#x27;children&#x27;?: ReactNode;
+	/** Additional class name */
+	&#x27;className&#x27;?: string;
+	/** ARIA role for the popup container */
+	&#x27;role&#x27;?: string;
+	/** Data attributes */
+	&#x27;data-qid-component-type&#x27;?: string;
+	&#x27;data-testid&#x27;?: string;
+}
+
+/**
+ * Shows a popup positioned relative to another element.
+ * The popup closes if the user presses ESC or clicks outside of it.
+ */
+export function Popup({
+	ref,
+	id: providedId,
+	variant = &#x27;light&#x27;,
+	relativeTo,
+	placement = &#x27;bottom&#x27;,
+	strategy = &#x27;absolute&#x27;,
+	trapFocus = false,
+	enableArrow = false,
+	spacing,
+	xSpacing = 0,
+	ySpacing,
+	show = false,
+	disableAnimation = false,
+	willClose,
+	onClose,
+	allowOverflow = false,
+	initialFocusSelector,
+	children,
+	className,
+	...props
+}: PopupProps) {
+	const generatedId = useId();
+	const id = providedId ?? generatedId;
+	const isClosingRef = useRef(false);
+
+	// Calculate ySpacing with defaults
+	const effectiveYSpacing = ySpacing ?? spacing ?? (enableArrow ? 8 : 2);
+
+	// Resolve the anchor - can be an Element, a CSS selector string, or a ref
+	const getAnchor = useCallback((): Element | null =&gt; {
+		if (!relativeTo) return null;
+
+		if (typeof relativeTo === &#x27;string&#x27;) {
+			return document.querySelector(relativeTo);
+		}
+
+		if (&#x27;current&#x27; in relativeTo) {
+			return relativeTo.current;
+		}
+
+		return relativeTo;
+	}, [relativeTo]);
+
+	// Handle close with willClose callback
+	const handleClose = useCallback(
+		async (source: OnCloseSource = &#x27;manual&#x27;, event?: Event) =&gt; {
+			if (isClosingRef.current) return;
+
+			const shouldClose = await willClose?.(source, event);
+			if (shouldClose === false) return;
+
+			isClosingRef.current = true;
+
+			// Small delay for animation (in production)
+			await new Promise((resolve) =&gt; setTimeout(resolve, disableAnimation ? 0 : 100));
+
+			onClose?.(source, event);
+			isClosingRef.current = false;
+		},
+		[willClose, onClose, disableAnimation],
+	);
+
+	// Handle open state changes from Base UI
+	const handleOpenChange = useCallback(
+		(open: boolean, eventDetails: Popover.Root.ChangeEventDetails) =&gt; {
+			if (!open) {
+				// Determine the source of the close
+				const details = eventDetails as unknown as { reason?: string; event?: Event };
+				if (details.reason === &#x27;escape-key&#x27;) {
+					handleClose(&#x27;esc&#x27;, details.event);
+				} else {
+					handleClose(&#x27;click-outside&#x27;, details.event);
+				}
+			}
+		},
+		[handleClose],
+	);
+
+	// Convert placement to Base UI side
+	const getSide = (): &#x27;top&#x27; | &#x27;bottom&#x27; | &#x27;left&#x27; | &#x27;right&#x27; =&gt; {
+		if (placement === &#x27;overlay&#x27;) return &#x27;bottom&#x27;;
+		const side = placement.split(&#x27;-&#x27;)[0] as &#x27;top&#x27; | &#x27;bottom&#x27; | &#x27;left&#x27; | &#x27;right&#x27;;
+		return side;
+	};
+
+	// Convert placement to Base UI align
+	const getAlign = (): &#x27;start&#x27; | &#x27;center&#x27; | &#x27;end&#x27; =&gt; {
+		if (placement === &#x27;overlay&#x27;) return &#x27;center&#x27;;
+		const parts = placement.split(&#x27;-&#x27;);
+		if (parts.length &gt; 1) {
+			return parts[1] as &#x27;start&#x27; | &#x27;end&#x27;;
+		}
+		return &#x27;center&#x27;;
+	};
+
+	const contextValue: PopupContextValue = {
+		close: handleClose,
+		id,
+	};
+
+	// Ref for the popup element to query within
+	const popupRef = useRef&lt;HTMLDivElement&gt;(null);
+
+	// Merge refs for the popup element
+	const setPopupRef = useCallback(
+		(element: HTMLDivElement | null) =&gt; {
+			popupRef.current = element;
+			if (typeof ref === &#x27;function&#x27;) {
+				ref(element);
+			} else if (ref) {
+				(ref as MutableRefObject&lt;HTMLDivElement | null&gt;).current = element;
+			}
+		},
+		[ref],
+	);
+
+	// Convert selector to function for Base UI&#x27;s initialFocus prop
+	const initialFocus = initialFocusSelector
+		? () =&gt; popupRef.current?.querySelector&lt;HTMLElement&gt;(initialFocusSelector) ?? null
+		: undefined;
+
+	// Viewport-aware resizing: mirrors Ember implementation
+	// Sets max-height and CSS variable when popup would overflow viewport
+	useEffect(() =&gt; {
+		if (!show || !popupRef.current) return;
+
+		const popupElement = popupRef.current;
+		let rafId: number | null = null;
+
+		const checkAndApplyConstraints = () =&gt; {
+			const rect = popupElement.getBoundingClientRect();
+			const viewportHeight = window.innerHeight;
+			const availableHeight = viewportHeight - rect.top;
+
+			// Handle overlay mode sizing
+			if (placement === &#x27;overlay&#x27; &amp;&amp; relativeTo) {
+				const anchor =
+					typeof relativeTo === &#x27;string&#x27;
+						? document.querySelector(relativeTo)
+						: &#x27;current&#x27; in relativeTo
+							? relativeTo.current
+							: relativeTo;
+
+				if (anchor) {
+					const anchorRect = anchor.getBoundingClientRect();
+					popupElement.style.minWidth = `${anchorRect.width}px`;
+					popupElement.style.height = `${anchorRect.height}px`;
+				}
+			}
+
+			// Viewport-aware max-height (matches Ember behavior)
+			if (availableHeight &lt; rect.height) {
+				popupElement.style.maxHeight = `${availableHeight}px`;
+
+				// Set CSS variable for children to reference (skip in tests)
+				// Subtract 5px for visual breathing room (shadows, borders, etc.)
+				if (typeof import.meta === &#x27;undefined&#x27; || (import.meta as { env?: { MODE?: string } }).env?.MODE !== &#x27;test&#x27;) {
+					popupElement.style.setProperty(&#x27;--luna-popup-max-height&#x27;, `${availableHeight - 5}px`);
+				}
+			} else {
+				// Clear constraints when not needed
+				popupElement.style.maxHeight = &#x27;&#x27;;
+				popupElement.style.removeProperty(&#x27;--luna-popup-max-height&#x27;);
+			}
+		};
+
+		const scheduleCheckAndApplyConstraints = () =&gt; {
+			if (rafId !== null) return;
+			rafId = window.requestAnimationFrame(() =&gt; {
+				rafId = null;
+				checkAndApplyConstraints();
+			});
+		};
+
+		// Check constraints initially and on resize
+		checkAndApplyConstraints();
+
+		const resizeObserver = new ResizeObserver(scheduleCheckAndApplyConstraints);
+		resizeObserver.observe(popupElement);
+
+		// Also listen for viewport resize
+		window.addEventListener(&#x27;resize&#x27;, scheduleCheckAndApplyConstraints);
+
+		return () =&gt; {
+			resizeObserver.disconnect();
+			window.removeEventListener(&#x27;resize&#x27;, scheduleCheckAndApplyConstraints);
+			if (rafId !== null) {
+				window.cancelAnimationFrame(rafId);
+				rafId = null;
+			}
+			// Clean up styles
+			if (popupElement) {
+				popupElement.style.maxHeight = &#x27;&#x27;;
+				popupElement.style.minWidth = &#x27;&#x27;;
+				popupElement.style.height = &#x27;&#x27;;
+				popupElement.style.removeProperty(&#x27;--luna-popup-max-height&#x27;);
+			}
+		};
+	}, [show, placement, relativeTo]);
+
+	return (
+		&lt;Popover.Root open={show} onOpenChange={handleOpenChange} modal={trapFocus ? &#x27;trap-focus&#x27; : false}&gt;
+			&lt;Popover.Portal&gt;
+				&lt;Popover.Positioner
+					side={getSide()}
+					sideOffset={effectiveYSpacing}
+					alignOffset={xSpacing}
+					align={getAlign()}
+					anchor={getAnchor}
+					positionMethod={strategy}
+					className={styles.positioner}
+				&gt;
+					&lt;Popover.Popup
+						ref={setPopupRef}
+						initialFocus={initialFocus}
+						className={cn(styles.popup, className)}
+						data-variant={variant}
+						data-qid-component-type=&quot;Luna::Popup&quot;
+						data-animation-disabled={disableAnimation ? &#x27;true&#x27; : undefined}
+						{...props}
+					&gt;
+						{enableArrow &amp;&amp; (
+							&lt;Popover.Arrow className={styles.arrowWrapper}&gt;
+								&lt;div className={styles.arrow} /&gt;
+							&lt;/Popover.Arrow&gt;
+						)}
+						&lt;PopupContext.Provider value={contextValue}&gt;
+							&lt;div className={allowOverflow ? undefined : styles.overflow}&gt;{children}&lt;/div&gt;
+						&lt;/PopupContext.Provider&gt;
+					&lt;/Popover.Popup&gt;
+				&lt;/Popover.Positioner&gt;
+			&lt;/Popover.Portal&gt;
+		&lt;/Popover.Root&gt;
+	);
+}
+
+export default Popup;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="option-heading.html" class="nav-btn">← option-heading</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="portal.html" class="nav-btn">portal →</a>
+  </div>
+</body>
+</html>

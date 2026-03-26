@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>field — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>field</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>field</strong> implementations exist. The Ember version is 125 lines and the React version is 187 lines. The React version is notably larger (187 vs 125 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">field.gts</div><pre class="language-typescript">import { hash } from &#x27;@ember/helper&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { t } from &#x27;ember-intl&#x27;;
+import { eq, or } from &#x27;ember-truth-helpers&#x27;;
+
+import Label from &#x27;./label.gts&#x27;;
+import FieldContextProvider from &#x27;./legacy-compat-this-should-be-luna-field.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+
+export interface LunaFieldSignature {
+	Element: HTMLDivElement;
+	Args: {
+		variant?: &#x27;vertical&#x27; | &#x27;horizontal&#x27;;
+		level?: 1 | 2;
+		checkbox?: boolean;
+		required?: boolean;
+		id?: string;
+	};
+	Blocks: {
+		&#x27;prefix&#x27;?: [];
+		&#x27;label&#x27;: [inputId: string];
+		&#x27;action&#x27;: [];
+		&#x27;label-decoration&#x27;?: [];
+		&#x27;description&#x27;?: [];
+		&#x27;input&#x27;: [
+			{
+				id: string;
+			},
+		];
+	};
+}
+
+// Generate a label ID for a given input ID (used for aria-labelledby on Select)
+export const labelIdForField = (inputId: string) =&gt; `${inputId}-label`;
+
+/**
+ * Combines a label and an input together in different layouts.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/field.md)
+ */
+export default class LunaField extends Component&lt;LunaFieldSignature&gt; {
+	get checkbox() {
+		return String(this.args.checkbox ?? false);
+	}
+
+	&lt;template&gt;
+		&lt;FieldContextProvider @id={{@id}} as |field|&gt;
+			&lt;div
+				class=&quot;Field&quot;
+				data-qid-component-type=&quot;Luna::Field&quot;
+				data-variant={{or @variant &quot;vertical&quot;}}
+				data-checkbox={{this.checkbox}}
+				...attributes
+			&gt;
+
+				{{! Checkbox fields have a different layout }}
+				{{#if @checkbox}}
+					{{#if (eq @variant &quot;horizontal&quot;)}}
+						&lt;div&gt;&lt;/div&gt;
+					{{/if}}
+
+					&lt;div&gt;
+						&lt;div class=&quot;checkbox-input&quot;&gt;
+							{{~yield to=&quot;prefix&quot;~}}
+							{{~yield (hash id=field.inputId) to=&quot;input&quot;~}}
+							{{~#if @required~}}
+								&lt;Text @color=&quot;red-500&quot; @font=&quot;200&quot; aria-label={{t &quot;input.required&quot;}}&gt;*&lt;/Text&gt;
+							{{~/if~}}
+							{{yield to=&quot;label-decoration&quot;}}
+						&lt;/div&gt;
+
+						{{#if (has-block &quot;description&quot;)}}
+							&lt;div class=&quot;description&quot;&gt;
+								{{yield to=&quot;description&quot;}}
+							&lt;/div&gt;
+						{{/if}}
+					&lt;/div&gt;
+
+				{{else}}
+					{{#if (or (has-block &quot;label&quot;) (has-block &quot;label-decoration&quot;) (has-block &quot;action&quot;))}}
+						&lt;div class=&quot;label-layout&quot;&gt;
+							{{#if (or (has-block &quot;label&quot;) (has-block &quot;label-decoration&quot;))}}
+								&lt;div class=&quot;label-start&quot;&gt;
+									&lt;Label
+										@for={{field.inputId}}
+										@variant={{if (eq @variant &quot;horizontal&quot;) &quot;light&quot; &quot;default&quot;}}
+										@level={{@level}}
+										class=&quot;label&quot;
+										id={{field.labelId}}
+									&gt;
+										{{~yield to=&quot;prefix&quot;~}}
+										{{~yield field.inputId to=&quot;label&quot;~}}
+										{{~#if @required~}}
+											&lt;Text class=&quot;asterisk&quot; @color=&quot;red-500&quot; @font=&quot;200&quot;&gt;*&lt;/Text&gt;
+										{{~/if~}}
+
+									&lt;/Label&gt;
+									{{yield to=&quot;label-decoration&quot;}}
+								&lt;/div&gt;
+							{{else}}
+								&lt;div&gt;&lt;/div&gt;
+							{{/if}}
+							&lt;div class=&quot;action&quot;&gt;
+								{{yield to=&quot;action&quot;}}
+							&lt;/div&gt;
+						&lt;/div&gt;
+					{{/if}}
+
+					&lt;div&gt;
+						&lt;div&gt;
+							{{yield (hash id=field.inputId) to=&quot;input&quot;}}
+						&lt;/div&gt;
+
+						{{#if (has-block &quot;description&quot;)}}
+							&lt;div class=&quot;description&quot;&gt;
+								{{yield to=&quot;description&quot;}}
+							&lt;/div&gt;
+						{{/if}}
+					&lt;/div&gt;
+				{{/if}}
+			&lt;/div&gt;
+		&lt;/FieldContextProvider&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">field-context.tsx</div><pre class="language-typescript">import { createContext, useContext } from &#x27;react&#x27;;
+
+/**
+ * Value provided by Field to its descendants so that Label and form controls
+ * (Input, Select, Checkbox, etc.) can share a single input id and label id
+ * without prop drilling. Matches the Ember luna-core pattern where Field
+ * provides &#x27;luna-input-id&#x27; and controls consume it.
+ */
+export interface FieldContextValue {
+	/** Id for the primary form control (used on the input and for label&#x27;s htmlFor). */
+	inputId: string;
+	/** Id for the label (used on the label element and for control&#x27;s aria-labelledby). */
+	labelId: string;
+}
+
+const FieldContext = createContext&lt;FieldContextValue | undefined&gt;(undefined);
+
+export function useFieldContext(): FieldContextValue | undefined {
+	return useContext(FieldContext);
+}
+
+export { FieldContext };
+</pre><div class="file-tab">field.tsx</div><pre class="language-typescript">import { useId } from &#x27;react&#x27;;
+
+import { Field as BaseField } from &#x27;@base-ui-components/react/field&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Label } from &#x27;../label&#x27;;
+import { Text } from &#x27;../text&#x27;;
+
+import { FieldContext } from &#x27;./field-context&#x27;;
+
+import styles from &#x27;./field.module.css&#x27;;
+
+export type FieldVariant = &#x27;vertical&#x27; | &#x27;horizontal&#x27;;
+export type FieldLevel = 1 | 2;
+
+// Generate a label ID for a given input ID (used for aria-labelledby on Select)
+export const labelIdForField = (inputId: string) =&gt; `${inputId}-label`;
+
+interface FieldBaseProps {
+	/** Layout variant */
+	variant?: FieldVariant;
+	/** Level (1 or 2) - affects label color for default variant */
+	level?: FieldLevel;
+	/** Whether this is a checkbox field (affects layout) */
+	checkbox?: boolean;
+	/** Whether the field is required */
+	required?: boolean;
+	/** ID for the input (auto-generated if not provided) */
+	id?: string;
+	/** Label content */
+	label?: React.ReactNode;
+	/** Prefix content (rendered before label) */
+	prefix?: React.ReactNode;
+	/** Label decoration (rendered after label, e.g., Help icon) */
+	labelDecoration?: React.ReactNode;
+	/** Action content (rendered on the right side of label layout) */
+	action?: React.ReactNode;
+	/** Description/helper text */
+	description?: React.ReactNode;
+	/** Input content (receives { id } as prop) */
+	input?: (context: { id: string }) =&gt; React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+	/** Children - can be used instead of slots for simple cases */
+	children?: React.ReactNode;
+}
+
+type FieldProps = ComponentPropsWithRef&lt;FieldBaseProps, HTMLDivElement&gt;;
+
+/**
+ * Combines a label and an input together in different layouts.
+ *
+ * Matches the Luna::Field Ember component API and styling.
+ * Uses Base UI Field.Root as the foundation.
+ */
+export function Field(props: FieldProps) {
+	const {
+		ref,
+		variant = &#x27;vertical&#x27;,
+		level,
+		checkbox = false,
+		required = false,
+		id: providedId,
+		label,
+		prefix,
+		labelDecoration,
+		action,
+		description,
+		input,
+		children,
+		className,
+		...rest
+	} = props;
+
+	// Generate IDs
+	const generatedId = useId();
+	const inputId = providedId || generatedId.replace(/:/g, &#x27;-&#x27;);
+	const labelId = labelIdForField(inputId);
+
+	const fieldClassName = cn(styles.Field, className);
+	const fieldContextValue = { inputId, labelId };
+
+	// Checkbox fields have a different layout
+	if (checkbox) {
+		return (
+			&lt;FieldContext.Provider value={fieldContextValue}&gt;
+				&lt;BaseField.Root
+					className={fieldClassName}
+					data-variant={variant}
+					data-checkbox=&quot;true&quot;
+					data-qid-component-type=&quot;Luna::Field&quot;
+					ref={ref}
+					{...rest}
+				&gt;
+					{variant === &#x27;horizontal&#x27; &amp;&amp; &lt;div /&gt;}
+					&lt;div&gt;
+						&lt;div className={styles.checkboxInput}&gt;
+							{prefix}
+							{input ? input({ id: inputId }) : children}
+							{required &amp;&amp; (
+								&lt;Text color=&quot;red-500&quot; font=&quot;200&quot; aria-label=&quot;Required&quot; className={styles.asterisk}&gt;
+									*
+								&lt;/Text&gt;
+							)}
+							{labelDecoration}
+						&lt;/div&gt;
+						{description &amp;&amp; &lt;div className={styles.description}&gt;{description}&lt;/div&gt;}
+					&lt;/div&gt;
+				&lt;/BaseField.Root&gt;
+			&lt;/FieldContext.Provider&gt;
+		);
+	}
+
+	// Non-checkbox fields
+	const hasLabelContent = label || labelDecoration;
+
+	return (
+		&lt;FieldContext.Provider value={fieldContextValue}&gt;
+			&lt;BaseField.Root
+				className={fieldClassName}
+				data-variant={variant}
+				data-checkbox=&quot;false&quot;
+				data-qid-component-type=&quot;Luna::Field&quot;
+				ref={ref}
+				{...rest}
+			&gt;
+				{hasLabelContent || action ? (
+					&lt;div className={styles.labelLayout}&gt;
+						{hasLabelContent ? (
+							&lt;div className={styles.labelStart}&gt;
+								&lt;Label
+									for={inputId}
+									variant={variant === &#x27;horizontal&#x27; ? &#x27;light&#x27; : &#x27;default&#x27;}
+									level={level}
+									className={styles.label}
+									id={labelId}
+								&gt;
+									{prefix}
+									{label}
+									{required &amp;&amp; (
+										&lt;Text className={styles.asterisk} color=&quot;red-500&quot; font=&quot;200&quot;&gt;
+											*
+										&lt;/Text&gt;
+									)}
+								&lt;/Label&gt;
+								{labelDecoration}
+							&lt;/div&gt;
+						) : (
+							&lt;div /&gt;
+						)}
+						{action &amp;&amp; &lt;div className={styles.action}&gt;{action}&lt;/div&gt;}
+					&lt;/div&gt;
+				) : null}
+
+				&lt;div&gt;
+					&lt;div&gt;{input ? input({ id: inputId }) : children}&lt;/div&gt;
+					{description &amp;&amp; &lt;div className={styles.description}&gt;{description}&lt;/div&gt;}
+				&lt;/div&gt;
+			&lt;/BaseField.Root&gt;
+		&lt;/FieldContext.Provider&gt;
+	);
+}
+
+export default Field;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="event-list-item.html" class="nav-btn">← event-list-item</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="form.html" class="nav-btn">form →</a>
+  </div>
+</body>
+</html>

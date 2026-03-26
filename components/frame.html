@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>frame — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>frame</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>frame</strong> implementations exist. The Ember version is 50 lines and the React version is 61 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">frame.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+
+import notEq from &#x27;ember-truth-helpers/helpers/not-eq&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import type { LunaColorName } from &#x27;../types.ts&#x27;;
+
+export type HighlightPosition = &#x27;left&#x27; | &#x27;top&#x27;;
+export type HighlightColor = LunaColorName;
+
+export interface LunaFrameSignature {
+	Element: HTMLDivElement;
+	Args: {
+		/** Defaults to none */
+		highlight?: `${HighlightPosition}-${HighlightColor}` | &#x27;none&#x27;;
+		/** Defaults to none */
+		padding?: &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27; | &#x27;xl&#x27; | &#x27;2xl&#x27; | &#x27;none&#x27;;
+		/** Defaults to sm */
+		radius?: &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+		/** Defaults to true */
+		border?: boolean;
+	};
+	Blocks: {
+		default: [];
+	};
+}
+
+/**
+ * Provides a frame around content to group it together, or add visual flair to boost its visual hierarchy.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/frame.md)
+ */
+const LunaFrame: TOC&lt;LunaFrameSignature&gt; = &lt;template&gt;
+	&lt;div
+		class=&quot;Frame&quot;
+		data-highlight={{or @highlight &quot;none&quot;}}
+		data-padding={{or @padding &quot;none&quot;}}
+		data-radius={{or @radius &quot;sm&quot;}}
+		data-border={{toString0 (notEq @border false)}}
+		data-qid-component-type=&quot;Luna::Frame&quot;
+		...attributes
+	&gt;
+		&lt;div class=&quot;wrapper&quot;&gt;
+			{{yield}}
+		&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/template&gt;;
+
+export default LunaFrame;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">frame.tsx</div><pre class="language-typescript">import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./frame.module.css&#x27;;
+
+export type HighlightPosition = &#x27;left&#x27; | &#x27;top&#x27;;
+export type HighlightColor = &#x27;red&#x27; | &#x27;green&#x27; | &#x27;orange&#x27; | &#x27;blue&#x27; | &#x27;gray&#x27; | &#x27;teal&#x27; | &#x27;purple&#x27; | &#x27;yellow&#x27; | &#x27;grayA&#x27;;
+export type FrameHighlight = `${HighlightPosition}-${HighlightColor}` | &#x27;none&#x27;;
+export type FramePadding = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27; | &#x27;xl&#x27; | &#x27;2xl&#x27; | &#x27;none&#x27;;
+export type FrameRadius = &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+export interface FrameProps extends React.HTMLAttributes&lt;HTMLDivElement&gt; {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Highlight position and color, e.g., &#x27;left-blue&#x27;, &#x27;top-red&#x27;. Defaults to &#x27;none&#x27; */
+	highlight?: FrameHighlight;
+	/** Padding size. Defaults to &#x27;none&#x27; */
+	padding?: FramePadding;
+	/** Border radius size. Defaults to &#x27;sm&#x27; */
+	radius?: FrameRadius;
+	/** Whether to show border. Defaults to true */
+	border?: boolean;
+	/** Children content */
+	children?: React.ReactNode;
+}
+
+/**
+ * Provides a frame around content to group it together, or add visual flair to boost its visual hierarchy.
+ *
+ * Matches the Luna::Frame Ember component API and styling.
+ */
+export function Frame(props: FrameProps) {
+	const {
+		ref,
+		highlight = &#x27;none&#x27;,
+		padding = &#x27;none&#x27;,
+		radius = &#x27;sm&#x27;,
+		border = true,
+		children,
+		className,
+		...rest
+	} = props;
+
+	const frameClassName = cn(styles.Frame, className);
+
+	return (
+		&lt;div
+			ref={ref}
+			className={frameClassName}
+			data-highlight={highlight}
+			data-padding={padding}
+			data-radius={radius}
+			data-border={String(border)}
+			data-qid-component-type=&quot;Luna::Frame&quot;
+			{...rest}
+		&gt;
+			&lt;div className={styles.wrapper}&gt;{children}&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default Frame;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="format-markdown.html" class="nav-btn">← format-markdown</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="growl.html" class="nav-btn">growl →</a>
+  </div>
+</body>
+</html>

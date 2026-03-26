@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>select-date — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>select-date</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>select-date</strong> implementations exist. The Ember version is 545 lines and the React version is 602 lines. The React version is notably larger (602 vs 545 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">select-date.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports */
+import type { ComponentLike } from &#x27;@glint/template&#x27;;
+import { dedupeTracked, localCopy } from &#x27;tracked-toolbox&#x27;;
+
+import { assert } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { modifier } from &#x27;ember-modifier&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import and from &#x27;ember-truth-helpers/helpers/and&#x27;;
+import notEq from &#x27;ember-truth-helpers/helpers/not-eq&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import toStringHelper from &#x27;../helpers/to-string.ts&#x27;;
+import { createDate } from &#x27;../utils/date.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { requirementArg } from &#x27;../utils/requirement-arg.ts&#x27;;
+import type { LunaButtonArgs } from &#x27;./button.gts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import type { LunaCalendarSignature } from &#x27;./calendar.gts&#x27;;
+import { labelIdForField } from &#x27;./field.gts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import type { LunaPopupBlockValue, LunaPopupSignature } from &#x27;./popup.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+import LunaSelectDateCalendar from &#x27;./select-date/calendar.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+
+interface SelectDateTriggerAttrsSignature {
+	Element: HTMLElement;
+	Args: {
+		Named: {
+			popupId: string;
+			shouldRenderAsDiv?: boolean;
+			showPopup: boolean;
+			hasValue: boolean;
+			placeholder?: string | null;
+			requirements?: Requirements;
+			defaultLabel: string;
+			showErrorMessage: boolean;
+		};
+	};
+}
+
+/**
+ * Adds appropriate ARIA attributes to the SelectDate trigger element based on component configuration
+ */
+const triggerAttrs = modifier(
+	(
+		element: SelectDateTriggerAttrsSignature[&#x27;Element&#x27;],
+		_positional: unknown,
+		named: SelectDateTriggerAttrsSignature[&#x27;Args&#x27;][&#x27;Named&#x27;],
+	) =&gt; {
+		if (!named.shouldRenderAsDiv) {
+			element.setAttribute(&#x27;role&#x27;, &#x27;combobox&#x27;);
+			element.setAttribute(&#x27;aria-expanded&#x27;, named.showPopup ? &#x27;true&#x27; : &#x27;false&#x27;);
+			element.setAttribute(&#x27;aria-owns&#x27;, named.popupId);
+			element.setAttribute(&#x27;aria-haspopup&#x27;, &#x27;dialog&#x27;);
+			element.setAttribute(&#x27;aria-controls&#x27;, named.showPopup ? named.popupId : &#x27;&#x27;);
+		}
+		element.setAttribute(
+			&#x27;aria-required&#x27;,
+			named.requirements &amp;&amp; requirementArg(named.requirements, &#x27;required&#x27;) ? &#x27;true&#x27; : &#x27;false&#x27;,
+		);
+		if (named.showErrorMessage) {
+			element.setAttribute(&#x27;aria-invalid&#x27;, &#x27;true&#x27;);
+		} else {
+			element.setAttribute(&#x27;aria-invalid&#x27;, &#x27;false&#x27;);
+		}
+	},
+);
+
+export type SelectionType = &#x27;single&#x27; | &#x27;range&#x27;;
+export type SingleValue = string | null | undefined;
+export type RangeValue = { start?: string; end?: string } | null | undefined;
+
+function isIncomplete(value: RangeValue) {
+	return typeof value === &#x27;object&#x27; &amp;&amp; value?.start &amp;&amp; !value?.end;
+}
+
+export interface LunaSelectDateSignature&lt;Value extends SingleValue | RangeValue = SingleValue | RangeValue&gt; {
+	Element: HTMLDivElement;
+	Args: {
+		value: Value;
+		active?: boolean;
+		onCancel?: (reason?: string) =&gt; void;
+		onChange?: (value: Exclude&lt;Value, undefined&gt;) =&gt; unknown;
+		onOpen?: () =&gt; void;
+		didCancel?: () =&gt; void;
+		class?: string;
+		placeholder?: string | null;
+		chevronIsHidden?: boolean;
+		triggerClass?: string;
+		triggerComponent?: ComponentLike&lt;{ Element: HTMLButtonElement }&gt;;
+		shouldRenderAsDiv?: boolean;
+		showIcon?: boolean;
+		id?: string;
+		requirements?: Requirements;
+		form?: LunaFormBlockValue;
+		name?: string;
+		disabled?: boolean;
+		min?: string;
+		max?: string;
+		/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+		serverErrors?: Array&lt;{ message?: string } | string&gt;;
+		ariaLabel?: string;
+		ariaLabelledBy?: string;
+		ariaDescribedBy?: string;
+		didAutosave?: () =&gt; void;
+	} &amp; Pick&lt;LunaButtonArgs, &#x27;size&#x27; | &#x27;variant&#x27; | &#x27;align&#x27;&gt; &amp;
+		Pick&lt;LunaPopupSignature[&#x27;Args&#x27;], &#x27;placement&#x27;&gt; &amp;
+		Pick&lt;LunaCalendarSignature[&#x27;Args&#x27;], &#x27;disableDate&#x27; | &#x27;firstDayOfWeek&#x27;&gt;;
+	Blocks: {
+		icon: [];
+		trigger: [value: Value];
+	};
+}
+
+let nextInputId = 0;
+
+/**
+ * A date picker that lets people select a date or a range of dates.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/select-date.md)
+ */
+export default class LunaSelectDate&lt;Value extends SingleValue | RangeValue = SingleValue&gt; extends Component&lt;
+	LunaSelectDateSignature&lt;Value&gt;
+&gt; {
+	@service declare intl: IntlService;
+
+	selectionType: SelectionType = &#x27;single&#x27;;
+	popupId = `${guidFor(this)}--popup`;
+
+	@consume(&#x27;luna-input-id&#x27;) inputId!: string;
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: LunaSelectDateSignature&lt;Value&gt;[&#x27;Args&#x27;]) {
+		super(owner, args);
+
+		assert(&#x27;You cannot provide both ariaLabel and ariaLabelledBy&#x27;, !args.ariaLabel || !args.ariaLabelledBy);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			name: args.name,
+			didAutosave: this.didAutosave.bind(this),
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: this.args.ariaDescribedBy ?? null,
+
+			get value() {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements() {
+				return args.requirements;
+			},
+
+			get serverErrors() {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext() {
+				return that.formContext;
+			},
+
+			get selectorIsVisible() {
+				return that.showPopup;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	@tracked popup: LunaPopupBlockValue | null = null;
+
+	@tracked showPopup = false;
+
+	/**
+	 * Tracks the user selection internally so we can reset it if the user cancels
+	 * selection, and only autosave if a full selection is made.
+	 */
+	@localCopy(&#x27;args.value&#x27;) declare internalValue: Value;
+
+	/**
+	 * Determines if the user has made a new selection and thus the onChange should fire,
+	 * vs a onCancel
+	 */
+	@dedupeTracked valueIsUnchanged = true;
+
+	get id() {
+		return this.args.id ?? this.inputId ?? `luna-select-date-${nextInputId++}`;
+	}
+
+	get isSingleSelection() {
+		return this.selectionType === &#x27;single&#x27;;
+	}
+
+	get isRangeSelection() {
+		return this.selectionType === &#x27;range&#x27;;
+	}
+
+	get popupAriaLabel() {
+		return this.intl.t(&#x27;input.select-date.placeholder&#x27;, {
+			kind: this.selectionType,
+			textEntry: String(this.textEntryIsEnabled),
+		});
+	}
+
+	/**
+	 * Whether the text entry is enabled. When true, alters the popup aria-label.
+	 * Redeclared and bound in the instance initializer of the consuming app.
+	 * See `client/app/initializers/luna.ts` for example implementation.
+	 */
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get textEntryIsEnabled() {
+		return false;
+	}
+
+	get hasValue() {
+		const { value } = this.args;
+
+		if (value !== null &amp;&amp; typeof value === &#x27;object&#x27;) {
+			return Boolean(value?.start) || Boolean(value?.end);
+		}
+
+		return Boolean(value);
+	}
+
+	get triggerIsActive() {
+		return this.args.active ?? this.showPopup;
+	}
+
+	get formattedPrimaryDate(): string | null {
+		const value = this.internalValue;
+
+		if (!value) {
+			return null;
+		}
+
+		const primaryDate = typeof value === &#x27;string&#x27; ? value : (value.start ?? null);
+
+		if (!primaryDate) {
+			return null;
+		}
+
+		const primaryDateObj = createDate(primaryDate);
+		assert(&#x27;primary date must be valid&#x27;, primaryDateObj instanceof Date);
+
+		return this.intl.formatDate(primaryDateObj, { day: &#x27;numeric&#x27;, month: &#x27;short&#x27;, year: &#x27;numeric&#x27; });
+	}
+
+	get formattedSecondaryDate(): string | null {
+		const value = this.internalValue;
+
+		if (!value || typeof value === &#x27;string&#x27;) {
+			return null;
+		}
+
+		const secondaryDate = value.end ?? null;
+
+		if (!secondaryDate) {
+			return null;
+		}
+
+		const secondaryDateObj = createDate(secondaryDate);
+		assert(&#x27;secondary date must be valid&#x27;, secondaryDateObj instanceof Date);
+
+		return this.intl.formatDate(secondaryDateObj, { day: &#x27;numeric&#x27;, month: &#x27;short&#x27;, year: &#x27;numeric&#x27; });
+	}
+
+	get formattedSelection(): string | null {
+		if (!this.formattedPrimaryDate) {
+			return null;
+		}
+
+		if (this.isSingleSelection) {
+			return this.formattedPrimaryDate;
+		}
+
+		// Range selection requires both dates
+		if (!this.formattedSecondaryDate) {
+			return null;
+		}
+
+		const value = this.internalValue;
+		const primaryDate = typeof value === &#x27;object&#x27; ? (value?.start ?? null) : null;
+		const secondaryDate = typeof value === &#x27;object&#x27; ? (value?.end ?? null) : null;
+		const sameYear = primaryDate &amp;&amp; secondaryDate &amp;&amp; primaryDate.split(&#x27;-&#x27;)[0] === secondaryDate.split(&#x27;-&#x27;)[0];
+
+		if (sameYear) {
+			// Omit the year from the primary date when both dates are in the same year
+			const primaryDateObj = createDate(primaryDate);
+			assert(&#x27;primary date must be valid&#x27;, primaryDateObj instanceof Date);
+			const formattedPrimaryDateWithoutYear = this.intl.formatDate(primaryDateObj, { day: &#x27;numeric&#x27;, month: &#x27;short&#x27; });
+			return `${formattedPrimaryDateWithoutYear} – ${this.formattedSecondaryDate}`;
+		}
+
+		return `${this.formattedPrimaryDate} – ${this.formattedSecondaryDate}`;
+	}
+
+	get labelId() {
+		return this.inputId ? labelIdForField(this.inputId) : null;
+	}
+
+	onFocusIn = () =&gt; {
+		if (this.args.shouldRenderAsDiv) {
+			return;
+		}
+		this.manager.focusIn();
+	};
+
+	@action
+	maybeOpenDateSelector() {
+		if (this.args.shouldRenderAsDiv) {
+			return;
+		}
+		this.internalValue = this.args.value;
+		this.valueIsUnchanged = true;
+		this.showPopup = true;
+		this.args.onOpen?.();
+	}
+
+	@action
+	async willCloseDateSelector(reason: string) {
+		// User explicitly cancelled via escape key or clicking outside
+		if (reason === &#x27;esc&#x27; || reason === &#x27;click-outside&#x27;) {
+			return this.args.onCancel?.(reason);
+		}
+
+		// SAFETY: Should be a RangeValue if it&#x27;s a range selection
+		if (this.valueIsUnchanged || (this.isRangeSelection &amp;&amp; isIncomplete(this.internalValue as RangeValue))) {
+			return this.args.onCancel?.(reason);
+		}
+
+		const value: Value = this.internalValue;
+		assert(&#x27;Expected a value&#x27;, value !== undefined);
+		// SAFETY: I&#x27;m not sure why we need this `as` given that the above should have verified it for us
+		await this.args.onChange?.(value as Exclude&lt;Value, undefined&gt;);
+		this.manager.onChange();
+	}
+
+	@action
+	onCloseDateSelector() {
+		if (this.valueIsUnchanged) {
+			this.args.didCancel?.();
+		}
+		this.showPopup = false;
+	}
+
+	/**
+	 * Handles value changes from the calendar component.
+	 * Called when user selects a date from the calendar or submits via text entry.
+	 */
+	onSave = (value: Exclude&lt;Value, undefined&gt;, { shouldClose }: { shouldClose: boolean }) =&gt; {
+		if (this.isRangeSelection) {
+			this.valueIsUnchanged =
+				typeof value === &#x27;object&#x27; &amp;&amp;
+				typeof this.internalValue === &#x27;object&#x27; &amp;&amp;
+				value?.start === this.internalValue?.start &amp;&amp;
+				value?.end === this.internalValue?.end;
+		} else {
+			this.valueIsUnchanged = value === this.internalValue;
+		}
+
+		this.internalValue = value;
+
+		if (shouldClose) {
+			assert(&#x27;popup must be registered&#x27;, this.popup);
+			void this.popup.closeTask.perform();
+		}
+	};
+
+	@action
+	didAutosave() {
+		this.valueIsUnchanged = true;
+		this.args.didAutosave?.();
+	}
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+
+	registerPopup = (popup: LunaPopupBlockValue) =&gt; {
+		this.popup = popup;
+	};
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;SelectDate {{@class}}&quot;
+			data-size={{or @size &quot;md&quot;}}
+			data-disabled={{toStringHelper @disabled}}
+			data-qid-component-type=&quot;Luna::SelectDate&quot;
+			data-focused={{toStringHelper this.manager.inputHasFocus}}
+			data-errored={{toStringHelper this.manager.showErrorMessage}}
+			data-luna-feature=&quot;meld&quot;
+			...attributes
+		&gt;
+			{{#if @triggerComponent}}
+				{{! Note: Custom triggers need their own div-rendering logic. }}
+				&lt;@triggerComponent
+					id={{this.id}}
+					data-qid-select-date-trigger=&quot;custom&quot;
+					{{on &quot;focus&quot; this.onFocusIn}}
+					{{on &quot;click&quot; this.maybeOpenDateSelector}}
+					aria-label={{@ariaLabel}}
+					aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+					aria-describedby={{this.manager.ariaDescribedBy}}
+					{{triggerAttrs
+						popupId=this.popupId
+						hasValue=this.hasValue
+						shouldRenderAsDiv=@shouldRenderAsDiv
+						showPopup=this.showPopup
+						placeholder=@placeholder
+						requirements=@requirements
+						defaultLabel=this.popupAriaLabel
+						showErrorMessage=this.manager.showErrorMessage
+					}}
+				/&gt;
+			{{else}}
+				&lt;Button
+					@align={{@align}}
+					@variant={{or @variant &quot;white&quot;}}
+					@width=&quot;full&quot;
+					@size={{or @size &quot;md&quot;}}
+					@errored={{this.manager.showErrorMessage}}
+					@disabled={{@disabled}}
+					@active={{this.triggerIsActive}}
+					@shouldRenderAsDiv={{@shouldRenderAsDiv}}
+					class={{@triggerClass}}
+					id={{this.id}}
+					data-qid-select-date-trigger=&quot;default&quot;
+					{{on &quot;focus&quot; this.onFocusIn}}
+					{{on &quot;click&quot; this.maybeOpenDateSelector}}
+					aria-label={{@ariaLabel}}
+					aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+					aria-describedby={{this.manager.ariaDescribedBy}}
+					{{triggerAttrs
+						popupId=this.popupId
+						hasValue=this.hasValue
+						shouldRenderAsDiv=@shouldRenderAsDiv
+						showPopup=this.showPopup
+						placeholder=@placeholder
+						requirements=@requirements
+						defaultLabel=this.popupAriaLabel
+						showErrorMessage=this.manager.showErrorMessage
+					}}
+				&gt;
+					{{#if (has-block &quot;icon&quot;)}}
+						&lt;div class=&quot;pre-icon&quot;&gt;
+							{{yield to=&quot;icon&quot;}}
+						&lt;/div&gt;
+					{{else if
+						(and (notEq @variant &quot;transparent&quot;) (notEq @variant &quot;schema-table-bulk-update&quot;) (notEq @showIcon false))
+					}}
+						&lt;Icon @class={{scopedClass &quot;pre-icon&quot;}} @icon=&quot;date-range&quot; @size=&quot;sm&quot; /&gt;
+					{{/if}}
+					{{#if this.hasValue}}
+						&lt;div class=&quot;label&quot;&gt;
+							{{#if (has-block &quot;trigger&quot;)}}
+								{{yield @value to=&quot;trigger&quot;}}
+							{{else if this.formattedSelection}}
+								{{this.formattedSelection}}
+							{{/if}}
+						&lt;/div&gt;
+					{{else}}
+						&lt;div class=&quot;label&quot; data-placeholder&gt;
+							{{@placeholder}}
+						&lt;/div&gt;
+					{{/if}}
+					{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+						&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+					{{/if}}
+					{{#unless @chevronIsHidden}}
+						&lt;Icon @class={{scopedClass &quot;post-icon&quot;}} @icon=&quot;chevron-down&quot; @size=&quot;sm&quot; /&gt;
+					{{/unless}}
+				&lt;/Button&gt;
+			{{/if}}
+			&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}}&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+			{{#if this.showPopup}}
+				&lt;Popup
+					class=&quot;popup&quot;
+					role=&quot;dialog&quot;
+					aria-label={{this.popupAriaLabel}}
+					@id={{this.popupId}}
+					@show={{this.showPopup}}
+					@relativeTo=&quot;#{{this.id}}&quot;
+					@placement={{or @placement &quot;bottom&quot;}}
+					@trapFocus={{true}}
+					@onClose={{this.onCloseDateSelector}}
+					@willClose={{this.willCloseDateSelector}}
+					as |popup|
+				&gt;
+					{{this.registerPopup popup}}
+					&lt;LunaSelectDateCalendar
+						@disabledDateFunction={{@disableDate}}
+						@firstDayOfWeek={{@firstDayOfWeek}}
+						@maxDate={{@max}}
+						@minDate={{@min}}
+						@onSave={{this.onSave}}
+						@requirements={{@requirements}}
+						@selectionType={{this.selectionType}}
+						@value={{@value}}
+					/&gt;
+				&lt;/Popup&gt;
+			{{/if}}
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">select-date.tsx</div><pre class="language-typescript">import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from &#x27;react&#x27;;
+
+import { format, isValid, parseISO } from &#x27;date-fns&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type InputManagerOptions, useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { Button, type ButtonSize, type ButtonVariant } from &#x27;../button/button&#x27;;
+import { Calendar, type SelectionType } from &#x27;../calendar/calendar&#x27;;
+import { Divider } from &#x27;../divider/divider&#x27;;
+import { useFieldContext } from &#x27;../field/field-context&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { InputError } from &#x27;../input-error/input-error&#x27;;
+import { type OnCloseSource, Popup, type PopupPlacement } from &#x27;../popup/popup&#x27;;
+import { Spinner } from &#x27;../spinner/spinner&#x27;;
+
+import styles from &#x27;./select-date.module.css&#x27;;
+
+export type SelectDateSingleValue = string | null | undefined;
+export type SelectDateRangeValue = { start?: string; end?: string } | null | undefined;
+export type SelectDateValue = SelectDateSingleValue | SelectDateRangeValue;
+
+export interface SelectDateProps {
+	&#x27;ref&#x27;?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Currently selected value (ISO date string for single, {start, end} for range) */
+	&#x27;value&#x27;?: SelectDateValue;
+	/** Selection type - &#x27;single&#x27; for single date, &#x27;range&#x27; for date range */
+	&#x27;selectionType&#x27;?: &#x27;single&#x27; | &#x27;range&#x27;;
+	/** Whether the trigger button appears active */
+	&#x27;active&#x27;?: boolean;
+	/** Called when user explicitly cancels (esc or click outside) */
+	&#x27;onCancel&#x27;?: (reason?: string) =&gt; void;
+	/** Called when selection changes */
+	&#x27;onChange&#x27;?: (value: string | { start: string; end: string } | null) =&gt; unknown;
+	/** Called when popup opens */
+	&#x27;onOpen&#x27;?: () =&gt; void;
+	/** Called after cancel processing */
+	&#x27;didCancel&#x27;?: () =&gt; void;
+	/** Called when popup closes */
+	&#x27;didClose&#x27;?: () =&gt; void;
+	/** Additional CSS class for the wrapper */
+	&#x27;className&#x27;?: string;
+	/** Placeholder text when no value is selected */
+	&#x27;placeholder&#x27;?: string | null;
+	/** Hide the chevron icon */
+	&#x27;chevronIsHidden&#x27;?: boolean;
+	/** Additional CSS class for the trigger button */
+	&#x27;triggerClass&#x27;?: string;
+	/** Custom trigger component */
+	&#x27;triggerComponent&#x27;?: React.ComponentType&lt;React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;&gt;;
+	/** Render as a non-interactive div */
+	&#x27;shouldRenderAsDiv&#x27;?: boolean;
+	/** Show calendar icon in the trigger */
+	&#x27;showIcon&#x27;?: boolean;
+	/** Custom ID for the trigger */
+	&#x27;id&#x27;?: string;
+	/** Input requirements for validation */
+	&#x27;requirements&#x27;?: {
+		required?: boolean;
+	};
+	/** Name for form submission */
+	&#x27;name&#x27;?: string;
+	/** Disable the input */
+	&#x27;disabled&#x27;?: boolean;
+	/** Minimum selectable date (ISO string) */
+	&#x27;min&#x27;?: string;
+	/** Maximum selectable date (ISO string) */
+	&#x27;max&#x27;?: string;
+	/** @deprecated Use form validators instead */
+	&#x27;serverErrors&#x27;?: Array&lt;{ message?: string } | string&gt;;
+	/** ARIA label for the trigger */
+	&#x27;ariaLabel&#x27;?: string;
+	/** ARIA labelledby reference */
+	&#x27;ariaLabelledBy&#x27;?: string;
+	/** ARIA describedby reference */
+	&#x27;ariaDescribedBy&#x27;?: string;
+	/** Called after autosave completes */
+	&#x27;didAutosave&#x27;?: () =&gt; void;
+	/** Button size variant */
+	&#x27;size&#x27;?: ButtonSize;
+	/** Button visual variant */
+	&#x27;variant&#x27;?: ButtonVariant;
+	/** Button content alignment */
+	&#x27;align&#x27;?: &#x27;left&#x27; | &#x27;center&#x27; | &#x27;right&#x27;;
+	/** Popup placement relative to trigger */
+	&#x27;placement&#x27;?: PopupPlacement;
+	/** Function to disable specific dates */
+	&#x27;disableDate&#x27;?: (date: Date) =&gt; boolean;
+	/** First day of the week (0=Sunday, 1=Monday, etc.) */
+	&#x27;firstDayOfWeek&#x27;?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+	/** Whether to highlight today&#x27;s date in the calendar (default: true) */
+	&#x27;showToday&#x27;?: boolean;
+	/** Test ID */
+	&#x27;testId&#x27;?: string;
+	/** Data attributes */
+	&#x27;data-test-input&#x27;?: boolean;
+	/** Children render function for custom trigger content */
+	&#x27;children&#x27;?: (value: SelectDateValue) =&gt; ReactNode;
+}
+
+let nextInputId = 0;
+
+interface DatePickerPopupProps {
+	showPopup: boolean;
+	popupId: string;
+	triggerRef: React.RefObject&lt;HTMLElement | null&gt;;
+	placement: PopupPlacement;
+	selectionType: &#x27;single&#x27; | &#x27;range&#x27;;
+	internalValue: SelectDateValue;
+	min?: string;
+	max?: string;
+	disableDate?: (date: Date) =&gt; boolean;
+	firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+	showToday?: boolean;
+	clearButtonIsShown: boolean;
+	onCalendarChange: (value: string | { start: string; end: string } | null) =&gt; void;
+	onClear: () =&gt; void;
+	onWillClose: (source: OnCloseSource, event?: unknown) =&gt; void | Promise&lt;unknown&gt;;
+	onClose: (source: OnCloseSource, event?: unknown) =&gt; void;
+}
+
+function DatePickerPopup({
+	showPopup,
+	popupId,
+	triggerRef,
+	placement,
+	selectionType,
+	internalValue,
+	min,
+	max,
+	disableDate,
+	firstDayOfWeek,
+	showToday,
+	clearButtonIsShown,
+	onCalendarChange,
+	onClear,
+	onWillClose,
+	onClose,
+}: DatePickerPopupProps) {
+	if (!showPopup) return null;
+
+	return (
+		&lt;Popup
+			className={styles.popup}
+			id={popupId}
+			show={showPopup}
+			relativeTo={triggerRef}
+			placement={placement}
+			trapFocus
+			allowOverflow
+			willClose={onWillClose}
+			onClose={onClose}
+		&gt;
+			&lt;Calendar
+				selectionType={selectionType}
+				value={internalValue}
+				min={min}
+				max={max}
+				disableDate={disableDate}
+				firstDayOfWeek={firstDayOfWeek}
+				showToday={showToday}
+				onChange={onCalendarChange}
+			/&gt;
+			{clearButtonIsShown &amp;&amp; (
+				&lt;&gt;
+					&lt;Divider /&gt;
+					&lt;Button
+						className={styles.clear}
+						data-test-clear-date
+						size=&quot;sm&quot;
+						variant=&quot;transparent&quot;
+						width=&quot;full&quot;
+						onClick={onClear}
+					&gt;
+						Clear Date
+					&lt;/Button&gt;
+				&lt;/&gt;
+			)}
+		&lt;/Popup&gt;
+	);
+}
+
+/**
+ * Checks if a range value is incomplete (has start but no end)
+ */
+function isIncomplete(value: SelectDateRangeValue): boolean {
+	return typeof value === &#x27;object&#x27; &amp;&amp; value !== null &amp;&amp; Boolean(value?.start) &amp;&amp; !value?.end;
+}
+
+/**
+ * Type guard to check if value is a range value
+ */
+function isRangeValue(value: SelectDateValue): value is SelectDateRangeValue {
+	return typeof value === &#x27;object&#x27; &amp;&amp; value !== null &amp;&amp; (&#x27;start&#x27; in value || &#x27;end&#x27; in value);
+}
+
+/**
+ * Formats a date string for display
+ */
+function formatDateForDisplay(dateStr: string | undefined): string | null {
+	if (!dateStr) return null;
+	try {
+		const date = parseISO(dateStr);
+		if (!isValid(date)) return null;
+		return format(date, &#x27;d MMM yyyy&#x27;);
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * A date picker that lets users select a date or date range.
+ * Uses a popup calendar for selection.
+ */
+export function SelectDate({
+	value,
+	selectionType: selectionTypeProp,
+	active,
+	onCancel,
+	onChange,
+	onOpen,
+	didCancel,
+	didClose,
+	className,
+	placeholder,
+	chevronIsHidden = false,
+	triggerClass,
+	triggerComponent: TriggerComponent,
+	shouldRenderAsDiv = false,
+	showIcon = true,
+	id: providedId,
+	requirements,
+	name,
+	disabled = false,
+	min,
+	max,
+	serverErrors,
+	ariaLabel,
+	ariaLabelledBy,
+	ariaDescribedBy,
+	didAutosave,
+	size = &#x27;md&#x27;,
+	variant = &#x27;white&#x27;,
+	align,
+	placement = &#x27;bottom&#x27;,
+	disableDate,
+	firstDayOfWeek,
+	showToday = true,
+	testId,
+	children,
+	ref,
+	...props
+}: SelectDateProps): React.ReactElement {
+	const fieldContext = useFieldContext();
+	const id = providedId ?? fieldContext?.inputId ?? `luna-select-date-${nextInputId++}`;
+	const popupId = `${id}--popup`;
+
+	const formContext = useFormContext();
+	const triggerRef = useRef&lt;HTMLButtonElement&gt;(null);
+
+	// Track popup visibility
+	const [showPopup, setShowPopup] = useState(false);
+
+	// Track internal selection (for range, can be partial)
+	const [internalValue, setInternalValue] = useState&lt;SelectDateValue&gt;(value);
+	const valueIsUnchangedRef = useRef(true);
+
+	// Sync internal value when external value changes
+	useEffect(() =&gt; {
+		setInternalValue(value);
+	}, [value]);
+
+	// Determine selection type - prop takes precedence, then infer from value
+	const selectionType: SelectionType = useMemo(() =&gt; {
+		if (selectionTypeProp) {
+			return selectionTypeProp;
+		}
+		if (isRangeValue(value)) {
+			return &#x27;range&#x27;;
+		}
+		return &#x27;single&#x27;;
+	}, [selectionTypeProp, value]);
+
+	const isRangeSelection = selectionType === &#x27;range&#x27;;
+
+	// Input manager for form integration
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		name,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		didAutosave: useCallback(() =&gt; {
+			valueIsUnchangedRef.current = true;
+			didAutosave?.();
+		}, [didAutosave]),
+		ariaDescribedBy: ariaDescribedBy ?? null,
+		value,
+		isDisabled: disabled,
+		requirements,
+		serverErrors,
+		formContext,
+		selectorIsVisible: showPopup,
+	} as InputManagerOptions);
+
+	// Computed properties
+	const hasValue = useMemo(() =&gt; {
+		if (isRangeValue(value)) {
+			return Boolean(value?.start) || Boolean(value?.end);
+		}
+		return Boolean(value);
+	}, [value]);
+
+	// Show clear button when there&#x27;s a saved value AND field is not required
+	const clearButtonIsShown = useMemo(() =&gt; {
+		const canBeCleared = (!isRangeSelection &amp;&amp; value) || (isRangeValue(value) &amp;&amp; value?.end);
+		return Boolean(canBeCleared) &amp;&amp; !requirements?.required;
+	}, [isRangeSelection, value, requirements?.required]);
+
+	const triggerIsActive = active ?? showPopup;
+
+	// Format the selection for display
+	const formattedSelection = useMemo(() =&gt; {
+		if (!internalValue) return null;
+
+		if (typeof internalValue === &#x27;string&#x27;) {
+			return formatDateForDisplay(internalValue);
+		}
+
+		if (!isRangeValue(internalValue)) return null;
+
+		// Range value
+		const primary = formatDateForDisplay(internalValue?.start);
+		const secondary = formatDateForDisplay(internalValue?.end);
+
+		if (!primary) return null;
+		if (!secondary) return null;
+
+		// Check if same year to format more compactly
+		if (internalValue?.start &amp;&amp; internalValue?.end) {
+			const startYear = internalValue.start.split(&#x27;-&#x27;)[0];
+			const endYear = internalValue.end.split(&#x27;-&#x27;)[0];
+			if (startYear === endYear) {
+				// Omit year from start date
+				const startDate = parseISO(internalValue.start);
+				const formattedStart = format(startDate, &#x27;d MMM&#x27;);
+				return `${formattedStart} – ${secondary}`;
+			}
+		}
+
+		return `${primary} – ${secondary}`;
+	}, [internalValue]);
+
+	// Handlers
+	const handleOpen = useCallback(() =&gt; {
+		if (shouldRenderAsDiv || disabled) return;
+
+		setInternalValue(value);
+		valueIsUnchangedRef.current = true;
+		setShowPopup(true);
+		onOpen?.();
+	}, [shouldRenderAsDiv, disabled, value, onOpen]);
+
+	const handleWillClose = useCallback(
+		async (source: &#x27;esc&#x27; | &#x27;enter&#x27; | &#x27;click-outside&#x27; | &#x27;manual&#x27;) =&gt; {
+			// User explicitly cancelled
+			if (source === &#x27;esc&#x27; || source === &#x27;click-outside&#x27;) {
+				onCancel?.(source);
+				return;
+			}
+
+			// Range selection incomplete - treat as cancel
+			if (
+				valueIsUnchangedRef.current ||
+				(isRangeSelection &amp;&amp; isRangeValue(internalValue) &amp;&amp; isIncomplete(internalValue))
+			) {
+				onCancel?.(source);
+				return;
+			}
+
+			// Apply the change
+			if (internalValue !== undefined) {
+				if (typeof internalValue === &#x27;string&#x27;) {
+					await onChange?.(internalValue);
+				} else if (isRangeValue(internalValue) &amp;&amp; internalValue?.start) {
+					await onChange?.({
+						start: internalValue.start,
+						end: internalValue.end || &#x27;&#x27;,
+					});
+				}
+				manager.onChange();
+			}
+		},
+		[isRangeSelection, internalValue, onCancel, onChange, manager],
+	);
+
+	const handleClose = useCallback(
+		(_source?: OnCloseSource, _event?: unknown) =&gt; {
+			if (valueIsUnchangedRef.current) {
+				didCancel?.();
+			}
+			setShowPopup(false);
+			didClose?.();
+		},
+		[didCancel, didClose],
+	);
+
+	const handleCalendarChange = useCallback(
+		(newValue: string | { start: string; end: string } | null) =&gt; {
+			// Update internal value
+			setInternalValue(newValue);
+
+			// Check if value actually changed
+			if (isRangeSelection) {
+				const oldVal = isRangeValue(internalValue) ? internalValue : null;
+				const newVal = typeof newValue === &#x27;object&#x27; ? newValue : null;
+				valueIsUnchangedRef.current = oldVal?.start === newVal?.start &amp;&amp; oldVal?.end === newVal?.end;
+			} else {
+				valueIsUnchangedRef.current = newValue === internalValue;
+			}
+
+			// For single selection, close immediately after selection
+			if (!isRangeSelection &amp;&amp; newValue &amp;&amp; typeof newValue === &#x27;string&#x27;) {
+				// Trigger close with the new value
+				setTimeout(() =&gt; {
+					// Apply the change
+					onChange?.(newValue);
+					manager.setValueIsUnchanged(false);
+					manager.onChange();
+					setShowPopup(false);
+					didClose?.();
+				}, 0);
+			}
+
+			// For range selection, close when both dates are selected
+			if (isRangeSelection &amp;&amp; newValue &amp;&amp; typeof newValue === &#x27;object&#x27; &amp;&amp; newValue.start &amp;&amp; newValue.end) {
+				setTimeout(() =&gt; {
+					onChange?.(newValue);
+					manager.setValueIsUnchanged(false);
+					manager.onChange();
+					setShowPopup(false);
+					didClose?.();
+				}, 0);
+			}
+		},
+		[isRangeSelection, internalValue, onChange, manager, didClose],
+	);
+
+	const handleFocusIn = useCallback(() =&gt; {
+		if (!shouldRenderAsDiv) {
+			manager.focusIn();
+		}
+	}, [shouldRenderAsDiv, manager]);
+
+	const handleClear = useCallback(() =&gt; {
+		onChange?.(null);
+		manager.setValueIsUnchanged(false);
+		manager.onChange();
+		setShowPopup(false);
+		didClose?.();
+	}, [onChange, manager, didClose]);
+
+	// Common ARIA props for custom triggers
+	const customTriggerAriaProps = useMemo(() =&gt; {
+		const ariaProps: Record&lt;string, string | undefined&gt; = {
+			&#x27;aria-required&#x27;: requirements?.required ? &#x27;true&#x27; : &#x27;false&#x27;,
+			&#x27;aria-invalid&#x27;: manager.showErrorMessage ? &#x27;true&#x27; : &#x27;false&#x27;,
+		};
+
+		if (!shouldRenderAsDiv) {
+			ariaProps[&#x27;role&#x27;] = &#x27;combobox&#x27;;
+			ariaProps[&#x27;aria-expanded&#x27;] = showPopup ? &#x27;true&#x27; : &#x27;false&#x27;;
+			ariaProps[&#x27;aria-owns&#x27;] = popupId;
+			ariaProps[&#x27;aria-haspopup&#x27;] = &#x27;dialog&#x27;;
+			ariaProps[&#x27;aria-controls&#x27;] = showPopup ? popupId : &#x27;&#x27;;
+		}
+
+		if (ariaLabel) {
+			ariaProps[&#x27;aria-label&#x27;] = ariaLabel;
+		}
+		if (ariaLabelledBy) {
+			ariaProps[&#x27;aria-labelledby&#x27;] = ariaLabelledBy;
+		}
+		if (manager.ariaDescribedBy) {
+			ariaProps[&#x27;aria-describedby&#x27;] = manager.ariaDescribedBy;
+		}
+
+		return ariaProps;
+	}, [
+		requirements?.required,
+		manager.showErrorMessage,
+		manager.ariaDescribedBy,
+		shouldRenderAsDiv,
+		showPopup,
+		popupId,
+		ariaLabel,
+		ariaLabelledBy,
+	]);
+
+	// Determine if we should show the date icon
+	const shouldShowIcon = showIcon &amp;&amp; variant !== &#x27;transparent&#x27;;
+
+	// Common popup component (used by both custom and default triggers)
+	const datePickerPopup = (
+		&lt;DatePickerPopup
+			showPopup={showPopup}
+			popupId={popupId}
+			triggerRef={triggerRef}
+			placement={placement}
+			selectionType={selectionType}
+			internalValue={internalValue}
+			min={min}
+			max={max}
+			disableDate={disableDate}
+			firstDayOfWeek={firstDayOfWeek}
+			showToday={showToday}
+			clearButtonIsShown={clearButtonIsShown}
+			onCalendarChange={handleCalendarChange}
+			onClear={handleClear}
+			onWillClose={handleWillClose}
+			onClose={handleClose}
+		/&gt;
+	);
+
+	// Common wrapper props
+	const wrapperProps = {
+		ref,
+		&#x27;className&#x27;: cn(styles.SelectDate, className),
+		&#x27;data-size&#x27;: size,
+		&#x27;data-disabled&#x27;: disabled ? &#x27;true&#x27; : undefined,
+		&#x27;data-qid-component-type&#x27;: &#x27;Luna::SelectDate&#x27;,
+		&#x27;data-focused&#x27;: manager.inputHasFocus ? &#x27;true&#x27; : undefined,
+		&#x27;data-errored&#x27;: manager.showErrorMessage ? &#x27;true&#x27; : undefined,
+		&#x27;data-luna-feature&#x27;: &#x27;meld&#x27;,
+		&#x27;data-testid&#x27;: testId,
+		...props,
+	};
+
+	// Render custom trigger
+	if (TriggerComponent) {
+		return (
+			&lt;div {...wrapperProps}&gt;
+				&lt;TriggerComponent
+					id={id}
+					data-qid-select-date-trigger=&quot;custom&quot;
+					onFocus={handleFocusIn}
+					onClick={handleOpen}
+					{...customTriggerAriaProps}
+				/&gt;
+				&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+					{manager.errorMessageToDisplay}
+				&lt;/InputError&gt;
+				{datePickerPopup}
+			&lt;/div&gt;
+		);
+	}
+
+	return (
+		&lt;div {...wrapperProps}&gt;
+			&lt;Button
+				ref={triggerRef}
+				id={id}
+				variant={variant}
+				size={size}
+				align={align}
+				width=&quot;full&quot;
+				errored={manager.showErrorMessage}
+				disabled={disabled}
+				active={triggerIsActive}
+				className={cn(styles.trigger, triggerClass)}
+				data-qid-select-date-trigger=&quot;default&quot;
+				onFocus={handleFocusIn}
+				onClick={handleOpen}
+				aria-required={requirements?.required || false}
+				aria-invalid={manager.showErrorMessage}
+				aria-expanded={!shouldRenderAsDiv ? showPopup : undefined}
+				aria-haspopup={!shouldRenderAsDiv ? &#x27;dialog&#x27; : undefined}
+				aria-controls={!shouldRenderAsDiv &amp;&amp; showPopup ? popupId : undefined}
+				aria-label={ariaLabel}
+				aria-labelledby={ariaLabelledBy}
+				aria-describedby={manager.ariaDescribedBy}
+			&gt;
+				{shouldShowIcon &amp;&amp; &lt;Icon className={styles.preIcon} icon=&quot;date-range&quot; size=&quot;sm&quot; /&gt;}
+				{hasValue ? (
+					&lt;div className={styles.label}&gt;{children ? children(value) : formattedSelection}&lt;/div&gt;
+				) : (
+					&lt;div className={styles.label} data-placeholder&gt;
+						{placeholder}
+					&lt;/div&gt;
+				)}
+				{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+					&lt;Spinner size=&quot;sm&quot; transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined} /&gt;
+				)}
+				{!chevronIsHidden &amp;&amp; &lt;Icon className={styles.postIcon} icon=&quot;chevron-down&quot; size=&quot;sm&quot; /&gt;}
+			&lt;/Button&gt;
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+			{datePickerPopup}
+		&lt;/div&gt;
+	);
+}
+
+export default SelectDate;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="select.html" class="nav-btn">← select</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="select-multiple.html" class="nav-btn">select-multiple →</a>
+  </div>
+</body>
+</html>

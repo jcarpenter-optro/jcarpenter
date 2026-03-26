@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>select — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>select</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>select</strong> implementations exist. The Ember version is 1088 lines and the React version is 1416 lines. The React version is notably larger (1416 vs 1088 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">select.gts</div><pre class="language-typescript">/* eslint-disable no-restricted-imports */
+//
+// SAFETY: select + multi-select need to have their behavior re-worked so we can be
+//         reasonably certain which type of environment we&#x27;re working with.
+//
+//         e.g.: design guideline: prefer separate classes rather than *many*
+//               if statements within the same class
+//
+//         there is quite a bit of ambiguity around whether `V` is supposed to be an
+//         array or truly generic or not.
+//
+//         As a result of the impending split of this file, this file has adopted
+//         *aggressive* use of casts to more quickly solve another problem, which is:
+//         the inability to correctly generate type declarations at all (more important atm).
+//
+//         Mainly, we have a good number of methods and assumptions about whether or not we&#x27;re
+//         dealing with arrays or not,
+//         but it&#x27;s too dizzying to add all the guards needed to make all the types agree.
+//         It&#x27;ll be much easier to split up Select and SelectMultiple
+//
+//         sooooooon:tm:
+import type { Placement } from &#x27;@floating-ui/dom&#x27;;
+import type { ComponentLike } from &#x27;@glint/template&#x27;;
+
+import { isArray } from &#x27;@ember/array&#x27;;
+import { assert, warn } from &#x27;@ember/debug&#x27;;
+import { registerDestructor } from &#x27;@ember/destroyable&#x27;;
+import { concat, fn, get } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import { service } from &#x27;@ember/service&#x27;;
+import { htmlSafe } from &#x27;@ember/template&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { cached, tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import type IntlService from &#x27;ember-intl/services/intl&#x27;;
+import { runTask } from &#x27;ember-lifeline&#x27;;
+import { modifier } from &#x27;ember-modifier&#x27;;
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+import { scopedClass } from &#x27;ember-scoped-css&#x27;;
+import and from &#x27;ember-truth-helpers/helpers/and&#x27;;
+import gt from &#x27;ember-truth-helpers/helpers/gt&#x27;;
+import not from &#x27;ember-truth-helpers/helpers/not&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import type { Store as V1Store } from &#x27;@auditboard/data/v1/store&#x27;;
+import type { SelectQueryFn } from &#x27;@auditboard/data/v2/builders&#x27;;
+import type { Recommendation } from &#x27;@auditboard/data/v2/resource-schemas&#x27;;
+import type { Store as V2Store } from &#x27;@auditboard/data/v2/store&#x27;;
+import type { CustomCompatFn } from &#x27;@auditboard/data/v2/utils/compat&#x27;;
+import { makeNativeArray } from &#x27;@auditboard/utils/array&#x27;;
+import type { Type } from &#x27;@auditboard/warp-drive/v1/core-types/symbols&#x27;;
+
+import requirementArg from &#x27;../helpers/requirement-arg.ts&#x27;;
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import type AsyncService from &#x27;../services/async.ts&#x27;;
+import { decodeEntities } from &#x27;../utils/encoding.ts&#x27;;
+import { focusById } from &#x27;../utils/focus.ts&#x27;;
+import type { InputManagerOptions, Requirements } from &#x27;../utils/input-manager.ts&#x27;;
+import InputManager from &#x27;../utils/input-manager.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import type { LunaButtonArgs } from &#x27;./button.gts&#x27;;
+import Button from &#x27;./button.gts&#x27;;
+import { labelIdForField } from &#x27;./field.gts&#x27;;
+import type { LunaFormBlockValue } from &#x27;./form.ts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import InputError from &#x27;./input-error.gts&#x27;;
+import Popup from &#x27;./popup.gts&#x27;;
+import type { LunaPopupBlockValue } from &#x27;./popup.ts&#x27;;
+import PopupFooter from &#x27;./popup/footer.gts&#x27;;
+import type { CalculateConfidenceScoreFn } from &#x27;./select/ai-utils.ts&#x27;;
+import { unwrapOption } from &#x27;./select/ai-utils.ts&#x27;;
+import type {
+	Options,
+	SelectEngine,
+	SelectionContext,
+	SimplifiedValidSelection,
+	SupportedArrayLike,
+	UnknownSelectValue,
+} from &#x27;./select/engine.ts&#x27;;
+import { AsyncProxySelectEngine, DeferredSelectEngine, SyncSelectEngine } from &#x27;./select/engine.ts&#x27;;
+import { QuerySelectEngine } from &#x27;./select/engine/query.ts&#x27;;
+import OptionList from &#x27;./select/option-list.gts&#x27;;
+import Spinner from &#x27;./spinner.gts&#x27;;
+
+export type { UnknownSelectValue };
+
+export const POPUP_WIDTHS = {
+	sm: 200,
+	md: 300,
+	lg: 400,
+};
+
+// Don&#x27;t leak this to engines. It makes the types way too complicated. Instead, use SimplifiedValidSelection and just use array checks to differentiate between Single and Multi Selects
+type ValidSelection&lt;
+	V extends UnknownSelectValue,
+	Required extends boolean,
+	SelectionType extends &#x27;single&#x27; | &#x27;multiple&#x27;,
+&gt; = SelectionType extends &#x27;single&#x27; ? (Required extends true ? V : V | null) : V[];
+
+// Don&#x27;t leak this to engines. It makes the types way too complicated.
+export type ValidInitialSelection&lt;
+	T extends UnknownSelectValue,
+	SelectionType extends &#x27;single&#x27; | &#x27;multiple&#x27;,
+&gt; = SelectionType extends &#x27;single&#x27;
+	? T | string | null | undefined
+	: SupportedArrayLike&lt;T&gt; | SupportedArrayLike&lt;string&gt; | null | undefined;
+
+interface SelectRequirements&lt;Required extends boolean&gt; extends Requirements {
+	required?: Required | [requirement: Required, message: string];
+}
+
+interface LunaSelectArgs&lt;
+	/** Singular &quot;value&quot; */
+	V extends UnknownSelectValue,
+	/** Sync local option added; if no local options are provided, this is the same as V */
+	LocalOption extends UnknownSelectValue,
+	/** Option returned from a v2 queryFn; if no queryFn is provided, this is the same as V */
+	QueryOption extends UnknownSelectValue,
+	Required extends boolean,
+	SelectionType extends &#x27;single&#x27; | &#x27;multiple&#x27;,
+	// We don&#x27;t want to infer V from the value because we want to ensure that the
+	// passed value is a valid value listed in the options. We ignore null,
+	// undefined, and string values for this though because they have special
+	// handling in the code.
+	I extends ValidInitialSelection&lt;NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt;, NoInfer&lt;SelectionType&gt;&gt; = ValidInitialSelection&lt;
+		NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt;,
+		NoInfer&lt;SelectionType&gt;
+	&gt;,
+	_IsFake extends boolean = false,
+&gt; extends Partial&lt;Pick&lt;LunaButtonArgs, &#x27;variant&#x27; | &#x27;size&#x27; | &#x27;disabled&#x27; | &#x27;align&#x27;&gt;&gt; {
+	id?: string;
+	active?: boolean;
+	/** If value is string or string[], it could be id(s) matching option ids */
+	value: I;
+	debounceDelay?: number;
+	searchKeys?: string[];
+	onCancel?: (reason: string) =&gt; void;
+	onOpen?: () =&gt; void;
+	/**
+	 * While the select&#x27;s internal selection will update, the change will not
+	 * mutate the source of whatever selection state was originally passed in
+	 * and thus the onChange callback is necessary to update the source of truth.
+	 */
+	onChange?: (
+		selection: ValidSelection&lt;V | NoInfer&lt;LocalOption&gt;, NoInfer&lt;Required&gt;, SelectionType&gt;,
+		context?: SelectionContext&lt;NoInfer&lt;QueryOption&gt;&gt;,
+		event?: Event,
+	) =&gt; unknown;
+	onCreateNew?: () =&gt; void;
+	createNewLabel?: string;
+	didAutosave?: () =&gt; void;
+	didCancel?: () =&gt; void;
+	didClose?: () =&gt; void;
+	onRecommendationsLoaded?: (recommendations: ReadonlyArray&lt;Recommendation&lt;QueryOption&gt;&gt;) =&gt; void;
+	class?: string;
+	triggerClass?: string;
+	// Popup passthrough
+	placeholder?: string | null | undefined;
+	placement?: Placement;
+	// Select::OptionList passthrough
+	searchDisabled?: boolean;
+	/**
+	 * Not allowed if using queryFn or another paginated approach
+	 */
+	allowSelectAll?: boolean;
+	popupWidth?: &#x27;auto&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+	requirements?: SelectRequirements&lt;Required&gt;;
+	chevronIsHidden?: boolean;
+	/**
+	 * If set to true, the empty option will be hidden.
+	 * If set to false, the empty option will be shown.
+	 * If not provided, the value for for `required` in `requirements` will be used.
+	 */
+	hideEmptyOption?: Required;
+	emptyOptionText?: string;
+	searchInputPlaceholder?: string;
+	/** AI Suggestions will always have an ID */
+	isAiSuggestion?: (option: NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt; | NoInfer&lt;QueryOption&gt; | { id: string }) =&gt; boolean;
+	/** Custom function to calculate confidence score. If not provided, uses default logic. */
+	calculateConfidenceScore?: CalculateConfidenceScoreFn;
+	ariaLabel?: string;
+	ariaLabelledBy?: string;
+	ariaDescribedBy?: string;
+	triggerComponent?: ComponentLike&lt;{
+		Element: HTMLElement;
+		Args: {
+			value: NoInfer&lt;I&gt;;
+			disabled?: boolean;
+		};
+	}&gt;;
+	/**
+	 * `@options` is required if `@queryFn` is not provided;
+	 * if `@queryFn` is provided, `@options` will not be used.
+	 */
+	options?: Options&lt;V&gt;;
+	/**
+	 * Use this instead of `@options` to silence deprecation assertions
+	 * alerting you to the fact that you are using unpaginated options that
+	 * will probably time out for scale pioneer customers.
+	 *
+	 * @deprecated Use during migration to queryFn only. See docs at https://docs.auditboardteam.com/Auditboard-Data/best-practices/index.md#dont-load-unpaginated-data-into-select-options.
+	 */
+	dangerouslyUnpaginatedOptions?: Options&lt;V&gt;;
+	/** queryFn is only required if options is not provided */
+	queryFn?: SelectQueryFn&lt;QueryOption&gt; | null;
+	/**
+	 * Only relevant if `@queryFn` is provided.
+	 *
+	 * If `@useV1Store` is `false` (default):
+	 * Optional compat builder for converting v2 resource options to
+	 * v1 model instance values when a selection is made.
+	 *
+	 * If `@useV1Store` is `true`:
+	 * Optional compat builder for re-fetching v1 model instance values when a
+	 * selection is made.
+	 *
+	 * For example, you may need to pass a `valueCompatFn` to fetch extra
+	 * sideloads for the selected option(s).
+	 */
+	valueCompatFn?: CustomCompatFn&lt;V &amp; { [Type]: string }&gt;;
+	/** Only relevant if `@queryFn` is provided. */
+	useV1Store?: boolean;
+	/**
+	 * Static local options to be used in conjunction with queryFn. These options
+	 * will be prepended to the options list but will _not_ be searched. If there
+	 * is a search query, these options will _not_ be shown.
+	 *
+	 * Only relevant if `@queryFn` is provided.
+	 */
+	localOptions?: LocalOption[];
+	form?: LunaFormBlockValue;
+	name?: string;
+	disabled?: boolean;
+	/** @deprecated This can almost always be handled better with `externalErrorsFor` on the form or a custom validator. */
+	serverErrors?: Array&lt;{ message?: string } | string&gt;;
+}
+
+interface LunaSelectSignature&lt;
+	V extends UnknownSelectValue,
+	LocalOption extends UnknownSelectValue,
+	QueryOption extends UnknownSelectValue,
+	Required extends boolean,
+	SelectionType extends &#x27;single&#x27; | &#x27;multiple&#x27;,
+	I extends ValidInitialSelection&lt;NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt;, NoInfer&lt;SelectionType&gt;&gt; = ValidInitialSelection&lt;
+		NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt;,
+		NoInfer&lt;SelectionType&gt;
+	&gt;,
+	IsFake extends boolean = false,
+&gt; {
+	Element: HTMLDivElement;
+	Args: LunaSelectArgs&lt;V, LocalOption, QueryOption, Required, SelectionType, I, IsFake&gt;;
+	Blocks: {
+		icon?: [];
+		// This value will never be falsy because we only render the trigger block when the placeholder is not shown
+		trigger?: [value: NoInfer&lt;ValidSelection&lt;V | LocalOption, true, SelectionType&gt;&gt;];
+		option: [option: NoInfer&lt;V | QueryOption | LocalOption&gt;];
+		/** TODO: Should not have both option and default blocks. */
+		// NOTE: This type will _not_ handle the case where the value is a string but the options are non-strings
+		// This value will never be falsy because we only render the trigger block when the placeholder is not shown
+		default: [displayValue: NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt; | NoInfer&lt;QueryOption&gt;];
+	};
+}
+
+let SelectID = 0;
+
+/**
+ * A component for selecting options, supporting both single and multi-select modes.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/select.md)
+ */
+export default class Select&lt;
+	V extends UnknownSelectValue,
+	LocalOption extends UnknownSelectValue = V,
+	QueryOption extends UnknownSelectValue = V,
+	Required extends boolean = boolean,
+	SelectionType extends &#x27;single&#x27; | &#x27;multiple&#x27; = &#x27;single&#x27;,
+	I extends ValidInitialSelection&lt;NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt;, NoInfer&lt;SelectionType&gt;&gt; = ValidInitialSelection&lt;
+		NoInfer&lt;V&gt; | NoInfer&lt;LocalOption&gt;,
+		NoInfer&lt;SelectionType&gt;
+	&gt;,
+	IsFake extends boolean = false,
+&gt; extends Component&lt;LunaSelectSignature&lt;V, LocalOption, QueryOption, Required, SelectionType, I, IsFake&gt;&gt; {
+	@service declare intl: IntlService;
+	@service(&#x27;luna/async&#x27;) declare private async: AsyncService;
+	@service(&#x27;store&#x27;) declare private v1Store: V1Store;
+	@service(&#x27;v2-store&#x27;) declare private v2Store: V2Store;
+
+	@consume(&#x27;store&#x27;) declare private _contextStore: V1Store | V2Store | undefined;
+	@consume(&#x27;luna-input-id&#x27;) providedInputId!: string;
+	@consume(&#x27;luna-form&#x27;) formContext: LunaFormBlockValue | undefined;
+
+	@cached
+	get contextStore() {
+		const contextStore = this._contextStore;
+		if (!contextStore) {
+			warn(&#x27;No store found in context for Select component. Falling back to v1 store.&#x27;, {
+				id: &#x27;luna.select.no-context-store&#x27;,
+			});
+		}
+		return contextStore ?? this.v1Store;
+	}
+
+	manager: InputManager;
+
+	constructor(owner: Owner, args: LunaSelectArgs&lt;V, LocalOption, QueryOption, Required, SelectionType, I&gt;) {
+		super(owner, args);
+		assert(&#x27;You cannot provide both ariaLabel and ariaLabelledBy&#x27;, !args.ariaLabel || !args.ariaLabelledBy);
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
+		const managerOptions: InputManagerOptions = {
+			mode: &#x27;change&#x27;,
+			name: args.name,
+			didAutosave: this.didAutosave.bind(this),
+
+			focus: this.focusInput.bind(this),
+
+			ariaDescribedBy: this.args.ariaDescribedBy ?? null,
+
+			get value(): unknown {
+				return args.value;
+			},
+
+			get isDisabled(): boolean {
+				return args.disabled ?? false;
+			},
+
+			get requirements(): SelectRequirements&lt;Required&gt; | undefined {
+				return args.requirements;
+			},
+
+			get serverErrors(): Array&lt;{ message?: string } | string&gt; | undefined {
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				return args.serverErrors;
+			},
+
+			get formContext(): LunaFormBlockValue | undefined {
+				return that.formContext;
+			},
+
+			get selectorIsVisible(): boolean {
+				return that.showPopup;
+			},
+		};
+
+		this.manager = new InputManager(owner, managerOptions);
+		void this.registerManager();
+	}
+
+	registerManager = async () =&gt; {
+		await timeout(0);
+		if (this.isDestroyed || this.isDestroying) {
+			return;
+		}
+		this.formContext?.actions?.registerInputManager(this.manager);
+
+		registerDestructor(this, () =&gt; {
+			this.formContext?.actions?.unregisterInputManager(this.manager);
+		});
+	};
+
+	// SAFETY: This cast is necessary because of &quot;&#x27;SelectionType&#x27; could be instantiated
+	// with a different subtype&quot; error (which is technically true, but to avoid it
+	// we&#x27;d have to re-architect these components to not rely on SelectMultiple
+	// inheriting from Select).
+	selectionType: SelectionType = &#x27;single&#x27; as SelectionType;
+
+	_id = SelectID++;
+	popupId = `select${this._id}--popup`;
+	inputId = `select${this._id}--input`;
+
+	@tracked showPopup = false;
+	@tracked placement = this.args.placement ?? &#x27;bottom&#x27;;
+
+	/**
+	 * Whether the popup&#x27;s placement has been reevaluated.
+	 * Set true when the popup first renders. This helps us avoid unnecessary
+	 * calls to updatePopupPlacement. Reset when the popup is closed.
+	 */
+	@tracked placementHasBeenUpdated = false;
+
+	// we cache engine and engineArgs onto these properties
+	// for stability
+	declare _engine: SelectEngine&lt;V, LocalOption, QueryOption&gt; | undefined;
+	declare _engineArgs:
+		| {
+				options?: Options&lt;V&gt;;
+				queryFn?: SelectQueryFn&lt;QueryOption&gt; | null;
+				useV1Store?: boolean;
+				searchKeys?: string[];
+				debounceDelay?: number;
+				isAiSuggestion?: (option: V | LocalOption | QueryOption | { id: string }) =&gt; boolean;
+				getUpstreamValue: () =&gt; SimplifiedValidSelection&lt;V | LocalOption | string&gt;;
+				onRecommendationsLoaded?: (recommendations: ReadonlyArray&lt;Recommendation&lt;QueryOption&gt;&gt;) =&gt; void;
+		  }
+		| undefined;
+
+	@cached
+	get engineArgs() {
+		const engineArgs = {
+			selectionType: this.selectionType,
+			options: (this.args.options ??
+				// eslint-disable-next-line @typescript-eslint/no-deprecated -- TODO: API Contracts to remove once migration is complete
+				this.args.dangerouslyUnpaginatedOptions) as Options&lt;V&gt; | undefined,
+			hasDangerouslyUnpaginatedOptions: Boolean(
+				// eslint-disable-next-line @typescript-eslint/no-deprecated -- TODO:  API Contracts to remove once migration is complete
+				this.args.dangerouslyUnpaginatedOptions,
+			),
+			queryFn: this.args.queryFn,
+			useV1Store: this.args.useV1Store,
+			searchKeys: this.args.searchKeys,
+			debounceDelay: this.args.debounceDelay,
+			isAiSuggestion: this.args.isAiSuggestion,
+
+			// NOTE: It&#x27;s Currently important that we wrap `this.args.value` in a
+			// function so that this getter doesn&#x27;t consume it, which would reset
+			// the Engine&#x27;s caches every time the value is updated.
+			getUpstreamValue: (): SimplifiedValidSelection&lt;V | LocalOption | string&gt; =&gt; {
+				const { value } = this.args;
+
+				if (this.isMultiSelect) {
+					if (value === undefined || value === null) {
+						return [];
+					}
+					assert(
+						`BUG! Expected value in SelectMultiple to be a supported array-like type (or null-ish), but got ${typeof value}.`,
+						isArray(value),
+					);
+					return makeNativeArray(value, false).slice() as Array&lt;V | LocalOption | string&gt;;
+				}
+
+				if (value === undefined || value === null) {
+					return null;
+				}
+
+				return value as V | LocalOption | string;
+			},
+			onRecommendationsLoaded: this.args.onRecommendationsLoaded,
+		};
+		// eslint-disable-next-line ember/no-side-effects
+		this._engineArgs = engineArgs;
+		return engineArgs;
+	}
+
+	@cached
+	get engine(): SelectEngine&lt;V, LocalOption, QueryOption&gt; {
+		// we access _engineArgs before engineArgs to ensure
+		// we have the prior computation state to compare against.
+		const args = this._engineArgs;
+		const engineArgs = this.engineArgs;
+
+		// if we have an engine and args has not recomputed then
+		// we can reuse the existing engine.
+		if (this._engine &amp;&amp; args === engineArgs) {
+			return this._engine;
+		}
+
+		if (engineArgs.queryFn) {
+			assert(&#x27;Cannot set both `queryFn` and `options` as args&#x27;, !engineArgs.options);
+
+			if (this.contextStore === this.v2Store &amp;&amp; engineArgs.useV1Store) {
+				throw new Error(&#x27;Cannot use v1 store when context store is v2&#x27;);
+			}
+
+			// eslint-disable-next-line ember/no-side-effects
+			return (this._engine = new QuerySelectEngine&lt;V, LocalOption, QueryOption&gt;(
+				this.v1Store,
+				this.v2Store,
+				this.contextStore,
+				{
+					queryFn: engineArgs.queryFn,
+					valueCompatFn: this.args.valueCompatFn ?? null,
+					selectionType: engineArgs.selectionType,
+					useV1Store: engineArgs.useV1Store ?? false,
+					debounceDelay: engineArgs.debounceDelay,
+					getUpstreamValue: engineArgs.getUpstreamValue,
+					localOptions: this.args.localOptions ?? [],
+					onRecommendationsLoaded: engineArgs.onRecommendationsLoaded,
+				},
+			));
+		}
+
+		// SAFETY: In the remaining engines, the types of LocalOption and
+		// QueryOption are always the same as V so these casts are safe
+		const engineOptions = {
+			fuzzySearchKeys: engineArgs.searchKeys,
+			getUpstreamValue: engineArgs.getUpstreamValue as () =&gt; SimplifiedValidSelection&lt;V&gt;,
+			selectionType: engineArgs.selectionType,
+			debounceDelay: engineArgs.debounceDelay,
+			isAiSuggestion: engineArgs.isAiSuggestion as (option: V | { id: string }) =&gt; boolean,
+			hasDangerouslyUnpaginatedOptions: engineArgs.hasDangerouslyUnpaginatedOptions,
+		};
+		// TODO: We need to ensure that regardless of the engine type (aside from query engine) search is handled
+		if (typeof engineArgs.options === &#x27;function&#x27;) {
+			// eslint-disable-next-line ember/no-side-effects
+			return (this._engine = new DeferredSelectEngine&lt;V&gt;(this.async, engineArgs.options, engineOptions) as SelectEngine&lt;
+				V,
+				LocalOption,
+				QueryOption
+			&gt;);
+		} else if (engineArgs.options &amp;&amp; &#x27;then&#x27; in engineArgs.options) {
+			// eslint-disable-next-line ember/no-side-effects
+			return (this._engine = new AsyncProxySelectEngine&lt;V&gt;(engineArgs.options, engineOptions) as SelectEngine&lt;
+				V,
+				LocalOption,
+				QueryOption
+			&gt;);
+		}
+
+		// eslint-disable-next-line ember/no-side-effects
+		return (this._engine = new SyncSelectEngine&lt;V&gt;(engineArgs.options ?? [], engineOptions) as SelectEngine&lt;
+			V,
+			LocalOption,
+			QueryOption
+		&gt;);
+	}
+
+	// Set true in Fake subclasses
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get shouldRenderAsDiv(): IsFake {
+		// @ts-expect-error The way we&#x27;re doing subclassing here is confusing for TS.
+		return false;
+	}
+
+	get id() {
+		return this.args.id || this.providedInputId || this.inputId;
+	}
+
+	get labelId() {
+		return this.providedInputId ? labelIdForField(this.providedInputId) : null;
+	}
+
+	get usePopupLabelId() {
+		return !this.args.ariaLabel &amp;&amp; !this.args.placeholder;
+	}
+
+	get required(): Required | false {
+		const arg = this.args.requirements;
+		return (arg &amp;&amp; (Array.isArray(arg.required) ? arg.required[0] : arg.required)) ?? false;
+	}
+
+	get hideEmptyOption(): Required | false {
+		return this.args.hideEmptyOption ?? this.required ?? false;
+	}
+
+	get allowSelectAll() {
+		const allow = this.args.allowSelectAll ?? false;
+
+		assert(&#x27;Cannot set `allowSelectAll` when using `queryFn`&#x27;, !allow || !this.args.queryFn);
+		return allow;
+	}
+
+	/**
+	 * Whether the multi-select footer flag is enabled.
+	 * Redeclared and bound in the instance initializer of the consuming app.
+	 * See `client/app/initializers/luna.ts` for example implementation.
+	 */
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	get multiSelectFooterFlagIsEnabled() {
+		return false;
+	}
+
+	/**
+	 * Whether the popup footer is shown for multiselect instances.
+	 * Determines the behavior of applying a multi-selection.
+	 */
+	get multiSelectFooterIsShown() {
+		return this.isMultiSelect &amp;&amp; this.multiSelectFooterFlagIsEnabled;
+	}
+
+	/**
+	 * An asserted-to-exist reference to the `value` argument.
+	 * Used for type fulfillment when the value is known to exist.
+	 */
+	get unknownTruthyValue() {
+		const { value } = this.args;
+		assert(
+			&#x27;BUG! Value is falsy. This getter should only be used in the else block of a `placeholderLabelIsShown` check&#x27;,
+			value,
+		);
+		return value as ValidSelection&lt;V | LocalOption, true, SelectionType&gt;;
+	}
+
+	/**
+	 * Used when the template is scoped to and expects a non-array value.
+	 */
+	get valueAsNonArray() {
+		const { value } = this.args;
+		assert(
+			&#x27;BUG! Value is falsy. This getter should only be used in the else block of a `placeholderLabelIsShown` check&#x27;,
+			value,
+		);
+		assert(`BUG! Accessed valueAsNonArray in multi-select.`, this.selectionType === &#x27;single&#x27;);
+		assert(`BUG! Expected value in Select to be a non-array type, but got ${typeof value}.`, !isArray(value));
+		return value as V | LocalOption | QueryOption;
+	}
+
+	/**
+	 * Used when the template is scoped to and expects an array value.
+	 */
+	get valueAsArrayLength(): number {
+		const { value } = this.args;
+		assert(
+			&#x27;BUG! Value is falsy. This getter should only be used in the else block of a `placeholderLabelIsShown` check&#x27;,
+			value,
+		);
+		assert(`BUG! Accessed valueAsArrayLength in single-select.`, this.selectionType === &#x27;multiple&#x27;);
+		if (value === null || value === undefined) {
+			return 0;
+		}
+		assert(`BUG! Accessed valueAsArrayLength but the value was not valid for multi-select`, isArray(value));
+		return value.length;
+	}
+
+	/**
+	 * Whether the placeholder label should be shown. If false,
+	 * the template will render to one of the value-based labels.
+	 */
+	get placeholderLabelIsShown() {
+		const { value } = this.args;
+
+		if (value &amp;&amp; (this.isSingleSelect || (this.isMultiSelect &amp;&amp; isArray(value) &amp;&amp; value.length &gt; 0))) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether there are any applied filters. Determines whether
+	 * to show the &quot;Clear&quot; button and what to say in the primary button.
+	 */
+	@tracked hasActiveFilters = this.engine.originalOptions !== this.engine.filteredOptions;
+
+	get clearButtonIsShown() {
+		return this.engine.selection instanceof Array &amp;&amp; this.engine.selection.length &gt; 0;
+	}
+
+	popupWidth(width: &#x27;auto&#x27; | keyof typeof POPUP_WIDTHS, id: string) {
+		if (width === &#x27;auto&#x27;) {
+			const element = document.getElementById(id);
+			assert(`Element not found for id: ${id}`, element);
+			const clientWidth = Math.max(POPUP_WIDTHS.sm, element.clientWidth);
+			return htmlSafe(`width: ${clientWidth}px;`);
+		}
+		return htmlSafe(`width: ${POPUP_WIDTHS[width]}px`);
+	}
+
+	get isSingleSelect() {
+		return this.selectionType === &#x27;single&#x27;;
+	}
+
+	get isMultiSelect(): boolean {
+		return this.selectionType === &#x27;multiple&#x27;;
+	}
+
+	get triggerIsActive() {
+		return this.args.active ?? this.showPopup;
+	}
+
+	@action
+	onSearch(value: string) {
+		this.engine.onSearch(decodeEntities(value, false));
+	}
+
+	onFocusIn = () =&gt; {
+		if (this.shouldRenderAsDiv) {
+			return;
+		}
+		this.manager.focusIn();
+	};
+
+	handleCustomTriggerClick = (event: MouseEvent) =&gt; {
+		const target = event.target as HTMLElement;
+		const currentTarget = event.currentTarget as HTMLElement;
+
+		/**
+		 * Legacy support:
+		 * Do not toggle the select popup if the user clicks on an anchor tag
+		 * within the custom trigger. This preserves legacy behavior where some custom triggers
+		 * contain nested links that should navigate instead of toggling the popup.
+		 *
+		 * Note: Nesting anchor tags within triggers should be avoided.
+		 */
+		if (target !== currentTarget &amp;&amp; target.tagName === &#x27;A&#x27;) {
+			return;
+		}
+
+		this.maybeToggleSelector();
+	};
+
+	@action
+	maybeToggleSelector() {
+		if (this.args.disabled || this.shouldRenderAsDiv) {
+			return;
+		}
+
+		if (this.showPopup) {
+			void this.popup?.closeTask.perform();
+		} else {
+			void this.engine.onOpen();
+			this.args.onOpen?.();
+			this.showPopup = true;
+		}
+	}
+
+	popup: LunaPopupBlockValue | null = null;
+	registerPopup = (popup: LunaPopupBlockValue) =&gt; {
+		this.popup = popup;
+	};
+
+	applyMultiSelection = (closePopup: LunaPopupBlockValue[&#x27;closeTask&#x27;]) =&gt; {
+		void closePopup.perform();
+	};
+
+	clearSelection = () =&gt; {
+		assert(&#x27;clearSelection must be present in the engine&#x27;, this.engine.clearSelection !== undefined);
+		this.engine.clearSelection();
+		this.onSearch(&#x27;&#x27;);
+	};
+
+	@action
+	async willCloseSelector(reason: string) {
+		this.engine.willClose?.();
+
+		if (this.engine.valueIsUnchanged) {
+			return this.args.onCancel?.(reason);
+		}
+
+		// TODO: it doesn&#x27;t seem right to treat this case as a cancel
+		// but maybe it is? need to understand more and document the reasoning
+		// in a comment that replaces this one.
+		if (this.isSingleSelect &amp;&amp; reason !== &#x27;manual&#x27;) {
+			return this.args.onCancel?.(reason);
+		}
+
+		// SAFETY: This cast allows us to avoid the complexity of `ValidSelection`
+		// handling in the engines. The safety of this cast relies on careful
+		// handling of the `SimplifiedValidSelection` in the engine implementations.
+		// TODO: This probably isn&#x27;t totally safe in the case where we have a `null` value.
+		const outputSelection = (await this.engine.getNormalizedSelection()) as ValidSelection&lt;
+			V | LocalOption,
+			Required,
+			SelectionType
+		&gt;;
+
+		const handleChange = async () =&gt; {
+			// No change, so don&#x27;t do anything.
+			if (this.args.value === outputSelection) {
+				return;
+			}
+			// Ensure we don&#x27;t pass null in multi-select mode
+			const change =
+				this.isMultiSelect &amp;&amp; !outputSelection
+					? ([] as ValidSelection&lt;V | LocalOption, Required, SelectionType&gt;)
+					: outputSelection;
+			assert(&#x27;onChange must exist&#x27;, this.args.onChange);
+			await this.args.onChange(change, this.engine.selectedContext);
+			return this.manager.onChange();
+		};
+		if (this.isMultiSelect) {
+			if (this.multiSelectFooterFlagIsEnabled) {
+				if (reason === &#x27;manual&#x27;) {
+					return await handleChange();
+				}
+				this.engine.cancelSelection?.();
+				return this.args.onCancel?.(reason);
+			}
+
+			if (reason === &#x27;esc&#x27;) {
+				return await handleChange();
+			}
+		}
+		assert(&#x27;onChange must exist&#x27;, this.args.onChange);
+		return await handleChange();
+	}
+
+	@action
+	onCloseSelector() {
+		if (this.engine.valueIsUnchanged) {
+			this.args.didCancel?.();
+		}
+
+		this.showPopup = false;
+		this.placementHasBeenUpdated = false;
+
+		this.hasActiveFilters = this.engine.originalOptions !== this.engine.filteredOptions;
+
+		this.engine.onSearch(&#x27;&#x27;);
+
+		this.args.didClose?.();
+	}
+
+	@action
+	toggleOption(
+		closeTask: LunaPopupBlockValue[&#x27;closeTask&#x27;],
+		isSelected: boolean,
+		option: V | LocalOption | QueryOption | Recommendation&lt;QueryOption&gt; | null,
+	) {
+		// TODO: This preserves a historical bug that turned into a feature.
+		// namely: single selects never allow de-selection, regardless of required-ness.
+		// AND: a referentially unstable set of options would treat a deselect as a select
+		// regardless of required-ness.
+		// here, we have preserved this behavior for now but we should find a migration path
+		// to enable de-selection of single-select options when they are not required.
+		if (!this.isMultiSelect &amp;&amp; !isSelected) {
+			this.engine.toggleOption(option, true);
+
+			return closeTask.perform();
+		}
+
+		// if we fix the de-selection issue referenced directly above, then this check
+		// would be the better check to be using.
+		// for the single-select case, if the mode is required we do not allow deselecting
+		// the selected option.
+		// if (!this.isMultiSelect &amp;&amp; !isSelected &amp;&amp; this.args.requirements?.required) {
+		// 	return;
+		// }
+		this.engine.toggleOption(option, isSelected);
+
+		if (this.isSingleSelect) {
+			return closeTask.perform();
+		}
+	}
+
+	@action
+	toggleAllOptions(closeTask: LunaPopupBlockValue[&#x27;closeTask&#x27;], isSelected: boolean) {
+		this.engine.toggleAllOptions(isSelected);
+
+		if (this.isSingleSelect &amp;&amp; !isSelected) {
+			return closeTask.perform();
+		}
+	}
+
+	@action
+	didAutosave() {
+		// FIXME need to have the engine know to do this somehow
+		// possibly means they need an autosave hook?
+		this.args.didAutosave?.();
+	}
+
+	handleTriggerKeydown = (event: KeyboardEvent) =&gt; {
+		if (this.args.disabled || this.shouldRenderAsDiv) {
+			return;
+		}
+
+		const { key } = event;
+
+		if (key === KEYBOARD_KEYS.UP_ARROW || key === KEYBOARD_KEYS.DOWN_ARROW) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			this.maybeToggleSelector();
+
+			if (key === KEYBOARD_KEYS.UP_ARROW) {
+				runTask(this, () =&gt; {
+					document.body.dispatchEvent(
+						new KeyboardEvent(&#x27;keydown&#x27;, {
+							key: KEYBOARD_KEYS.UP_ARROW,
+							bubbles: true,
+						}),
+					);
+				});
+			}
+
+			return;
+		}
+
+		if (key.length &gt; 1 || this.args.searchDisabled) {
+			return;
+		}
+
+		const modifierKeysToIgnore = [
+			KEYBOARD_KEYS.META,
+			KEYBOARD_KEYS.CONTROL,
+			KEYBOARD_KEYS.ALT,
+			KEYBOARD_KEYS.SCROLL_LOCK,
+		];
+
+		if (modifierKeysToIgnore.some((k) =&gt; event.getModifierState(k))) {
+			return;
+		}
+
+		event.preventDefault();
+		this.maybeToggleSelector();
+
+		if (key !== KEYBOARD_KEYS.SPACE) {
+			this.onSearch(key);
+		}
+	};
+
+	/**
+	 * Conditionally updates the popup placement. Passed to OptionsList as `didLoad`.
+	 * Forces the popup engine to reevaluate its positioning strategy once the
+	 * content has been loaded. We only run this once per popup render to
+	 * prevent unwanted repositioning once the popup is open, specifically
+	 * as the popup height changes during search.
+	 */
+	maybeUpdatePopupPlacement = () =&gt; {
+		if (!this.placementHasBeenUpdated) {
+			this.placement = this.args.placement ?? &#x27;bottom&#x27;;
+
+			runTask(this, () =&gt; {
+				this.placementHasBeenUpdated = true;
+			});
+		}
+	};
+
+	focusInput = () =&gt; {
+		focusById(this.id);
+	};
+
+	/**
+	 * Ensures that placeholder (which is inert) has no focusable elements within it that can cause keyboard traps.
+	 */
+	noPlaceholderFocusable = modifier((element) =&gt; {
+		// eslint-disable-next-line @soxhub/i18n/no-bare-strings
+		const focusableChild = element.querySelector&lt;HTMLElement&gt;(&#x27;[tabindex], button, a&#x27;);
+		const tabindex = focusableChild?.getAttribute(&#x27;tabindex&#x27;);
+		assert(
+			&#x27;Found focusable child in noPlaceholderFocusable modifier&#x27;,
+			!(focusableChild instanceof HTMLElement) &amp;&amp; (!tabindex || tabindex === &#x27;-1&#x27;),
+		);
+	});
+
+	&lt;template&gt;
+		&lt;div
+			class=&quot;Select {{@class}}&quot;
+			data-size={{or @size &quot;md&quot;}}
+			data-disabled={{toString0 @disabled}}
+			data-qid-component-type=&quot;Luna::Select&quot;
+			data-qid-select-mode={{if @queryFn (if @useV1Store &quot;v1-query&quot; &quot;v2-query&quot;) &quot;legacy&quot;}}
+			data-qid-selection-type={{this.selectionType}}
+			data-focused={{toString0 this.manager.inputHasFocus}}
+			data-errored={{toString0 this.manager.showErrorMessage}}
+			data-luna-feature=&quot;meld&quot;
+			...attributes
+		&gt;
+
+			{{#if @triggerComponent}}
+				{{! Note: Custom triggers need their own div-rendering logic. }}
+				&lt;@triggerComponent
+					@value={{@value}}
+					@disabled={{@disabled}}
+					id={{this.id}}
+					class=&quot;trigger&quot;
+					aria-controls={{unless this.shouldRenderAsDiv this.popupId}}
+					aria-label={{@ariaLabel}}
+					aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+					aria-describedby={{this.manager.ariaDescribedBy}}
+					role={{unless this.shouldRenderAsDiv &quot;combobox&quot;}}
+					data-qid-select-custom-trigger
+					aria-expanded={{toString0 this.triggerIsActive}}
+					{{on &quot;keydown&quot; this.handleTriggerKeydown}}
+					{{on &quot;click&quot; this.handleCustomTriggerClick}}
+				/&gt;
+			{{else}}
+				&lt;Button
+					@align={{@align}}
+					@variant={{or @variant &quot;white&quot;}}
+					@width=&quot;full&quot;
+					@size={{or @size &quot;md&quot;}}
+					@errored={{this.manager.showErrorMessage}}
+					@disabled={{@disabled}}
+					@active={{this.triggerIsActive}}
+					@shouldRenderAsDiv={{this.shouldRenderAsDiv}}
+					id={{this.id}}
+					class=&quot;trigger {{@triggerClass}}&quot;
+					aria-controls={{unless this.shouldRenderAsDiv this.popupId}}
+					aria-label={{@ariaLabel}}
+					aria-labelledby={{if @ariaLabelledBy @ariaLabelledBy (unless @ariaLabel this.labelId)}}
+					aria-required={{if
+						(and (not this.shouldRenderAsDiv) (requirementArg @requirements &quot;required&quot;))
+						&quot;true&quot;
+						&quot;false&quot;
+					}}
+					role={{unless this.shouldRenderAsDiv &quot;combobox&quot;}}
+					aria-expanded={{unless this.shouldRenderAsDiv (toString0 this.triggerIsActive)}}
+					aria-invalid={{unless this.shouldRenderAsDiv (toString0 this.manager.showErrorMessage)}}
+					aria-describedby={{unless this.shouldRenderAsDiv this.manager.ariaDescribedBy}}
+					{{on &quot;focus&quot; this.onFocusIn}}
+					{{on &quot;click&quot; this.maybeToggleSelector}}
+					{{on &quot;keydown&quot; this.handleTriggerKeydown}}
+				&gt;
+					{{#if (has-block &quot;icon&quot;)}}
+						&lt;div class=&quot;pre-icon&quot;&gt;
+							{{yield to=&quot;icon&quot;}}
+						&lt;/div&gt;
+					{{/if}}
+					{{#if this.placeholderLabelIsShown}}
+						&lt;div class=&quot;label&quot; data-placeholder inert {{this.noPlaceholderFocusable}}&gt;
+							{{@placeholder}}
+						&lt;/div&gt;
+					{{else}}
+						&lt;div class=&quot;label&quot;&gt;
+							{{#if (has-block &quot;trigger&quot;)}}
+								{{yield this.unknownTruthyValue to=&quot;trigger&quot;}}
+							{{else}}
+								{{#if this.isSingleSelect}}
+									{{yield this.valueAsNonArray}}
+								{{else if (gt this.valueAsArrayLength 1)}}
+									{{this.valueAsArrayLength}}
+									{{t &quot;input.select.selected&quot;}}
+								{{else}}
+									{{! TODO: The note here was &quot;Our old version of ember-data require firstObject&quot; but I doubt that is still true }}
+									{{! @glint-expect-error - We should make a helper or something for this }}
+									{{yield (or (get @value 0) (get @value &quot;firstObject&quot;))}}
+								{{/if}}
+							{{/if}}
+						&lt;/div&gt;
+					{{/if}}
+
+					{{#if (or this.manager.isAutosaving this.manager.didAutosaveSuccessfully)}}
+						&lt;Spinner @size=&quot;sm&quot; @transitionTo={{if this.manager.didAutosaveSuccessfully &quot;success&quot;}} /&gt;
+					{{/if}}
+					{{#unless @chevronIsHidden}}
+						&lt;Icon @class={{scopedClass &quot;post-icon&quot;}} @icon=&quot;chevron-down&quot; @size=&quot;sm&quot; /&gt;
+					{{/unless}}
+				&lt;/Button&gt;
+			{{/if}}
+
+			&lt;InputError id={{this.manager.errorId}} @showWhen={{this.manager.showErrorMessage}}&gt;
+				{{this.manager.errorMessageToDisplay}}
+			&lt;/InputError&gt;
+
+			&lt;Popup
+				role=&quot;dialog&quot;
+				aria-label={{or @ariaLabel @placeholder}}
+				aria-labelledby={{if this.usePopupLabelId this.labelId}}
+				@id={{this.popupId}}
+				@show={{this.showPopup}}
+				@relativeTo={{concat &quot;#&quot; this.id}}
+				@placement={{this.placement}}
+				@trapFocus={{true}}
+				@onClose={{this.onCloseSelector}}
+				@willClose={{this.willCloseSelector}}
+				as |p|
+			&gt;
+				&lt;OptionList
+					@lastReached={{this.engine.loadMore}}
+					@options={{this.engine.originalOptions}}
+					@filteredOptions={{this.engine.filteredOptions}}
+					@selection={{this.engine.selection}}
+					@required={{this.hideEmptyOption}}
+					@popup={{p}}
+					@didLoad={{this.maybeUpdatePopupPlacement}}
+					@searchText={{decodeEntities this.engine.searchText false}}
+					@onSearch={{this.onSearch}}
+					@onCreateNew={{@onCreateNew}}
+					@createNewLabel={{@createNewLabel}}
+					@isLoading={{this.engine.isLoading}}
+					@toggleOption={{this.toggleOption}}
+					@toggleAllOptions={{this.toggleAllOptions}}
+					@isMultiSelect={{this.isMultiSelect}}
+					@searchDisabled={{@searchDisabled}}
+					@allowSelectAll={{this.allowSelectAll}}
+					@emptyOptionText={{@emptyOptionText}}
+					@searchInputPlaceholder={{@searchInputPlaceholder}}
+					@isAiSuggestion={{this.engine.isAiSuggestion}}
+					@calculateConfidenceScore={{@calculateConfidenceScore}}
+					style={{this.popupWidth (or @popupWidth &quot;auto&quot;) this.id}}
+					as |option|
+				&gt;
+					{{#let (unwrapOption option) as |yieldedOption|}}
+						{{#if (has-block &quot;option&quot;)}}
+							{{yield yieldedOption to=&quot;option&quot;}}
+						{{else}}
+							{{yield yieldedOption}}
+						{{/if}}
+					{{/let}}
+				&lt;/OptionList&gt;
+				{{#if this.multiSelectFooterIsShown}}
+					&lt;PopupFooter
+						data-qid-multi-select-footer
+						class=&quot;footer&quot;
+						@clearButtonIsShown={{this.clearButtonIsShown}}
+						@hasInitialValue={{this.hasActiveFilters}}
+						@onClear={{this.clearSelection}}
+						@onApply={{fn this.applyMultiSelection p.closeTask}}
+					/&gt;
+				{{/if}}
+			&lt;/Popup&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">select.tsx</div><pre class="language-typescript">import { type MutableRefObject, useCallback, useEffect, useId, useMemo, useRef, useState } from &#x27;react&#x27;;
+import { flushSync } from &#x27;react-dom&#x27;;
+
+import { Combobox } from &#x27;@base-ui-components/react/combobox&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { t } from &#x27;../../utils/i18n&#x27;;
+import { useInputManager } from &#x27;../../utils/use-input-manager&#x27;;
+import { Button } from &#x27;../button/button&#x27;;
+import { useFieldContext } from &#x27;../field/field-context&#x27;;
+import { useFormContext } from &#x27;../form/form&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+import { InputError } from &#x27;../input-error/input-error&#x27;;
+import { Spinner } from &#x27;../spinner/spinner&#x27;;
+
+import styles from &#x27;./select.module.css&#x27;;
+
+type AnchorClickSubscriber = {
+	inputId: string;
+	lastClickWasAnchorRef: MutableRefObject&lt;boolean&gt;;
+	resetTimerId: ReturnType&lt;typeof setTimeout&gt; | null;
+};
+
+const anchorClickSubscribers = new Map&lt;string, AnchorClickSubscriber&gt;();
+let isAnchorClickListenerRegistered = false;
+
+function setLastClickWasAnchor(subscriber: AnchorClickSubscriber, value: boolean): void {
+	subscriber.lastClickWasAnchorRef.current = value;
+
+	if (subscriber.resetTimerId) {
+		clearTimeout(subscriber.resetTimerId);
+		subscriber.resetTimerId = null;
+	}
+
+	if (value) {
+		subscriber.resetTimerId = setTimeout(() =&gt; {
+			subscriber.lastClickWasAnchorRef.current = false;
+			subscriber.resetTimerId = null;
+		}, 100);
+	}
+}
+
+function handleDocumentCaptureClick(e: MouseEvent): void {
+	if (anchorClickSubscribers.size === 0) return;
+	if (!(e.target instanceof HTMLElement)) return;
+
+	let triggerElement: HTMLElement | null = e.target;
+	while (triggerElement &amp;&amp; triggerElement !== document.body) {
+		if (triggerElement.id &amp;&amp; anchorClickSubscribers.has(triggerElement.id)) {
+			break;
+		}
+		triggerElement = triggerElement.parentElement;
+	}
+
+	if (!triggerElement || triggerElement === document.body) return;
+	const subscriber = anchorClickSubscribers.get(triggerElement.id);
+	if (!subscriber) return;
+
+	let element: HTMLElement | null = e.target;
+	while (element &amp;&amp; element !== triggerElement) {
+		if (element.tagName === &#x27;A&#x27;) {
+			setLastClickWasAnchor(subscriber, true);
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			return;
+		}
+		element = element.parentElement;
+	}
+
+	// Reset flag if click was not on an anchor
+	setLastClickWasAnchor(subscriber, false);
+}
+
+function registerAnchorClickListenerIfNeeded(): void {
+	if (isAnchorClickListenerRegistered) return;
+	if (typeof document === &#x27;undefined&#x27;) return;
+
+	document.addEventListener(&#x27;click&#x27;, handleDocumentCaptureClick, true);
+	isAnchorClickListenerRegistered = true;
+}
+
+function unregisterAnchorClickListenerIfNeeded(): void {
+	if (!isAnchorClickListenerRegistered) return;
+	if (typeof document === &#x27;undefined&#x27;) return;
+	if (anchorClickSubscribers.size &gt; 0) return;
+
+	document.removeEventListener(&#x27;click&#x27;, handleDocumentCaptureClick, true);
+	isAnchorClickListenerRegistered = false;
+}
+
+function subscribeToAnchorClickInterceptor(
+	inputId: string,
+	lastClickWasAnchorRef: MutableRefObject&lt;boolean&gt;,
+): () =&gt; void {
+	if (typeof document === &#x27;undefined&#x27;) return () =&gt; {};
+
+	const subscriber: AnchorClickSubscriber = {
+		inputId,
+		lastClickWasAnchorRef,
+		resetTimerId: null,
+	};
+
+	anchorClickSubscribers.set(inputId, subscriber);
+	registerAnchorClickListenerIfNeeded();
+
+	return () =&gt; {
+		const current = anchorClickSubscribers.get(inputId);
+		if (current?.resetTimerId) {
+			clearTimeout(current.resetTimerId);
+		}
+		anchorClickSubscribers.delete(inputId);
+		unregisterAnchorClickListenerIfNeeded();
+	};
+}
+
+// Helper function to decode HTML entities
+function decodeEntities(text: string): string {
+	const textarea = document.createElement(&#x27;textarea&#x27;);
+	textarea.innerHTML = text;
+	return textarea.value;
+}
+
+export type SelectSize = &#x27;xs&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+export type SelectVariant = &#x27;white&#x27; | &#x27;transparent&#x27; | &#x27;gray&#x27; | &#x27;blue&#x27; | &#x27;red&#x27; | &#x27;orange&#x27; | &#x27;green&#x27; | &#x27;purple&#x27;;
+export type SelectAlign = &#x27;left&#x27; | &#x27;center&#x27; | &#x27;right&#x27;;
+
+export interface SelectOption&lt;T = unknown&gt; {
+	value: T;
+	label?: string;
+	[key: string]: unknown;
+}
+
+export interface SelectProps&lt;T = unknown&gt; extends Omit&lt;
+	React.HTMLAttributes&lt;HTMLDivElement&gt;,
+	&#x27;onChange&#x27; | &#x27;onFocus&#x27; | &#x27;onBlur&#x27; | &#x27;children&#x27;
+&gt; {
+	/** Forwarded ref to the select root element */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** When &#x27;multiple&#x27;, value is T[] and onChange receives T[]. Default &#x27;single&#x27;. */
+	selectionType?: &#x27;single&#x27; | &#x27;multiple&#x27;;
+	/** Current selected value (single: T | null, multiple: T[] | null) */
+	value?: T | T[] | null;
+	/** Array of options to select from, or function/async function that returns options */
+	options?:
+		| readonly T[]
+		| readonly SelectOption&lt;T&gt;[]
+		| (() =&gt; readonly T[] | readonly SelectOption&lt;T&gt;[])
+		| (() =&gt; Promise&lt;readonly T[] | readonly SelectOption&lt;T&gt;[]&gt;)
+		| Promise&lt;readonly T[] | readonly SelectOption&lt;T&gt;[]&gt;;
+	/** Callback when selection changes (single: value is T | null, multiple: value is T[]) */
+	onChange?: (value: T | null | T[], event?: Event) =&gt; void;
+	/** Placeholder text when no value is selected */
+	placeholder?: string;
+	/** Size of the select */
+	size?: SelectSize;
+	/** Visual variant */
+	variant?: SelectVariant;
+	/** Text alignment */
+	align?: SelectAlign;
+	/** Whether the select is disabled */
+	disabled?: boolean;
+	/** Whether the select is active/open */
+	active?: boolean;
+	/** Custom ID for the select */
+	id?: string;
+	/** ARIA label */
+	ariaLabel?: string;
+	/** ARIA labelled by */
+	ariaLabelledBy?: string;
+	/** ARIA described by */
+	ariaDescribedBy?: string;
+	/** Whether to hide the chevron icon */
+	chevronIsHidden?: boolean;
+	/** Custom class name */
+	className?: string;
+	/** Validation requirements */
+	requirements?: {
+		required?: boolean | [boolean, string];
+		[key: string]: unknown;
+	};
+	/** Form name for validation */
+	name?: string;
+	/** Autosave callback */
+	didAutosave?: () =&gt; void;
+	/** Whether search is disabled */
+	searchDisabled?: boolean;
+	/** Text for empty/null option in dropdown */
+	emptyOptionText?: string;
+	/** Whether to hide empty option */
+	hideEmptyOption?: boolean;
+	/** Callback when select opens */
+	onOpen?: () =&gt; void;
+	/** Callback when select closes */
+	onClose?: () =&gt; void;
+	/** Callback after select closes (called after onClose) */
+	didClose?: () =&gt; void;
+	/** Callback when selection is cancelled */
+	onCancel?: (reason: string) =&gt; void;
+	/** Callback when cancelled (after onCancel) */
+	didCancel?: () =&gt; void;
+	/** Custom render function for option display */
+	children?: (option: T) =&gt; React.ReactNode;
+	/** Custom render function for trigger display (single: value is T, multiple: value is T[]) */
+	renderTrigger?: (value: T | T[]) =&gt; React.ReactNode;
+	/** Icon slot */
+	icon?: React.ReactNode;
+	/** Custom trigger component (single: value is T | null, multiple: value is T[] | null) */
+	triggerComponent?: React.ComponentType&lt;{ value: T | T[] | null; disabled?: boolean; [key: string]: unknown }&gt;;
+	/** Popup placement */
+	placement?: &#x27;top&#x27; | &#x27;bottom&#x27; | &#x27;left&#x27; | &#x27;right&#x27;;
+	/** Popup width */
+	popupWidth?: &#x27;auto&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+	/** Search input placeholder */
+	searchInputPlaceholder?: string;
+	/** Debounce delay for search */
+	debounceDelay?: number;
+	/** Keys to search on (for object options) */
+	searchKeys?: string[];
+	/** Create new option callback */
+	onCreateNew?: () =&gt; void;
+	/** Create new option label */
+	createNewLabel?: string;
+	/** Loading state */
+	isLoading?: boolean;
+	/** Custom class for trigger */
+	triggerClass?: string;
+	/** Function to determine if an option is an AI suggestion */
+	isAiSuggestion?: (option: T | { id: string }) =&gt; boolean;
+	/** Callback when search text changes */
+	onSearch?: (searchText: string) =&gt; void;
+	/** Multi-only: label for select all option */
+	selectAllLabel?: string;
+	/** Multi-only: template or function for selected count (use {count} or (count) =&gt; string) */
+	selectedCountLabel?: string | ((count: number) =&gt; string);
+	/** Multi-only: show select all option */
+	allowSelectAll?: boolean;
+	/** Multi-only: ARIA label when search disabled */
+	ariaLabelKeyboardNav?: string;
+	/** Multi-only: ARIA label for search input */
+	ariaLabelSearch?: string;
+}
+
+let selectIdCounter = 0;
+
+/** Type guard to check if a value is an object with an &#x27;id&#x27; property */
+function hasIdProperty(value: unknown): value is { id: unknown } {
+	return typeof value === &#x27;object&#x27; &amp;&amp; value !== null &amp;&amp; &#x27;id&#x27; in value;
+}
+
+/** Check if two values match by comparing their &#x27;id&#x27; properties if they have them, otherwise by reference */
+function valuesMatchById(a: unknown, b: unknown): boolean {
+	if (hasIdProperty(a) &amp;&amp; hasIdProperty(b)) {
+		return a.id === b.id;
+	}
+	return a === b;
+}
+
+function arraysEqual&lt;T&gt;(a: T[] | null | undefined, b: T[] | null | undefined): boolean {
+	if (a === b) return true;
+	if (!a || !b) return false;
+	if (a.length !== b.length) return false;
+	if (a.length &gt; 0 &amp;&amp; hasIdProperty(a[0])) {
+		const aIds = new Set(a.map((item) =&gt; (item as { id: string }).id));
+		const bIds = new Set(b.map((item) =&gt; (item as { id: string }).id));
+		return aIds.size === bIds.size &amp;&amp; [...aIds].every((id) =&gt; bIds.has(id));
+	}
+	const aSet = new Set(a);
+	const bSet = new Set(b);
+	return aSet.size === bSet.size &amp;&amp; [...aSet].every((val) =&gt; bSet.has(val));
+}
+
+function isValueSelected&lt;T&gt;(selection: T[], value: T): boolean {
+	return selection.some((val) =&gt; valuesMatchById(val, value));
+}
+
+function normalizeOptions&lt;T&gt;(
+	options?:
+		| readonly T[]
+		| readonly SelectOption&lt;T&gt;[]
+		| (() =&gt; readonly T[] | readonly SelectOption&lt;T&gt;[])
+		| (() =&gt; Promise&lt;readonly T[] | readonly SelectOption&lt;T&gt;[]&gt;)
+		| Promise&lt;readonly T[] | readonly SelectOption&lt;T&gt;[]&gt;,
+): SelectOption&lt;T&gt;[] {
+	if (!options) {
+		return [];
+	}
+	// Handle Promise
+	if (options instanceof Promise) {
+		return [];
+	}
+	// Handle function
+	if (typeof options === &#x27;function&#x27;) {
+		try {
+			const result = options();
+			if (result instanceof Promise) {
+				return [];
+			}
+			return normalizeOptions(result);
+		} catch {
+			return [];
+		}
+	}
+	// Handle array
+	return options.map((option) =&gt; {
+		if (typeof option === &#x27;object&#x27; &amp;&amp; option !== null &amp;&amp; &#x27;value&#x27; in option) {
+			return option as SelectOption&lt;T&gt;;
+		}
+		return { value: option, label: String(option) };
+	});
+}
+
+function findOptionByValue&lt;T&gt;(options: SelectOption&lt;T&gt;[], value: T | null | undefined): SelectOption&lt;T&gt; | null {
+	if (value === null || value === undefined) {
+		return null;
+	}
+	return options.find((opt) =&gt; valuesMatchById(opt.value, value)) ?? null;
+}
+
+export function Select(props: SelectProps) {
+	const {
+		ref,
+		selectionType = &#x27;single&#x27;,
+		value,
+		options: rawOptions = [],
+		onChange,
+		placeholder,
+		size = &#x27;md&#x27;,
+		variant = &#x27;white&#x27;,
+		align = &#x27;left&#x27;,
+		disabled = false,
+		active: controlledActive,
+		id: providedId,
+		ariaLabel,
+		ariaLabelledBy,
+		ariaDescribedBy: providedAriaDescribedBy,
+		chevronIsHidden = false,
+		className,
+		requirements,
+		name,
+		didAutosave,
+		searchDisabled = false,
+		emptyOptionText,
+		hideEmptyOption,
+		onOpen,
+		onClose,
+		didClose,
+		onCancel,
+		didCancel,
+		children,
+		renderTrigger,
+		icon,
+		triggerComponent: TriggerComponent,
+		placement = &#x27;bottom&#x27;,
+		popupWidth = &#x27;auto&#x27;,
+		searchInputPlaceholder,
+		debounceDelay = 300,
+		searchKeys,
+		onCreateNew,
+		createNewLabel,
+		isLoading: externalIsLoading = false,
+		triggerClass,
+		isAiSuggestion,
+		onSearch: onSearchCallback,
+		selectAllLabel = selectionType === &#x27;multiple&#x27; ? t(&#x27;select-multiple.selectAll&#x27;) : undefined,
+		selectedCountLabel,
+		allowSelectAll = false,
+		ariaLabelKeyboardNav = selectionType === &#x27;multiple&#x27; ? t(&#x27;select-multiple.ariaKeyboardNav&#x27;) : undefined,
+		ariaLabelSearch = selectionType === &#x27;multiple&#x27; ? t(&#x27;select-multiple.ariaSearch&#x27;) : undefined,
+		...restProps
+	} = props;
+
+	const isMultiple = selectionType === &#x27;multiple&#x27;;
+	const valueArray = useMemo(
+		() =&gt; (isMultiple &amp;&amp; value != null &amp;&amp; Array.isArray(value) ? (value as unknown[]) : []),
+		[isMultiple, value],
+	);
+	const singleValue = !isMultiple ? (value as unknown) : undefined;
+
+	const selectIdRef = useRef(`select${selectIdCounter++}`);
+	const popupId = `${selectIdRef.current}--popup`;
+	const fieldContext = useFieldContext();
+	const inputId = providedId ?? fieldContext?.inputId ?? `${selectIdRef.current}--input`;
+
+	const [open, setOpen] = useState(false);
+	const [closeKey, setCloseKey] = useState(0);
+	const [optionsLoading, setOptionsLoading] = useState(false);
+	const [internalSelection, setInternalSelection] = useState&lt;unknown[]&gt;([]);
+	const internalSelectionRef = useRef&lt;unknown[]&gt;([]);
+	internalSelectionRef.current = internalSelection;
+	// Initialize resolvedOptions synchronously for arrays to avoid timing issues
+	const initialResolvedOptions = useMemo(() =&gt; {
+		if (!rawOptions) {
+			return [];
+		}
+		if (rawOptions instanceof Promise || typeof rawOptions === &#x27;function&#x27;) {
+			return [];
+		}
+		return rawOptions;
+	}, [rawOptions]);
+	const [resolvedOptions, setResolvedOptions] = useState&lt;readonly unknown[] | readonly SelectOption&lt;unknown&gt;[]&gt;(
+		initialResolvedOptions as readonly unknown[] | readonly SelectOption&lt;unknown&gt;[],
+	);
+	const valueIsUnchangedRef = useRef(true);
+	const searchInputId = useId();
+	const triggerRef = useRef&lt;HTMLButtonElement | HTMLAnchorElement | null&gt;(null);
+	const rootRef = useRef&lt;HTMLDivElement | null&gt;(null);
+	const lastClickWasAnchorRef = useRef(false);
+	const comboboxActionsRef = useRef&lt;{ open: () =&gt; void; close: () =&gt; void } | null&gt;(null);
+	const escKeyPressedRef = useRef(false);
+	const searchDebounceTimerRef = useRef&lt;ReturnType&lt;typeof setTimeout&gt; | null&gt;(null);
+	const isSelectingRef = useRef(false); // Guard to prevent reopening during selection
+
+	const formContext = useFormContext();
+
+	// Handle async/function-based options
+	useEffect(() =&gt; {
+		let cancelled = false;
+
+		async function resolveOptions() {
+			if (!rawOptions) {
+				setResolvedOptions([]);
+				return;
+			}
+
+			// Handle Promise
+			if (rawOptions instanceof Promise) {
+				setOptionsLoading(true);
+				try {
+					const result = await rawOptions;
+					if (!cancelled) {
+						setResolvedOptions(result);
+						setOptionsLoading(false);
+					}
+				} catch (error) {
+					if (!cancelled) {
+						console.error(&#x27;Error loading options:&#x27;, error);
+						setResolvedOptions([]);
+						setOptionsLoading(false);
+					}
+				}
+				return;
+			}
+
+			// Handle function
+			if (typeof rawOptions === &#x27;function&#x27;) {
+				setOptionsLoading(true);
+				try {
+					const result = rawOptions();
+					if (result instanceof Promise) {
+						const resolved = await result;
+						if (!cancelled) {
+							setResolvedOptions(resolved);
+							setOptionsLoading(false);
+						}
+					} else {
+						if (!cancelled) {
+							setResolvedOptions(result);
+							setOptionsLoading(false);
+						}
+					}
+				} catch (error) {
+					if (!cancelled) {
+						console.error(&#x27;Error loading options:&#x27;, error);
+						setResolvedOptions([]);
+						setOptionsLoading(false);
+					}
+				}
+				return;
+			}
+
+			// Handle array (synchronous) - set immediately
+			if (!cancelled) {
+				setResolvedOptions(rawOptions);
+			}
+		}
+
+		resolveOptions();
+
+		return () =&gt; {
+			cancelled = true;
+		};
+	}, [rawOptions]);
+
+	const normalizedOptions = useMemo(() =&gt; normalizeOptions(resolvedOptions), [resolvedOptions]);
+	const selectedOption = useMemo(
+		() =&gt; (!isMultiple ? findOptionByValue(normalizedOptions, singleValue) : null),
+		[normalizedOptions, singleValue, isMultiple],
+	);
+	const isLoading = externalIsLoading || optionsLoading;
+
+	const required = useMemo(() =&gt; {
+		if (!requirements) {
+			return false;
+		}
+		const req = requirements.required;
+		if (typeof req === &#x27;boolean&#x27;) {
+			return req;
+		}
+		if (Array.isArray(req)) {
+			return req[0];
+		}
+		return false;
+	}, [requirements]);
+
+	// Calculate effective hideEmptyOption (matches Ember: hideEmptyOption ?? required ?? false)
+	const effectiveHideEmptyOption = useMemo(() =&gt; {
+		if (hideEmptyOption !== undefined) {
+			return hideEmptyOption;
+		}
+		return required;
+	}, [hideEmptyOption, required]);
+
+	const showEmptyOption = useMemo(() =&gt; {
+		if (emptyOptionText === undefined) {
+			return false;
+		}
+		// Don&#x27;t show if effectively hidden (matches Ember: !this.args.required where required=hideEmptyOption)
+		if (effectiveHideEmptyOption) {
+			return false;
+		}
+		// Show if we have options or not loading (matches Ember behavior)
+		// Note: Combobox handles filtering internally, so we show empty option if we have any options
+		return normalizedOptions.length &gt; 0 || !isLoading;
+	}, [emptyOptionText, effectiveHideEmptyOption, normalizedOptions.length, isLoading]);
+
+	// Add empty option to items array if it should be shown
+	// Pass option objects to Combobox - filter function receives the entire object
+	const itemsWithEmptyOption = useMemo(() =&gt; {
+		if (showEmptyOption &amp;&amp; emptyOptionText) {
+			return [{ value: null, label: emptyOptionText }, ...normalizedOptions];
+		}
+		return normalizedOptions;
+	}, [normalizedOptions, showEmptyOption, emptyOptionText]);
+
+	// Base UI Select uses itemToStringLabel for label lookup, we don&#x27;t need items prop
+
+	const manager = useInputManager({
+		mode: &#x27;change&#x27;,
+		name,
+		valueIsUnchanged: valueIsUnchangedRef.current,
+		selectorIsVisible: open,
+		requirements,
+		value: isMultiple ? (valueArray.length &gt; 0 ? valueArray : null) : value,
+		isDisabled: disabled,
+		formContext,
+		ariaDescribedBy: providedAriaDescribedBy ?? null,
+		focus: () =&gt; {
+			const element = document.getElementById(inputId);
+			element?.focus();
+		},
+		didAutosave: () =&gt; {
+			valueIsUnchangedRef.current = true;
+			manager.setValueIsUnchanged(true);
+			didAutosave?.();
+		},
+	});
+
+	// Track if last click was on an anchor tag (for custom triggers)
+	// This is checked in handleOpenChange to prevent popup from opening
+	const checkIfAnchorClick = useCallback(
+		(e: MouseEvent | React.MouseEvent): boolean =&gt; {
+			const target = e.target as HTMLElement;
+			let element: HTMLElement | null = target;
+
+			// Walk up the DOM tree to find if we&#x27;re inside an anchor tag
+			while (element &amp;&amp; element !== document.body) {
+				if (element.tagName === &#x27;A&#x27;) {
+					return true;
+				}
+				// Stop if we&#x27;ve reached the trigger element (don&#x27;t check beyond it)
+				if (element.id === inputId || element.getAttribute(&#x27;data-test-custom-trigger&#x27;)) {
+					break;
+				}
+				element = element.parentElement;
+			}
+			return false;
+		},
+		[inputId],
+	);
+
+	const handleOpenChange = useCallback(
+		(newOpen: boolean) =&gt; {
+			// Prevent reopening during selection (Combobox might try to reopen after we&#x27;ve closed)
+			if (newOpen &amp;&amp; isSelectingRef.current) {
+				return;
+			}
+			// Prevent opening if the last click was on an anchor tag (for custom triggers)
+			if (newOpen &amp;&amp; TriggerComponent &amp;&amp; lastClickWasAnchorRef.current) {
+				lastClickWasAnchorRef.current = false;
+				return;
+			}
+			if (newOpen) {
+				escKeyPressedRef.current = false;
+				if (isMultiple) {
+					setInternalSelection([...valueArray]);
+					valueIsUnchangedRef.current = true;
+				}
+			} else {
+				setCloseKey((k) =&gt; k + 1);
+			}
+			// Use flushSync to force synchronous state update for closing
+			if (!newOpen) {
+				flushSync(() =&gt; {
+					setOpen(newOpen);
+				});
+			} else {
+				setOpen(newOpen);
+			}
+			if (!newOpen) {
+				if (isMultiple) {
+					const currentSelection = internalSelectionRef.current;
+					const hasChanged = !arraysEqual(currentSelection, valueArray);
+					if (hasChanged) {
+						onChange?.(currentSelection as unknown[], undefined);
+						manager.setValueIsUnchanged(false);
+						manager.onChange();
+					} else {
+						if (escKeyPressedRef.current) {
+							onCancel?.(&#x27;escape&#x27;);
+							escKeyPressedRef.current = false;
+						} else {
+							onCancel?.(&#x27;manual&#x27;);
+						}
+						didCancel?.();
+					}
+				} else {
+					if (!valueIsUnchangedRef.current) {
+						manager.focusOutAndTrySave(new Event(&#x27;blur&#x27;));
+					}
+					if (valueIsUnchangedRef.current) {
+						if (escKeyPressedRef.current) {
+							onCancel?.(&#x27;escape&#x27;);
+							escKeyPressedRef.current = false;
+						} else {
+							onCancel?.(&#x27;manual&#x27;);
+						}
+						didCancel?.();
+					}
+				}
+				onClose?.();
+				didClose?.();
+			}
+		},
+		[manager, onClose, didClose, onCancel, didCancel, TriggerComponent, isMultiple, valueArray, onChange],
+	);
+
+	const handleSelectAll = useCallback(() =&gt; {
+		if (!allowSelectAll) return;
+		const allSelected = normalizedOptions.every((opt) =&gt; isValueSelected(internalSelection, opt.value));
+		setInternalSelection(allSelected ? [] : normalizedOptions.map((opt) =&gt; opt.value));
+		valueIsUnchangedRef.current = false;
+		manager.setValueIsUnchanged(false);
+	}, [allowSelectAll, normalizedOptions, internalSelection, manager]);
+
+	const getMultipleTriggerLabel = useCallback((): React.ReactNode =&gt; {
+		if (!valueArray.length) {
+			return placeholder ?? &#x27;&#x27;;
+		}
+		if (renderTrigger) {
+			return (renderTrigger as (value: unknown[]) =&gt; React.ReactNode)(valueArray);
+		}
+		if (valueArray.length &gt; 1) {
+			if (typeof selectedCountLabel === &#x27;function&#x27;) {
+				return selectedCountLabel(valueArray.length);
+			}
+			if (typeof selectedCountLabel === &#x27;string&#x27;) {
+				return selectedCountLabel.replace(&#x27;{count}&#x27;, String(valueArray.length));
+			}
+			return t(&#x27;select-multiple.selectedCount&#x27;, { count: valueArray.length });
+		}
+		if (valueArray.length === 1) {
+			const single = valueArray[0];
+			const option = findOptionByValue(normalizedOptions, single);
+			return children ? (children as (v: unknown) =&gt; React.ReactNode)(single) : (option?.label ?? String(single));
+		}
+		return placeholder ?? &#x27;&#x27;;
+	}, [valueArray, placeholder, renderTrigger, selectedCountLabel, children, normalizedOptions]);
+
+	const handleMultipleValueChange = useCallback(
+		(newValue: unknown) =&gt; {
+			// Combobox passes array of selected option objects for multiple
+			const options = Array.isArray(newValue) ? (newValue as SelectOption&lt;unknown&gt;[]) : [];
+			const newSelection = options.map((opt) =&gt; opt.value);
+			setInternalSelection(newSelection);
+			valueIsUnchangedRef.current = false;
+			manager.setValueIsUnchanged(false);
+			onChange?.(newSelection as typeof valueArray, undefined);
+			manager.onChange();
+		},
+		[manager, onChange],
+	);
+
+	const handleValueChange = useCallback(
+		(newValue: unknown) =&gt; {
+			// Mark that we&#x27;re selecting to prevent Combobox from reopening
+			isSelectingRef.current = true;
+
+			// newValue is a SelectOption object when we pass option objects to items
+			// Extract the actual value from the option object
+			const option = newValue as SelectOption&lt;unknown&gt;;
+			const actualValue = option.value;
+			// Check if value actually changed
+			const valueChanged = !Object.is(actualValue, value);
+			if (!valueChanged) {
+				// Value didn&#x27;t change - mark as unchanged and close popup
+				valueIsUnchangedRef.current = true;
+				manager.setValueIsUnchanged(true);
+				// Close popup via handleOpenChange to ensure callbacks run
+				handleOpenChange(false);
+				// Reset selecting flag after a short delay
+				setTimeout(() =&gt; {
+					isSelectingRef.current = false;
+				}, 50);
+				return;
+			}
+			valueIsUnchangedRef.current = false;
+			manager.setValueIsUnchanged(false);
+			onChange?.(actualValue as typeof value, undefined);
+			manager.onChange();
+			// Close popup after selection
+			handleOpenChange(false);
+			// Reset selecting flag after a short delay
+			setTimeout(() =&gt; {
+				isSelectingRef.current = false;
+			}, 50);
+		},
+		[onChange, manager, value, handleOpenChange],
+	);
+
+	// Handle ESC key to cancel selection
+	const handleEscapeKey = useCallback(() =&gt; {
+		if (open) {
+			valueIsUnchangedRef.current = true;
+			escKeyPressedRef.current = true;
+			handleOpenChange(false);
+		}
+	}, [open, handleOpenChange]);
+
+	// Handle keyboard navigation on trigger
+	const handleTriggerKeyDown = useCallback(
+		(e: React.KeyboardEvent&lt;HTMLButtonElement&gt;) =&gt; {
+			if (disabled) {
+				return;
+			}
+
+			const { key } = e;
+
+			// Arrow keys - open popup and navigate
+			if (key === &#x27;ArrowDown&#x27; || key === &#x27;ArrowUp&#x27;) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				if (!open) {
+					onOpen?.();
+					handleOpenChange(true);
+				}
+
+				// Dispatch keyboard event to popup for navigation
+				if (key === &#x27;ArrowDown&#x27;) {
+					setTimeout(() =&gt; {
+						document.body.dispatchEvent(
+							new KeyboardEvent(&#x27;keydown&#x27;, {
+								key: &#x27;ArrowDown&#x27;,
+								bubbles: true,
+							}),
+						);
+					}, 0);
+				}
+				return;
+			}
+
+			// Enter - open popup
+			if (key === &#x27;Enter&#x27;) {
+				e.preventDefault();
+				e.stopPropagation();
+				if (!open) {
+					setOpen(true);
+					onOpen?.();
+				}
+				return;
+			}
+
+			// Space - open popup without starting search
+			if (key === &#x27;Space&#x27;) {
+				e.preventDefault();
+				e.stopPropagation();
+				if (!open) {
+					setOpen(true);
+					onOpen?.();
+				}
+				// Don&#x27;t start search for Space key
+				return;
+			}
+
+			// ESC - close popup
+			if (key === &#x27;Escape&#x27;) {
+				e.preventDefault();
+				e.stopPropagation();
+				if (open) {
+					escKeyPressedRef.current = true;
+					handleEscapeKey();
+				}
+				return;
+			}
+
+			// Typing characters - open popup and set input value
+			// Exclude Space key (handled separately above)
+			if (key.length === 1 &amp;&amp; key !== &#x27; &#x27; &amp;&amp; !searchDisabled) {
+				if (e.metaKey || e.ctrlKey || e.altKey) {
+					return;
+				}
+
+				e.preventDefault();
+				if (!open) {
+					onOpen?.();
+					handleOpenChange(true);
+					// Set the input value to the typed character after popup opens
+					setTimeout(() =&gt; {
+						const searchInput = document.getElementById(searchInputId) as HTMLInputElement;
+						if (searchInput) {
+							searchInput.focus();
+							searchInput.value = key;
+							// Dispatch both input and change events to ensure Combobox and our handler both fire
+							searchInput.dispatchEvent(new Event(&#x27;input&#x27;, { bubbles: true }));
+							searchInput.dispatchEvent(new Event(&#x27;change&#x27;, { bubbles: true }));
+							onSearchCallback?.(key);
+						}
+					}, 50);
+				} else {
+					// Popup already open - append character to existing input value
+					const searchInput = document.getElementById(searchInputId) as HTMLInputElement;
+					if (searchInput) {
+						searchInput.focus();
+						searchInput.value = searchInput.value + key;
+						searchInput.dispatchEvent(new Event(&#x27;input&#x27;, { bubbles: true }));
+						searchInput.dispatchEvent(new Event(&#x27;change&#x27;, { bubbles: true }));
+						onSearchCallback?.(searchInput.value);
+					}
+				}
+			}
+		},
+		[disabled, open, searchDisabled, onOpen, handleEscapeKey, handleOpenChange, searchInputId, onSearchCallback],
+	);
+
+	// Combobox handles search state internally, no need to reset
+
+	// Handle anchor tag clicks in custom triggers - use capture phase to intercept before Base UI
+	useEffect(() =&gt; {
+		if (!TriggerComponent) {
+			return;
+		}
+
+		return subscribeToAnchorClickInterceptor(inputId, lastClickWasAnchorRef);
+	}, [TriggerComponent, inputId]);
+
+	// Handle focus event bubbling (for accessibility)
+	const handleFocus = useCallback((e: React.FocusEvent) =&gt; {
+		// Create a new focus event that bubbles
+		const focusEvent = new FocusEvent(&#x27;focus&#x27;, {
+			bubbles: true,
+			cancelable: true,
+		});
+		e.currentTarget.dispatchEvent(focusEvent);
+	}, []);
+
+	// Listen for ESC key when popup is open to track it for cancel callbacks
+	useEffect(() =&gt; {
+		if (!open) {
+			return;
+		}
+
+		const handleKeyDown = (e: KeyboardEvent) =&gt; {
+			if (e.key === &#x27;Escape&#x27;) {
+				escKeyPressedRef.current = true;
+			}
+		};
+
+		document.addEventListener(&#x27;keydown&#x27;, handleKeyDown, true);
+		return () =&gt; {
+			document.removeEventListener(&#x27;keydown&#x27;, handleKeyDown, true);
+		};
+	}, [open]);
+
+	const isOpen = controlledActive !== undefined ? controlledActive : open;
+
+	// Focus list and highlight first option when popup opens (single and multiple)
+	useEffect(() =&gt; {
+		if (!isOpen) return;
+		const t = setTimeout(() =&gt; {
+			const popup = document.getElementById(popupId);
+			if (!popup) return;
+			const listbox = popup.querySelector(&#x27;[role=&quot;listbox&quot;]&#x27;) as HTMLElement | null;
+			const searchInput = popup.querySelector(&#x27;input&#x27;);
+			const focusTarget = listbox ?? searchInput;
+			if (focusTarget) {
+				focusTarget.focus();
+				// Home always goes to first item (avoids highlighting selected+1 when a selection exists)
+				listbox?.dispatchEvent(new KeyboardEvent(&#x27;keydown&#x27;, { key: &#x27;Home&#x27;, bubbles: true }));
+			}
+		}, 0);
+		return () =&gt; clearTimeout(t);
+	}, [isOpen, popupId]);
+
+	// Close on outside mousedown (capture phase) so the click can reach other controls (e.g. header dropdown)
+	useEffect(() =&gt; {
+		if (!isOpen) return;
+		const handleMouseDown = (e: MouseEvent) =&gt; {
+			const target = e.target as Node;
+			const rootEl = rootRef.current;
+			const popup = document.getElementById(popupId);
+			if (rootEl?.contains(target) || popup?.contains(target)) return;
+			handleOpenChange(false);
+		};
+		document.addEventListener(&#x27;mousedown&#x27;, handleMouseDown, true);
+		return () =&gt; document.removeEventListener(&#x27;mousedown&#x27;, handleMouseDown, true);
+	}, [isOpen, popupId, handleOpenChange]);
+
+	const labelId = fieldContext?.labelId ?? (formContext &amp;&amp; name ? `field-${name}-label` : null);
+
+	return (
+		&lt;div
+			ref={(el) =&gt; {
+				rootRef.current = el;
+				if (typeof ref === &#x27;function&#x27;) ref(el);
+				else if (ref) ref.current = el;
+			}}
+			className={cn(styles.Select, className)}
+			data-size={size}
+			data-disabled={disabled ? &#x27;true&#x27; : undefined}
+			data-qid-component-type={isMultiple ? &#x27;Luna::SelectMultiple&#x27; : &#x27;Luna::Select&#x27;}
+			data-focused={manager.inputHasFocus ? &#x27;true&#x27; : undefined}
+			data-errored={manager.showErrorMessage ? &#x27;true&#x27; : undefined}
+			{...restProps}
+		&gt;
+			&lt;Combobox.Root
+				key={`select-root-${closeKey}`}
+				modal={false}
+				items={isMultiple ? normalizedOptions : itemsWithEmptyOption}
+				value={
+					isMultiple
+						? (normalizedOptions.filter((opt) =&gt;
+								isValueSelected(internalSelection, opt.value),
+							) as SelectOption&lt;unknown&gt;[])
+						: singleValue === null || singleValue === undefined
+							? null
+							: (itemsWithEmptyOption.find((opt) =&gt; {
+									const option = opt as SelectOption&lt;unknown&gt;;
+									return valuesMatchById(option.value, singleValue);
+								}) ?? null)
+				}
+				onValueChange={isMultiple ? handleMultipleValueChange : handleValueChange}
+				open={isOpen}
+				onOpenChange={handleOpenChange}
+				autoHighlight={true}
+				{...(isMultiple ? {} : { closeOnSelect: true })}
+				actionsRef={comboboxActionsRef as React.RefObject&lt;{ open: () =&gt; void; close: () =&gt; void; unmount: () =&gt; void }&gt;}
+				onInputValueChange={(inputValue) =&gt; {
+					// Debounce search callback
+					if (searchDebounceTimerRef.current) {
+						clearTimeout(searchDebounceTimerRef.current);
+					}
+					searchDebounceTimerRef.current = setTimeout(() =&gt; {
+						onSearchCallback?.(inputValue);
+					}, debounceDelay);
+				}}
+				itemToStringLabel={(item: unknown) =&gt; {
+					// item is a SelectOption object when we pass option objects to items
+					const option = item as SelectOption&lt;unknown&gt;;
+					// Handle null
+					if (option.value === null) {
+						return emptyOptionText || &#x27;&#x27;;
+					}
+					return option.label ?? String(option.value);
+				}}
+				isItemEqualToValue={(itemValue, currentValue) =&gt; {
+					// Multiple: currentValue is array of selected option objects
+					if (Array.isArray(currentValue)) {
+						const option = itemValue as SelectOption&lt;unknown&gt;;
+						return currentValue.some((selected) =&gt;
+							valuesMatchById(option.value, (selected as SelectOption&lt;unknown&gt;).value),
+						);
+					}
+					// Handle null comparison
+					if (itemValue === null &amp;&amp; currentValue === null) {
+						return true;
+					}
+					// Handle object comparison by ID if both have id property
+					if (hasIdProperty(itemValue) &amp;&amp; hasIdProperty(currentValue)) {
+						return itemValue.id === currentValue.id;
+					}
+					// Default comparison
+					return Object.is(itemValue, currentValue);
+				}}
+				filter={(itemValue: unknown, query: string, itemToString?: (itemValue: unknown) =&gt; string) =&gt; {
+					// Custom filtering logic for searchKeys and HTML entity decoding
+					if (!query || searchDisabled) {
+						return true; // Show all items when no query
+					}
+					// itemValue is a SelectOption object when we pass option objects to items
+					const option = itemValue as SelectOption&lt;unknown&gt;;
+					// Empty option should not be filtered out (always show if in list)
+					if (option.value === null) {
+						return true;
+					}
+					const decodedQuery = decodeEntities(query.toLowerCase().trim());
+					if (searchKeys &amp;&amp; typeof option.value === &#x27;object&#x27; &amp;&amp; option.value !== null) {
+						return searchKeys.some((key) =&gt; {
+							const val = (option.value as Record&lt;string, unknown&gt;)[key];
+							const decodedVal = decodeEntities(String(val).toLowerCase());
+							return decodedVal.includes(decodedQuery);
+						});
+					}
+					// Use itemToString if provided (it&#x27;s our itemToStringLabel function), otherwise use option.label
+					const label = itemToString ? itemToString(itemValue) : (option.label ?? String(option.value));
+					const decodedLabel = decodeEntities(label.toLowerCase());
+					return decodedLabel.includes(decodedQuery);
+				}}
+			&gt;
+				{/* Hidden Combobox.Trigger - we use custom Button instead */}
+				&lt;Combobox.Trigger
+					render={(props: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; {
+						// Hidden trigger for Combobox to work, but we use our custom Button for UI
+						return &lt;button {...props} style={{ display: &#x27;none&#x27; }} aria-hidden=&quot;true&quot; /&gt;;
+					}}
+				/&gt;
+				{/* Custom trigger button */}
+				{TriggerComponent ? (
+					&lt;TriggerComponent
+						value={(isMultiple ? valueArray : value) ?? null}
+						disabled={disabled}
+						className={cn(styles.trigger, triggerClass)}
+						id={inputId}
+						role=&quot;combobox&quot;
+						aria-controls={popupId}
+						aria-label={ariaLabel}
+						aria-labelledby={ariaLabelledBy || (ariaLabel ? undefined : labelId || undefined)}
+						aria-expanded={isOpen ? &#x27;true&#x27; : &#x27;false&#x27;}
+						onClick={(e: React.MouseEvent) =&gt; {
+							if (disabled) {
+								return;
+							}
+							if (checkIfAnchorClick(e)) {
+								lastClickWasAnchorRef.current = true;
+								e.stopPropagation();
+								e.preventDefault();
+								setTimeout(() =&gt; {
+									lastClickWasAnchorRef.current = false;
+								}, 100);
+								return;
+							}
+							lastClickWasAnchorRef.current = false;
+							if (!open) {
+								// Call onOpen immediately when opening
+								onOpen?.();
+								handleOpenChange(true);
+							} else {
+								handleOpenChange(false);
+							}
+						}}
+						onKeyDown={handleTriggerKeyDown}
+						onFocus={handleFocus}
+					/&gt;
+				) : (
+					&lt;Button
+						variant={variant}
+						size={size}
+						width=&quot;full&quot;
+						align={align}
+						disabled={disabled}
+						active={isOpen}
+						errored={manager.showErrorMessage}
+						id={inputId}
+						className={cn(styles.trigger, triggerClass)}
+						aria-controls={popupId}
+						aria-label={ariaLabel}
+						aria-labelledby={ariaLabelledBy || (ariaLabel ? undefined : labelId || undefined)}
+						aria-required={required ? &#x27;true&#x27; : &#x27;false&#x27;}
+						aria-expanded={isOpen ? &#x27;true&#x27; : &#x27;false&#x27;}
+						aria-invalid={manager.showErrorMessage ? &#x27;true&#x27; : &#x27;false&#x27;}
+						aria-describedby={manager.ariaDescribedBy}
+						ref={(node) =&gt; {
+							triggerRef.current = node;
+						}}
+						onClick={() =&gt; {
+							if (!disabled) {
+								if (!open) {
+									// Call onOpen immediately when opening
+									onOpen?.();
+									handleOpenChange(true);
+								} else {
+									handleOpenChange(false);
+								}
+							}
+						}}
+						onFocus={(e) =&gt; {
+							handleFocus(e);
+							manager.focusIn();
+						}}
+						onBlur={(e) =&gt; {
+							manager.focusOutAndTrySave(e.nativeEvent);
+						}}
+						onKeyDown={handleTriggerKeyDown}
+					&gt;
+						{icon &amp;&amp; &lt;div className={styles.preIcon}&gt;{icon}&lt;/div&gt;}
+						{isMultiple ? (
+							&lt;div className={styles.label} data-placeholder={!valueArray.length || undefined}&gt;
+								{getMultipleTriggerLabel()}
+							&lt;/div&gt;
+						) : selectedOption === null ? (
+							&lt;div className={cn(styles.label, styles.placeholder)} data-placeholder&gt;
+								{placeholder}
+							&lt;/div&gt;
+						) : (
+							&lt;div className={styles.label}&gt;
+								{renderTrigger
+									? renderTrigger(singleValue as NonNullable&lt;typeof value&gt;)
+									: children
+										? children(singleValue as NonNullable&lt;typeof value&gt;)
+										: (selectedOption.label ?? String(singleValue))}
+							&lt;/div&gt;
+						)}
+						{(manager.isAutosaving || manager.didAutosaveSuccessfully) &amp;&amp; (
+							&lt;Spinner size=&quot;sm&quot; transitionTo={manager.didAutosaveSuccessfully ? &#x27;success&#x27; : undefined} /&gt;
+						)}
+						{!chevronIsHidden &amp;&amp; &lt;Icon icon=&quot;chevron-down&quot; size=&quot;sm&quot; className={styles.postIcon} /&gt;}
+					&lt;/Button&gt;
+				)}
+				{isOpen &amp;&amp; (
+					&lt;Combobox.Portal keepMounted={false}&gt;
+						&lt;Combobox.Positioner
+							className={styles.positioner}
+							side={placement}
+							align=&quot;start&quot;
+							sideOffset={4}
+							anchor={triggerRef}
+						&gt;
+							&lt;Combobox.Popup
+								className={styles.popup}
+								id={popupId}
+								initialFocus={false}
+								onKeyDown={(e: React.KeyboardEvent) =&gt; {
+									if (e.key === &#x27;Escape&#x27; &amp;&amp; open) {
+										escKeyPressedRef.current = true;
+										handleEscapeKey();
+									}
+								}}
+								style={{
+									minWidth:
+										popupWidth === &#x27;auto&#x27;
+											? isMultiple
+												? triggerRef.current?.clientWidth || 200
+												: undefined
+											: popupWidth === &#x27;sm&#x27;
+												? 200
+												: popupWidth === &#x27;md&#x27;
+													? 300
+													: 400,
+								}}
+							&gt;
+								{isMultiple ? (
+									&lt;&gt;
+										{!searchDisabled &amp;&amp; (
+											&lt;div className={styles.search}&gt;
+												&lt;label htmlFor={searchInputId} className={styles.searchLabel}&gt;
+													{isLoading ? &lt;Spinner size=&quot;sm&quot; /&gt; : &lt;Icon icon=&quot;search&quot; size=&quot;sm&quot; /&gt;}
+												&lt;/label&gt;
+												&lt;Combobox.Input
+													id={searchInputId}
+													className={styles.searchInput}
+													placeholder={searchInputPlaceholder || ariaLabelSearch}
+													autoComplete=&quot;off&quot;
+													autoCorrect=&quot;off&quot;
+													autoCapitalize=&quot;off&quot;
+													spellCheck=&quot;false&quot;
+													aria-autocomplete=&quot;list&quot;
+													aria-controls={popupId}
+													data-qid-select-option-list-search
+												/&gt;
+											&lt;/div&gt;
+										)}
+										{allowSelectAll &amp;&amp; normalizedOptions.length &gt; 0 &amp;&amp; (
+											&lt;div className={styles.selectAllWrapper}&gt;
+												&lt;button
+													type=&quot;button&quot;
+													className={styles.itemMulti}
+													data-qid-select-option=&quot;all&quot;
+													onClick={(e: React.MouseEvent) =&gt; {
+														e.preventDefault();
+														e.stopPropagation();
+														handleSelectAll();
+													}}
+													role=&quot;option&quot;
+													aria-selected={
+														normalizedOptions.every((opt) =&gt; isValueSelected(internalSelection, opt.value))
+															? &#x27;true&#x27;
+															: &#x27;false&#x27;
+													}
+												&gt;
+													&lt;div className={styles.itemIndicator}&gt;
+														&lt;div
+															className={styles.checkbox}
+															data-checked={
+																normalizedOptions.every((opt) =&gt; isValueSelected(internalSelection, opt.value))
+																	? &#x27;true&#x27;
+																	: &#x27;false&#x27;
+															}
+														&gt;
+															&lt;div className={styles.checkboxInner}&gt;
+																&lt;svg
+																	className={styles.checkboxIcon}
+																	xmlns=&quot;http://www.w3.org/2000/svg&quot;
+																	viewBox=&quot;0 0 20 20&quot;
+																&gt;
+																	&lt;path
+																		fill=&quot;currentColor&quot;
+																		fillRule=&quot;evenodd&quot;
+																		d=&quot;M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z&quot;
+																		clipRule=&quot;evenodd&quot;
+																	/&gt;
+																&lt;/svg&gt;
+															&lt;/div&gt;
+														&lt;/div&gt;
+													&lt;/div&gt;
+													&lt;div className={styles.itemText}&gt;{selectAllLabel}&lt;/div&gt;
+												&lt;/button&gt;
+											&lt;/div&gt;
+										)}
+										&lt;Combobox.List
+											className={styles.list}
+											aria-label={searchDisabled ? ariaLabelKeyboardNav : ariaLabelSearch}
+											data-test-option-list
+											data-qid-select-option-list
+										&gt;
+											{(item: unknown) =&gt; {
+												const option = item as SelectOption&lt;unknown&gt;;
+												const optionKey =
+													typeof option.value === &#x27;object&#x27; &amp;&amp; option.value !== null &amp;&amp; &#x27;id&#x27; in option.value
+														? `option-${(option.value as { id: string }).id}`
+														: option.value === null
+															? &#x27;option-null&#x27;
+															: `option-${String(option.value)}`;
+												const isSelected = isValueSelected(internalSelection, option.value);
+												return (
+													&lt;Combobox.Item
+														key={optionKey}
+														value={option}
+														className={styles.itemMulti}
+														data-qid-select-option
+													&gt;
+														&lt;div className={styles.itemIndicator}&gt;
+															&lt;div className={styles.checkbox} data-checked={isSelected ? &#x27;true&#x27; : &#x27;false&#x27;}&gt;
+																&lt;div className={styles.checkboxInner}&gt;
+																	&lt;svg
+																		className={styles.checkboxIcon}
+																		xmlns=&quot;http://www.w3.org/2000/svg&quot;
+																		viewBox=&quot;0 0 20 20&quot;
+																	&gt;
+																		&lt;path
+																			fill=&quot;currentColor&quot;
+																			fillRule=&quot;evenodd&quot;
+																			d=&quot;M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z&quot;
+																			clipRule=&quot;evenodd&quot;
+																		/&gt;
+																	&lt;/svg&gt;
+																&lt;/div&gt;
+															&lt;/div&gt;
+														&lt;/div&gt;
+														&lt;span className={styles.itemText}&gt;
+															{children
+																? (children as (v: unknown) =&gt; React.ReactNode)(option.value)
+																: (option.label ?? String(option.value))}
+															{isAiSuggestion &amp;&amp; isAiSuggestion(option.value) &amp;&amp; (
+																&lt;Icon
+																	icon=&quot;ai&quot;
+																	size=&quot;sm&quot;
+																	className={styles.aiIcon}
+																	title=&quot;AI suggestion&quot;
+																	role=&quot;figure&quot;
+																/&gt;
+															)}
+														&lt;/span&gt;
+													&lt;/Combobox.Item&gt;
+												);
+											}}
+										&lt;/Combobox.List&gt;
+										{onCreateNew &amp;&amp; createNewLabel &amp;&amp; (
+											&lt;div className={styles.footer}&gt;
+												&lt;button
+													type=&quot;button&quot;
+													className={styles.createNewButton}
+													data-qid-option-list-create-new
+													onClick={(e) =&gt; {
+														e.preventDefault();
+														handleOpenChange(false);
+														onCreateNew();
+													}}
+												&gt;
+													&lt;Icon icon=&quot;add&quot; size=&quot;sm&quot; /&gt;
+													&lt;div&gt;{isMultiple ? createNewLabel || t(&#x27;select-multiple.createNew&#x27;) : createNewLabel}&lt;/div&gt;
+												&lt;/button&gt;
+											&lt;/div&gt;
+										)}
+									&lt;/&gt;
+								) : (
+									&lt;&gt;
+										{!searchDisabled &amp;&amp; (
+											&lt;div className={styles.search}&gt;
+												&lt;label htmlFor={searchInputId} className={styles.searchLabel}&gt;
+													&lt;span className={styles.srOnly}&gt;
+														{searchInputPlaceholder || &#x27;Search&#x27;}
+														{isLoading ? &#x27; (Searching...)&#x27; : &#x27;&#x27;}
+													&lt;/span&gt;
+													{isLoading ? &lt;Spinner size=&quot;sm&quot; /&gt; : &lt;Icon icon=&quot;search&quot; size=&quot;sm&quot; /&gt;}
+												&lt;/label&gt;
+												&lt;Combobox.Input
+													id={searchInputId}
+													className={styles.searchInput}
+													placeholder={searchInputPlaceholder || &#x27;Search&#x27;}
+													autoComplete=&quot;off&quot;
+													autoCorrect=&quot;off&quot;
+													autoCapitalize=&quot;off&quot;
+													spellCheck=&quot;false&quot;
+													aria-autocomplete=&quot;list&quot;
+													aria-controls={popupId}
+													data-qid-select-option-list-search
+													onKeyDown={(e: React.KeyboardEvent&lt;HTMLInputElement&gt;) =&gt; {
+														if (e.key === &#x27;Enter&#x27;) {
+															e.preventDefault();
+															e.stopPropagation();
+															const popup = document.getElementById(popupId);
+															const listbox = popup?.querySelector(&#x27;[role=&quot;listbox&quot;]&#x27;);
+															if (listbox) {
+																const highlightedOption = listbox.querySelector(
+																	&#x27;[role=&quot;option&quot;][data-highlighted]:not([data-disabled=&quot;true&quot;])&#x27;,
+																) as HTMLElement;
+																const firstOption =
+																	highlightedOption ||
+																	(listbox.querySelector(&#x27;[role=&quot;option&quot;]:not([data-disabled=&quot;true&quot;])&#x27;) as HTMLElement);
+																if (firstOption) firstOption.click();
+															}
+														}
+													}}
+												/&gt;
+											&lt;/div&gt;
+										)}
+										&lt;Combobox.Empty&gt;
+											&lt;div className={styles.noResults}&gt;No results&lt;/div&gt;
+										&lt;/Combobox.Empty&gt;
+										&lt;Combobox.List className={styles.list}&gt;
+											{(item: unknown) =&gt; {
+												const option = item as SelectOption&lt;unknown&gt;;
+												const optionKey =
+													option.value === null
+														? &#x27;empty&#x27;
+														: hasIdProperty(option.value)
+															? `option-${option.value.id}`
+															: `option-${String(option.value)}`;
+												return (
+													&lt;Combobox.Item key={optionKey} value={option} className={styles.item}&gt;
+														&lt;Combobox.ItemIndicator className={styles.itemIndicator}&gt;
+															&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot; className={styles.checkmark}&gt;
+																&lt;path
+																	fill=&quot;currentColor&quot;
+																	d=&quot;M14.17 2.6l-8.22 8.23L1.82 6.7.54 7.98l5.41 5.42 9.51-9.51-1.29-1.29z&quot;
+																/&gt;
+															&lt;/svg&gt;
+														&lt;/Combobox.ItemIndicator&gt;
+														&lt;span className={styles.itemText}&gt;
+															{option.value === null
+																? emptyOptionText
+																: children
+																	? children(option.value)
+																	: (option.label ?? String(option.value))}
+															{option.value !== null &amp;&amp; isAiSuggestion &amp;&amp; isAiSuggestion(option.value) &amp;&amp; (
+																&lt;Icon
+																	icon=&quot;ai&quot;
+																	size=&quot;sm&quot;
+																	className={styles.aiIcon}
+																	title=&quot;AI suggestion&quot;
+																	role=&quot;figure&quot;
+																/&gt;
+															)}
+														&lt;/span&gt;
+													&lt;/Combobox.Item&gt;
+												);
+											}}
+										&lt;/Combobox.List&gt;
+										{onCreateNew &amp;&amp; createNewLabel &amp;&amp; (
+											&lt;div className={styles.footer}&gt;
+												&lt;button
+													type=&quot;button&quot;
+													className={styles.createNewButton}
+													onClick={(e) =&gt; {
+														e.preventDefault();
+														onCreateNew();
+														setOpen(false);
+													}}
+												&gt;
+													&lt;Icon icon=&quot;plus&quot; size=&quot;sm&quot; /&gt;
+													{createNewLabel}
+												&lt;/button&gt;
+											&lt;/div&gt;
+										)}
+									&lt;/&gt;
+								)}
+							&lt;/Combobox.Popup&gt;
+						&lt;/Combobox.Positioner&gt;
+					&lt;/Combobox.Portal&gt;
+				)}
+			&lt;/Combobox.Root&gt;
+			&lt;InputError id={manager.errorId} showWhen={manager.showErrorMessage}&gt;
+				{manager.errorMessageToDisplay}
+			&lt;/InputError&gt;
+		&lt;/div&gt;
+	);
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="search-highlight.html" class="nav-btn">← search-highlight</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="select-date.html" class="nav-btn">select-date →</a>
+  </div>
+</body>
+</html>

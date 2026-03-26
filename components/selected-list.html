@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>selected-list — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>selected-list</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>selected-list</strong> implementations exist. The Ember version is 63 lines and the React version is 157 lines. The React version is notably larger (157 vs 63 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">selected-list.gts</div><pre class="language-typescript">import { fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import t from &#x27;ember-intl/helpers/t&#x27;;
+
+import Button from &#x27;./button.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+
+interface SelectedListSignature&lt;T&gt; {
+	Element: HTMLUListElement;
+	Args: {
+		value: T[];
+		onChange: (value: T[]) =&gt; void;
+		placeholder?: string;
+		disabled?: boolean;
+	};
+	Blocks: {
+		default: [option: T];
+	};
+}
+
+/**
+ * For rendering selected options. Often as a companion to Luna::Select.
+ *
+ * @typeParam T The type of the value.
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/selected-list.md)
+ */
+export default class LunaSelectedList&lt;T&gt; extends Component&lt;SelectedListSignature&lt;T&gt;&gt; {
+	removeOption = (option: T) =&gt; {
+		const selections = this.args.value.filter((selectedOption: T) =&gt; selectedOption !== option);
+		this.args.onChange(selections);
+	};
+
+	&lt;template&gt;
+		&lt;ul class=&quot;list&quot; data-qid-component-type=&quot;Luna::SelectedList&quot; ...attributes&gt;
+			{{#each @value as |option i|}}
+				&lt;li class=&quot;list-item&quot; data-test-list-item={{i}}&gt;
+					&lt;div&gt;
+						{{yield option}}
+					&lt;/div&gt;
+					{{#unless @disabled}}
+						&lt;Button
+							@size=&quot;xs&quot;
+							@variant=&quot;transparent&quot;
+							aria-label={{t &quot;input.selected-list.remove&quot;}}
+							data-test-remove-list-option={{i}}
+							{{on &quot;click&quot; (fn this.removeOption option)}}
+						&gt;
+							&lt;Icon @icon=&quot;close&quot; /&gt;
+						&lt;/Button&gt;
+					{{/unless}}
+				&lt;/li&gt;
+			{{else}}
+				{{#if @placeholder}}
+					&lt;li class=&quot;list-item list-item--placeholder&quot;&gt;
+						{{@placeholder}}
+					&lt;/li&gt;
+				{{/if}}
+			{{/each}}
+		&lt;/ul&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">selected-list.tsx</div><pre class="language-typescript">import { Children, useCallback } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { t } from &#x27;../../utils/i18n&#x27;;
+import { Button } from &#x27;../button/button&#x27;;
+import { Icon } from &#x27;../icon/icon&#x27;;
+
+import styles from &#x27;./selected-list.module.css&#x27;;
+
+/**
+ * Item subcomponent for SelectedList.
+ * Accepts a render function as children that receives (item: T, index: number).
+ */
+function Item&lt;T&gt;({ children: _children }: { children: (item: T, index: number) =&gt; React.ReactNode }): null {
+	return null;
+}
+
+Item.displayName = &#x27;SelectedList.Item&#x27;;
+// Use a symbol to mark this as a SelectedList.Item slot for runtime detection
+(Item as unknown as { $$lunaSelectedListItem: true }).$$lunaSelectedListItem = true;
+
+interface ExtractedSlots&lt;T&gt; {
+	renderItem?: (item: T, index: number) =&gt; React.ReactNode;
+}
+
+/**
+ * Extract the Item slot from children.
+ */
+function extractSelectedListSlots&lt;T&gt;(children: React.ReactNode): ExtractedSlots&lt;T&gt; {
+	let renderItem: ((item: T, index: number) =&gt; React.ReactNode) | undefined;
+
+	Children.forEach(children, (child) =&gt; {
+		if (
+			typeof child === &#x27;object&#x27; &amp;&amp;
+			child !== null &amp;&amp;
+			&#x27;type&#x27; in child &amp;&amp;
+			typeof child.type === &#x27;function&#x27; &amp;&amp;
+			(child.type as unknown as { $$lunaSelectedListItem?: boolean }).$$lunaSelectedListItem === true
+		) {
+			// Extract the render function from Item&#x27;s children prop
+			const itemProps = child.props as { children?: (item: T, index: number) =&gt; React.ReactNode };
+			if (itemProps.children) {
+				renderItem = itemProps.children;
+			}
+		}
+	});
+
+	return { renderItem };
+}
+
+interface SelectedListBaseProps&lt;T&gt; {
+	/** The array of selected values */
+	value: T[];
+	/** Callback fired when the value changes (item removed) */
+	onChange: (value: T[]) =&gt; void;
+	/** Placeholder text shown when the list is empty */
+	placeholder?: string;
+	/** Whether the list is disabled (hides remove buttons) */
+	disabled?: boolean;
+	/** Render function for each item (legacy prop, prefer using SelectedList.Item) */
+	renderItem?: (item: T, index: number) =&gt; React.ReactNode;
+	/** Child elements, typically SelectedList.Item */
+	children?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export type SelectedListProps&lt;T&gt; = ComponentPropsWithRef&lt;SelectedListBaseProps&lt;T&gt;, HTMLUListElement&gt;;
+
+/**
+ * For rendering selected options. Often as a companion to Luna::Select.
+ *
+ * @typeParam T The type of the value.
+ */
+function SelectedListComponent&lt;T&gt;({
+	value,
+	onChange,
+	placeholder,
+	disabled = false,
+	renderItem: renderItemProp,
+	children,
+	className,
+	ref,
+	...props
+}: SelectedListProps&lt;T&gt;): React.ReactElement {
+	// Extract slots from children
+	const { renderItem: renderItemSlot } = extractSelectedListSlots&lt;T&gt;(children);
+
+	// Use slot if provided, otherwise fallback to prop
+	const renderItem = renderItemSlot ?? renderItemProp;
+
+	if (!renderItem) {
+		throw new Error(&#x27;SelectedList requires either a renderItem prop or a SelectedList.Item child&#x27;);
+	}
+
+	const removeOption = useCallback(
+		(index: number) =&gt; {
+			const newValue = value.filter((_, i) =&gt; i !== index);
+			onChange(newValue);
+		},
+		[value, onChange],
+	);
+
+	return (
+		&lt;ul ref={ref} className={cn(styles.list, className)} data-qid-component-type=&quot;Luna::SelectedList&quot; {...props}&gt;
+			{value.length &gt; 0 ? (
+				value.map((item, index) =&gt; (
+					&lt;li key={index} className={styles.listItem} data-test-list-item={index}&gt;
+						&lt;div&gt;{renderItem(item, index)}&lt;/div&gt;
+						{!disabled &amp;&amp; (
+							&lt;Button
+								size=&quot;xs&quot;
+								variant=&quot;transparent&quot;
+								aria-label={t(&#x27;selected-list.ariaRemove&#x27;)}
+								data-test-remove-list-option={index}
+								onClick={() =&gt; removeOption(index)}
+							&gt;
+								&lt;Icon icon=&quot;close&quot; /&gt;
+							&lt;/Button&gt;
+						)}
+					&lt;/li&gt;
+				))
+			) : placeholder ? (
+				&lt;li className={cn(styles.listItem, styles.listItemPlaceholder)}&gt;{placeholder}&lt;/li&gt;
+			) : null}
+		&lt;/ul&gt;
+	);
+}
+
+SelectedListComponent.displayName = &#x27;SelectedList&#x27;;
+
+/**
+ * For rendering selected options. Often as a companion to Luna::Select.
+ *
+ * @typeParam T The type of the value.
+ *
+ * @example
+ * ```tsx
+ * // Using compound component (recommended)
+ * &lt;SelectedList value={items} onChange={setItems}&gt;
+ *   &lt;SelectedList.Item&gt;{(item, index) =&gt; &lt;span&gt;{item.name}&lt;/span&gt;}&lt;/SelectedList.Item&gt;
+ * &lt;/SelectedList&gt;
+ *
+ * // Using legacy renderItem prop (deprecated)
+ * &lt;SelectedList
+ *   value={items}
+ *   onChange={setItems}
+ *   renderItem={(item, index) =&gt; &lt;span&gt;{item.name}&lt;/span&gt;}
+ * /&gt;
+ * ```
+ */
+export const SelectedList = Object.assign(SelectedListComponent, {
+	Item,
+});
+
+export default SelectedList;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="select-time.html" class="nav-btn">← select-time</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="setup.html" class="nav-btn">setup →</a>
+  </div>
+</body>
+</html>

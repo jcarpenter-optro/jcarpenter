@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>modal — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>modal</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>modal</strong> implementations exist. The Ember version is 207 lines and the React version is 134 lines. The Ember version is notably larger (207 vs 134 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">modal.gts</div><pre class="language-typescript">/* eslint-disable ember/no-at-ember-render-modifiers */
+import { assert, warn } from &#x27;@ember/debug&#x27;;
+import EngineInstance from &#x27;@ember/engine/instance&#x27;;
+import { hash } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import { getOwner } from &#x27;@ember/owner&#x27;;
+import didInsert from &#x27;@ember/render-modifiers/modifiers/did-insert&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { task, timeout } from &#x27;ember-concurrency&#x27;;
+import perform from &#x27;ember-concurrency/helpers/perform&#x27;;
+import { eq, notEq, or } from &#x27;ember-truth-helpers&#x27;;
+
+import toStringOrEmpty from &#x27;../helpers/to-string.ts&#x27;;
+import a11yTrapFocus from &#x27;../modifiers/a11y-trap-focus.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+import type { LunaFrameSignature } from &#x27;./frame.gts&#x27;;
+import Frame from &#x27;./frame.gts&#x27;;
+import { Portal } from &#x27;./portal.gts&#x27;;
+import Announcer from &#x27;./setup/announcer.gts&#x27;;
+
+export interface ModalHandle {
+	titleId: string;
+	close: () =&gt; Promise&lt;void&gt;;
+	cancel: () =&gt; Promise&lt;void&gt;;
+}
+
+export interface LunaModalSignature {
+	Element: LunaFrameSignature[&#x27;Element&#x27;];
+	Args: {
+		animation?: &#x27;off&#x27;;
+		variant?: string;
+		quickClose?: boolean;
+		metrics?: {
+			modalIdentifier: string;
+		};
+		highlight?: LunaFrameSignature[&#x27;Args&#x27;][&#x27;highlight&#x27;];
+		padding?: LunaFrameSignature[&#x27;Args&#x27;][&#x27;padding&#x27;];
+		radius?: LunaFrameSignature[&#x27;Args&#x27;][&#x27;radius&#x27;];
+		oldTrapFocus?: boolean; // only use if dealing with bad issues with new focus-trapping
+		show?: boolean;
+		onDidInsert?: (modal: LunaModal) =&gt; void;
+		onClose: (options: { cancelled: boolean }) =&gt; void;
+	};
+	Blocks: {
+		default: [modal: ModalHandle];
+	};
+}
+
+const noop = () =&gt; void 0;
+
+/* eslint require-yield: &quot;off&quot; -- Turning off this rule since ember-animated doesn&#x27;t want yields */
+/**
+ * Shows content inside an isolated modal. The modal traps the user&#x27;s focus so it cannot leave the modal via tabbing. Frequently instantiated by the [`ModalService`](https://docs.auditboardteam.com/Luna/utilities/services/modal).
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/modal.md)
+ */
+export default class LunaModal extends Component&lt;LunaModalSignature&gt; {
+	&lt;template&gt;
+		{{#if (notEq @show false)}}
+			&lt;Portal @to=&quot;luna-modals&quot;&gt;
+				&lt;div class=&quot;Modal&quot; data-variant={{or @variant &quot;light&quot;}} {{didInsert this.onDidInsert}}&gt;
+					{{! template-lint-disable no-invalid-interactive }}
+					&lt;div
+						class=&quot;overlay
+							{{if (eq this.renderModal (eq this.closingModal false)) &#x27;fade-in&#x27;}}
+							{{if this.closingModal &#x27;fade-out&#x27;}}
+							&quot;
+						data-enabled={{toStringOrEmpty (or @quickClose false)}}
+						data-animation-duration=&quot;{{this.animationDuration}}ms&quot;
+						aria-hidden=&quot;true&quot;
+						data-test-overlay
+						data-qid-component-type=&quot;Luna::Modal&quot;
+						{{on &quot;click&quot; (if @quickClose this.onQuickClose noop)}}
+					&gt;&lt;/div&gt;
+
+					&lt;Frame
+						@highlight={{this.highlight}}
+						@padding={{this.padding}}
+						@radius={{this.radius}}
+						data-test-modal
+						id={{this.windowId}}
+						data-animation-duration=&quot;{{this.animationDuration}}ms&quot;
+						class=&quot;window
+							{{if (eq this.renderModal (eq this.closingModal false)) &#x27;scale-and-fade-transition-in&#x27;}}
+							{{if this.closingModal &#x27;scale-and-fade-transition-out&#x27;}}
+							&quot;
+						role=&quot;dialog&quot;
+						aria-modal=&quot;true&quot;
+						aria-labelledby={{this.labelledbyId}}
+						{{a11yTrapFocus modal=true}}
+						...attributes
+						{{on &quot;keyup&quot; this.onKeyUp}}
+					&gt;
+						&lt;Announcer /&gt;
+						{{yield
+							(hash
+								close=(perform this.hide (hash cancelled=false))
+								cancel=(perform this.hide (hash cancelled=true))
+								titleId=this.labelledbyId
+							)
+						}}
+
+					&lt;/Frame&gt;
+				&lt;/div&gt;
+			&lt;/Portal&gt;
+		{{/if}}
+	&lt;/template&gt;
+
+	@tracked renderModal = false;
+	@tracked closingModal = false;
+
+	windowId = `${guidFor(this)}--window`;
+	labelledbyId = `${guidFor(this)}--labelledby`;
+
+	get windowElement() {
+		return document.getElementById(this.windowId);
+	}
+
+	get animationDuration(): number {
+		const owner = getOwner(this);
+		assert(&#x27;Expected an owner&#x27;, owner instanceof EngineInstance);
+		const { environment } = owner.resolveRegistration(&#x27;config:environment&#x27;) as { environment: string };
+
+		/**
+		 * If the window is not yet in the DOM and we aren&#x27;t trying to hide it then
+		 * we can assume it was not rendered in fastboot.
+		 */
+		const wasRenderedInFastboot = Boolean(document.querySelector(&#x27;[role=dialog]&#x27;)) &amp;&amp; !this.hide.isRunning;
+		const animationIsDisabled = this.args.animation === &#x27;off&#x27;;
+
+		return animationIsDisabled || environment === &#x27;test&#x27; || wasRenderedInFastboot ? 0 : 190;
+	}
+
+	get highlight() {
+		return this.args.highlight ?? &#x27;top-teal&#x27;;
+	}
+
+	get padding() {
+		return this.args.padding ?? &#x27;none&#x27;;
+	}
+
+	get radius() {
+		return this.args.radius ?? &#x27;md&#x27;;
+	}
+
+	@action
+	onDidInsert() {
+		this.show();
+		this.args.onDidInsert?.(this);
+	}
+
+	@action
+	onQuickClose() {
+		if (this.args.quickClose === true) {
+			void this.hide.perform({ cancelled: true });
+		}
+	}
+
+	@action
+	onKeyUp(event: KeyboardEvent) {
+		if (event.key === KEYBOARD_KEYS.ESC) {
+			event.stopPropagation();
+			this.onQuickClose();
+		}
+	}
+
+	/**
+	 * Shows the modal and manages the focus state.
+	 */
+	show() {
+		this.renderModal = true;
+	}
+
+	/**
+	 * Hides the modal and ensures that focus is restored
+	 * to where it was before the modal was shown.
+	 */
+	hide = task(async (options: { cancelled: boolean }) =&gt; {
+		this.closingModal = true;
+
+		/**
+		 * We delay until after the animation had time to finish before the
+		 * onClose is called and the Modal is removed from the dom.
+		 */
+		await timeout(this.animationDuration);
+		this.closingModal = false;
+		this.renderModal = false;
+
+		this.args.onClose(options);
+	});
+
+	willDestroy() {
+		super.willDestroy();
+
+		warn(
+			&#x27;You must close &lt;Luna::Modal&gt; using the yielded `close` method. You most likely used an {{if}} statement to remove the modal.&#x27;,
+			this.hide.performCount &gt; 0,
+			{
+				id: &#x27;luna-modal-incorrectly-closed&#x27;,
+			},
+		);
+	}
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">modal.tsx</div><pre class="language-typescript">import { createContext, type ReactNode, useCallback, useContext, useId } from &#x27;react&#x27;;
+
+import { Dialog } from &#x27;@base-ui-components/react/dialog&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./modal.module.css&#x27;;
+
+export type ModalVariant = &#x27;light&#x27; | &#x27;dark&#x27;;
+export type ModalHighlight = &#x27;top-teal&#x27; | &#x27;none&#x27;;
+export type ModalPadding = &#x27;none&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+export type ModalRadius = &#x27;none&#x27; | &#x27;sm&#x27; | &#x27;md&#x27; | &#x27;lg&#x27;;
+
+/**
+ * Modal handle for controlling the modal from within
+ */
+export interface ModalHandle {
+	/** ID for aria-labelledby */
+	titleId: string;
+	/** Close the modal (not cancelled) */
+	close: () =&gt; void;
+	/** Cancel the modal (cancelled = true) */
+	cancel: () =&gt; void;
+}
+
+const ModalContext = createContext&lt;ModalHandle | null&gt;(null);
+
+/**
+ * Hook to access the modal handle from within the modal
+ */
+export function useModalContext(): ModalHandle | null {
+	return useContext(ModalContext);
+}
+
+export interface ModalProps {
+	/** Forwarded ref to the modal dialog element */
+	&#x27;ref&#x27;?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Visual variant of the modal overlay */
+	&#x27;variant&#x27;?: ModalVariant;
+	/** Whether clicking the overlay closes the modal */
+	&#x27;quickClose&#x27;?: boolean;
+	/** Disable open/close animations */
+	&#x27;animation&#x27;?: &#x27;off&#x27;;
+	/** Top highlight style */
+	&#x27;highlight&#x27;?: ModalHighlight;
+	/** Padding inside the modal */
+	&#x27;padding&#x27;?: ModalPadding;
+	/** Border radius */
+	&#x27;radius&#x27;?: ModalRadius;
+	/** Whether the modal is visible */
+	&#x27;show&#x27;?: boolean;
+	/** Called when the modal is closed */
+	&#x27;onClose&#x27;?: (options: { cancelled: boolean }) =&gt; void;
+	/** Modal content - use useModalContext() hook to access modal handle */
+	&#x27;children&#x27;?: ReactNode;
+	/** Additional class name */
+	&#x27;className&#x27;?: string;
+	/** Data attributes */
+	&#x27;data-testid&#x27;?: string;
+}
+
+/**
+ * Shows content inside an isolated modal. The modal traps the user&#x27;s focus so it cannot leave the modal via tabbing.
+ */
+export function Modal({
+	ref,
+	variant = &#x27;light&#x27;,
+	quickClose = false,
+	animation,
+	highlight = &#x27;top-teal&#x27;,
+	padding = &#x27;none&#x27;,
+	radius = &#x27;md&#x27;,
+	show = true,
+	onClose,
+	children,
+	className,
+	...props
+}: ModalProps) {
+	const generatedId = useId();
+	const titleId = `modal-title-${generatedId}`;
+	const animationDisabled = animation === &#x27;off&#x27;;
+
+	// Handle close
+	const handleClose = useCallback(
+		(cancelled: boolean) =&gt; {
+			onClose?.({ cancelled });
+		},
+		[onClose],
+	);
+
+	// Handle open state change from Base UI
+	const handleOpenChange = useCallback(
+		(open: boolean) =&gt; {
+			if (!open) {
+				handleClose(true); // Treat backdrop click / Esc as cancel
+			}
+		},
+		[handleClose],
+	);
+
+	const modalHandle: ModalHandle = {
+		titleId,
+		close: () =&gt; handleClose(false),
+		cancel: () =&gt; handleClose(true),
+	};
+
+	return (
+		&lt;Dialog.Root open={show} onOpenChange={handleOpenChange} modal={true}&gt;
+			&lt;Dialog.Portal&gt;
+				&lt;Dialog.Backdrop
+					className={cn(styles.overlay, animationDisabled &amp;&amp; styles.noAnimation)}
+					data-variant={variant}
+					data-enabled={quickClose ? &#x27;true&#x27; : &#x27;false&#x27;}
+					data-testid=&quot;modal-overlay&quot;
+				/&gt;
+				&lt;Dialog.Popup
+					ref={ref}
+					className={cn(styles.window, animationDisabled &amp;&amp; styles.noAnimation, className)}
+					data-highlight={highlight}
+					data-padding={padding}
+					data-radius={radius}
+					data-qid-component-type=&quot;Luna::Modal&quot;
+					data-testid=&quot;modal&quot;
+					aria-labelledby={titleId}
+					{...props}
+				&gt;
+					&lt;ModalContext.Provider value={modalHandle}&gt;{children}&lt;/ModalContext.Provider&gt;
+				&lt;/Dialog.Popup&gt;
+			&lt;/Dialog.Portal&gt;
+		&lt;/Dialog.Root&gt;
+	);
+}
+
+export default Modal;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="menu.html" class="nav-btn">← menu</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="modal-layout.html" class="nav-btn">modal-layout →</a>
+  </div>
+</body>
+</html>

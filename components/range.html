@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>range — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>range</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>range</strong> implementations exist. The Ember version is 473 lines and the React version is 395 lines. The Ember version is notably larger (473 vs 395 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">range.gts</div><pre class="language-typescript">/* eslint-disable ember/no-at-ember-render-modifiers */
+import { assert } from &#x27;@ember/debug&#x27;;
+import { fn } from &#x27;@ember/helper&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import willDestroy from &#x27;@ember/render-modifiers/modifiers/will-destroy&#x27;;
+import { htmlSafe } from &#x27;@ember/template&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import or from &#x27;ember-truth-helpers/helpers/or&#x27;;
+
+import toString0 from &#x27;../helpers/to-string.ts&#x27;;
+import { KEYBOARD_KEYS } from &#x27;../utils/key-codes.ts&#x27;;
+
+type DragType = &#x27;min&#x27; | &#x27;max&#x27;;
+
+interface Values {
+	min: number;
+	max: number;
+}
+
+interface LunaRangeSignature {
+	Element: HTMLDivElement;
+	Args: {
+		disabled: boolean;
+		min: number | string;
+		max: number | string;
+		minValue?: number;
+		minValueText?: string;
+		minLabel?: string;
+		maxValue?: number;
+		maxValueText?: string;
+		maxLabel?: string;
+		minRange?: number | string;
+		steps?: number;
+		onChange?: (newValues: unknown) =&gt; void;
+	};
+}
+
+/**
+ * Range slider
+ *
+ * ```handlebars
+ * &lt;Range
+ *  @minValue={{this.min}}
+ *  @maxValue={{this.max}}
+ *  @min=&quot;0&quot;
+ *  @max=&quot;100&quot;
+ *  @onChange={{this.updateValues}} /&gt;
+ * ```
+ * @public
+ */
+export default class LunaRange extends Component&lt;LunaRangeSignature&gt; {
+	rangeSliderId = `${guidFor(this)}`;
+
+	constructor(owner: Owner, args: LunaRangeSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+		assert(&#x27;You must provide a @min to Range&#x27;, args.min !== undefined);
+		assert(&#x27;You must provide a @max to Range&#x27;, args.max !== undefined);
+	}
+
+	dragType: DragType | null = null;
+
+	get rangeSliderElement() {
+		const element = document.getElementById(this.rangeSliderId);
+		assert(&#x27;expect rangeSlider element&#x27;, element);
+		return element;
+	}
+
+	get min(): number {
+		// NOTE: It would probably be good to handle NaN here.
+		return typeof this.args.min === &#x27;string&#x27; ? parseInt(this.args.min) : this.args.min;
+	}
+
+	get max(): number {
+		// NOTE: It would probably be good to handle NaN here.
+		return typeof this.args.max === &#x27;string&#x27; ? parseInt(this.args.max) : this.args.max;
+	}
+
+	get minValue(): number {
+		return this.args.minValue || this.min;
+	}
+
+	get maxValue(): number {
+		return this.args.maxValue || this.max;
+	}
+
+	/**
+	 * Determines how much the values change when the user manipulates the
+	 * values via the keyboard. It is also used as the default minRange
+	 * value if not provided.
+	 */
+	get incrementBy() {
+		const steps = this.args.steps || 30;
+		return Math.round((this.max - this.min) / steps);
+	}
+
+	/**
+	 * Styles applied ot the min knob for positioning. This is also used
+	 * by the active rail element to position its left edge.
+	 */
+	get minKnobStyle() {
+		/**
+		 * If the minValue is less than the range&#x27;s min we make sure it doesn&#x27;t get
+		 * positioned outside the range&#x27;s bounding box.
+		 */
+		let minValue = Math.max(this.minValue, this.min);
+
+		// Also do this in case the minValue is greater than the max
+		minValue = Math.min(this.minValue, this.max);
+
+		const percent = ((minValue - this.min) / (this.max - this.min)) * 100;
+
+		return htmlSafe(`left: ${percent}%;`);
+	}
+
+	/**
+	 * Styles applied to the max knob for positioning. This is also used
+	 * by the active rail element to position its right edge.
+	 */
+	get maxKnobStyle() {
+		/**
+		 * If the maxValue is less than the range&#x27;s min we make sure it doesn&#x27;t get
+		 * positioned outside the range&#x27;s bounding box.
+		 */
+		let maxValue = Math.max(this.maxValue, this.min);
+
+		// Also do this in case the maxValue is greater than the max
+		maxValue = Math.min(this.maxValue, this.max);
+
+		const percent = ((maxValue - this.min) / (this.max - this.min)) * 100;
+
+		// Orient direction from right so we can reuse it for the active rail style
+		return htmlSafe(`right: ${100 - percent}%;`);
+	}
+
+	/**
+	 * Styles applied ot the active rail
+	 */
+	get activeRailStyle() {
+		return htmlSafe(`${this.minKnobStyle.toString()} ${this.maxKnobStyle.toString()}`);
+	}
+
+	@action
+	onRailPress(event: MouseEvent | TouchEvent) {
+		if (this.args.disabled) {
+			return;
+		}
+
+		const rect = this.rangeSliderElement.getBoundingClientRect();
+		let offsetX: number;
+		if (&#x27;targetTouches&#x27; in event) {
+			const touchX = event.targetTouches[0]?.clientX;
+			assert(&#x27;expected at least one touch&#x27;, touchX !== undefined);
+			offsetX = touchX;
+		} else {
+			offsetX = event.clientX;
+		}
+		const percent = offsetX / rect.width;
+
+		let newValues = {
+			min: this.minValue,
+			max: this.maxValue,
+		};
+
+		const clickValue = Math.round((this.max - this.min) * percent);
+		const minKnobIsCloser = newValues.min - clickValue &gt; clickValue - newValues.max;
+		const key = minKnobIsCloser ? &#x27;min&#x27; : &#x27;max&#x27;;
+
+		newValues[key] = clickValue;
+		newValues = this.constrainValues(newValues, key);
+
+		/**
+		 * Pretend like the user also clicked on the knob so if they want they
+		 * can click on the rail and keep dragging to adjust the value
+		 */
+		this.startDrag(key);
+
+		if (this.args.onChange) {
+			this.args.onChange(newValues);
+		}
+	}
+
+	/**
+	 * Captures key events on the knobs and updates the values appropriately.
+	 *
+	 * @param key min or max depending on which knob the user is triggering the key input on
+	 * @param event keydown DOM event
+	 */
+	@action
+	onKeyDown(key: DragType, event: KeyboardEvent) {
+		if (this.args.disabled) {
+			return;
+		}
+
+		let newValues = {
+			min: this.minValue,
+			max: this.maxValue,
+		};
+
+		switch (event.key) {
+			case KEYBOARD_KEYS.UP_ARROW:
+				event.preventDefault();
+				newValues[key] = newValues[key] + this.incrementBy;
+				break;
+			case KEYBOARD_KEYS.DOWN_ARROW:
+				event.preventDefault();
+				newValues[key] = newValues[key] - this.incrementBy;
+				break;
+			case KEYBOARD_KEYS.RIGHT_ARROW:
+				event.preventDefault();
+				newValues[key] = newValues[key] + this.incrementBy;
+				break;
+			case KEYBOARD_KEYS.LEFT_ARROW:
+				event.preventDefault();
+				newValues[key] = newValues[key] - this.incrementBy;
+				break;
+			case KEYBOARD_KEYS.HOME:
+				event.preventDefault();
+				newValues[key] = this.min;
+				break;
+			case KEYBOARD_KEYS.END:
+				event.preventDefault();
+				newValues[key] = this.max;
+				break;
+		}
+
+		newValues = this.constrainValues(newValues, key);
+
+		if (this.args.onChange) {
+			this.args.onChange(newValues);
+		}
+	}
+
+	/**
+	 * Catches the user starting a drag
+	 *
+	 * @param type Which knob is triggering this drag event
+	 * @param event mousedown DOM event
+	 */
+	@action
+	startDrag(type: DragType) {
+		if (this.args.disabled) {
+			return;
+		}
+
+		this.dragType = type;
+
+		/**
+		 * We set these events on the body so you can move your cursor anywhere
+		 * while dragging and still see the values update. This reduces the finicky
+		 * nature of the slider.
+		 */
+		document.body.addEventListener(&#x27;mouseup&#x27;, this.endDrag);
+		document.body.addEventListener(&#x27;mousemove&#x27;, this.onDrag);
+		document.body.addEventListener(&#x27;touchend&#x27;, this.endDrag);
+		document.body.addEventListener(&#x27;touchmove&#x27;, this.onDrag);
+	}
+
+	/**
+	 * Stops the user drag event and cleans up event listeners
+	 */
+	@action
+	endDrag() {
+		this.dragType = null;
+		this.removeEventListeners();
+	}
+
+	/**
+	 * Updates the values as the user drags the knob around
+	 *
+	 * @param event mousemove DOM event
+	 */
+	@action
+	onDrag(event: MouseEvent | TouchEvent) {
+		if (!this.dragType) {
+			return;
+		}
+
+		const rect = this.rangeSliderElement.getBoundingClientRect();
+		let clientX: number;
+		if (&#x27;targetTouches&#x27; in event) {
+			const touchX = event.targetTouches[0]?.clientX;
+			assert(&#x27;expected at least one touch&#x27;, touchX !== undefined);
+			clientX = touchX;
+		} else {
+			clientX = event.clientX;
+		}
+		const offsetX = clientX - rect.left;
+		const percent = offsetX / rect.width;
+
+		let newValues = {
+			min: this.minValue,
+			max: this.maxValue,
+		};
+
+		newValues[this.dragType] = Math.round((this.max - this.min) * percent);
+		newValues = this.constrainValues(newValues, this.dragType);
+
+		if (this.args.onChange) {
+			this.args.onChange(newValues);
+		}
+	}
+
+	/**
+	 * This ensures that the min and max knobs don&#x27;t
+	 * end up on the wrong side of each other or exceed the
+	 * range slider&#x27;s range. The slider that is prioritized will
+	 * not get its value adjusted.
+	 *
+	 * @param values The values to constrain to the min/max
+	 * @param priority Which value to prioritize when ensuring that the knobs don&#x27;t pass each other.
+	 */
+	constrainValues(values: Values, priority = &#x27;min&#x27;): Values {
+		let newValues = Object.assign({}, values);
+
+		/**
+		 * Don&#x27;t let the min/max values be less/greater than Range&#x27;s min/max
+		 * so we don&#x27;t end up positioning them out of bounds
+		 */
+		newValues.min = Math.max(newValues.min, this.min);
+		newValues.max = Math.min(newValues.max, this.max);
+
+		if (priority === &#x27;max&#x27;) {
+			// Don&#x27;t let min/max values exceed their counterpart&#x27;s
+			// Min knob must always be on the left of the max knob.
+			newValues.min = Math.min(newValues.min, newValues.max);
+
+			// Max knob must always be on the right of the min knob.
+			newValues.max = Math.max(newValues.max, newValues.min);
+		} else {
+			/**
+			 * This is identical to the above adjustment, we just change the order
+			 * so the max value gets adjusted first.
+			 */
+			newValues.max = Math.max(newValues.max, newValues.min);
+			newValues.min = Math.min(newValues.min, newValues.max);
+		}
+
+		newValues = this.spaceValues(newValues, priority);
+
+		return newValues;
+	}
+
+	/**
+	 * Spaces apart the min/max values so the knobs don&#x27;t end up
+	 * on top of each other using the minRange argument. The prioritized
+	 * knob won&#x27;t get its value adjusted.
+	 *
+	 * @param values The values to space apart
+	 * @param priority Which value to freeze when ensuring that the values aren&#x27;t too close
+	 */
+	spaceValues(values: Values, priority: string) {
+		const newValues = Object.assign({}, values);
+		const minRange = (typeof this.args.minRange === &#x27;string&#x27; ? parseInt(this.args.minRange) : null) || this.incrementBy;
+
+		/**
+		 * Values are already sufficiently far apart
+		 */
+		if (newValues.max - newValues.min &gt;= minRange) {
+			return newValues;
+		}
+
+		// Deals with dragging to far right
+		if (newValues.min &gt; this.max - minRange) {
+			newValues.max = this.max;
+			newValues.min = newValues.max - minRange;
+
+			// Deals with dragging to the far left
+		} else if (newValues.max &lt; this.min + minRange) {
+			newValues.min = this.min;
+			newValues.max = newValues.min + minRange;
+
+			// Deals with adjusting range in the middle
+		} else if (priority === &#x27;max&#x27;) {
+			newValues.min = newValues.max - minRange;
+		} else {
+			newValues.max = newValues.min + minRange;
+		}
+
+		return newValues;
+	}
+
+	/**
+	 * Removes event listeners. Because they are manually attached to the body element
+	 * they won&#x27;t automatically get cleaned up when the Range component is removed
+	 * from the dom.
+	 */
+	@action
+	removeEventListeners() {
+		document.body.removeEventListener(&#x27;mouseup&#x27;, this.endDrag);
+		document.body.removeEventListener(&#x27;mousemove&#x27;, this.onDrag);
+		document.body.removeEventListener(&#x27;touchend&#x27;, this.endDrag);
+		document.body.removeEventListener(&#x27;touchmove&#x27;, this.onDrag);
+	}
+
+	@action
+	onWillDestroy() {
+		this.removeEventListeners();
+	}
+	&lt;template&gt;
+		{{! template-lint-disable no-invalid-interactive no-pointer-down-event-binding require-presentational-children }}
+		&lt;div
+			class=&quot;Range&quot;
+			data-disabled={{toString0 @disabled}}
+			data-qid-component-type=&quot;Luna::Range&quot;
+			id={{this.rangeSliderId}}
+			{{willDestroy this.onWillDestroy}}
+			...attributes
+		&gt;
+
+			&lt;div class=&quot;rail&quot;&gt;&lt;/div&gt;
+			&lt;div class=&quot;rail-active&quot; style={{this.activeRailStyle}}&gt;&lt;/div&gt;
+			&lt;div class=&quot;rail-click-target&quot; {{on &quot;mousedown&quot; this.onRailPress}} {{on &quot;touchstart&quot; this.onRailPress}}&gt;
+			&lt;/div&gt;
+
+			&lt;div
+				class=&quot;button&quot;
+				style={{this.minKnobStyle}}
+				tabindex=&quot;0&quot;
+				role=&quot;slider&quot;
+				aria-valuemax={{@max}}
+				aria-valuemin={{@min}}
+				aria-valuenow={{or @minValue @min}}
+				aria-disabled={{toString0 @disabled}}
+				aria-valuetext={{or @minValueText @min}}
+				aria-label={{or @minLabel (t &quot;input.range.minimum&quot;)}}
+				data-type=&quot;min&quot;
+				{{on &quot;keydown&quot; (fn this.onKeyDown &quot;min&quot;)}}
+				{{on &quot;mousedown&quot; (fn this.startDrag &quot;min&quot;)}}
+				{{on &quot;touchstart&quot; (fn this.startDrag &quot;min&quot;)}}
+				data-test-min
+			&gt;
+				&lt;div class=&quot;content&quot;&gt;
+					&lt;svg class=&quot;bars&quot; aria-hidden=&quot;true&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 56 64&quot;&gt;
+						&lt;path d=&quot;M0 0h8v64H0z&quot;&gt;&lt;/path&gt;
+						&lt;path d=&quot;M24 0h8v64h-8z&quot;&gt;&lt;/path&gt;
+						&lt;path d=&quot;M48 0h8v64h-8z&quot;&gt;&lt;/path&gt;
+					&lt;/svg&gt;
+				&lt;/div&gt;
+			&lt;/div&gt;
+
+			&lt;div
+				class=&quot;button&quot;
+				style={{this.maxKnobStyle}}
+				tabindex=&quot;0&quot;
+				role=&quot;slider&quot;
+				aria-valuemax={{@max}}
+				aria-valuemin={{@min}}
+				aria-valuenow={{or @maxValue @max}}
+				aria-disabled={{toString0 @disabled}}
+				aria-valuetext={{or @maxValueText @max}}
+				aria-label={{or @maxLabel (t &quot;input.range.maximum&quot;)}}
+				data-type=&quot;max&quot;
+				{{on &quot;keydown&quot; (fn this.onKeyDown &quot;max&quot;)}}
+				{{on &quot;mousedown&quot; (fn this.startDrag &quot;max&quot;)}}
+				{{on &quot;touchstart&quot; (fn this.startDrag &quot;max&quot;)}}
+				data-test-max
+			&gt;
+				&lt;div class=&quot;content&quot;&gt;
+					&lt;svg class=&quot;bars&quot; aria-hidden=&quot;true&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 56 64&quot;&gt;
+						&lt;path d=&quot;M0 0h8v64H0z&quot;&gt;&lt;/path&gt;
+						&lt;path d=&quot;M24 0h8v64h-8z&quot;&gt;&lt;/path&gt;
+						&lt;path d=&quot;M48 0h8v64h-8z&quot;&gt;&lt;/path&gt;
+					&lt;/svg&gt;
+				&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">range.tsx</div><pre class="language-typescript">import { useCallback, useEffect, useId, useRef, useState } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+
+import styles from &#x27;./range.module.css&#x27;;
+
+export interface RangeValues {
+	min: number;
+	max: number;
+}
+
+type DragType = &#x27;min&#x27; | &#x27;max&#x27; | null;
+
+export interface RangeProps extends Omit&lt;React.HTMLAttributes&lt;HTMLDivElement&gt;, &#x27;onChange&#x27;&gt; {
+	/** Optional ref for the root element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** Minimum bound of the range */
+	min: number | string;
+	/** Maximum bound of the range */
+	max: number | string;
+	/** Current minimum value (left knob position) */
+	minValue?: number;
+	/** Current maximum value (right knob position) */
+	maxValue?: number;
+	/** Accessible text for the min value */
+	minValueText?: string;
+	/** Accessible text for the max value */
+	maxValueText?: string;
+	/** ARIA label for the min knob */
+	minLabel?: string;
+	/** ARIA label for the max knob */
+	maxLabel?: string;
+	/** Minimum distance between min and max values */
+	minRange?: number | string;
+	/** Number of steps to divide the range into (affects keyboard increment) */
+	steps?: number;
+	/** Whether the range is disabled */
+	disabled?: boolean;
+	/** Callback fired when values change */
+	onChange?: (values: RangeValues) =&gt; void;
+}
+
+/**
+ * A dual-handle range slider component.
+ *
+ * Allows users to select a range of values by dragging two knobs.
+ * Supports keyboard navigation and touch/mouse interactions.
+ *
+ * @example
+ * ```tsx
+ * &lt;Range
+ *   min={0}
+ *   max={100}
+ *   minValue={minValue}
+ *   maxValue={maxValue}
+ *   onChange={({ min, max }) =&gt; {
+ *     setMinValue(min);
+ *     setMaxValue(max);
+ *   }}
+ * /&gt;
+ * ```
+ */
+export function Range(props: RangeProps) {
+	const {
+		ref,
+		min: minProp,
+		max: maxProp,
+		minValue: minValueProp,
+		maxValue: maxValueProp,
+		minValueText,
+		maxValueText,
+		minLabel = &#x27;Minimum&#x27;,
+		maxLabel = &#x27;Maximum&#x27;,
+		minRange: minRangeProp,
+		steps = 30,
+		disabled = false,
+		onChange,
+		className,
+		...rest
+	} = props;
+
+	const generatedId = useId();
+	const rangeSliderId = `range-slider-${generatedId}`;
+	const rangeSliderRef = useRef&lt;HTMLDivElement&gt;(null);
+	const [dragType, setDragType] = useState&lt;DragType&gt;(null);
+
+	// Parse numeric props
+	const min = typeof minProp === &#x27;string&#x27; ? parseInt(minProp, 10) : minProp;
+	const max = typeof maxProp === &#x27;string&#x27; ? parseInt(maxProp, 10) : maxProp;
+	const minValue = minValueProp ?? min;
+	const maxValue = maxValueProp ?? max;
+
+	// Calculate increment for keyboard navigation
+	const incrementBy = Math.round((max - min) / steps);
+
+	// Calculate minimum range between knobs
+	const minRange = typeof minRangeProp === &#x27;string&#x27; ? parseInt(minRangeProp, 10) : (minRangeProp ?? incrementBy);
+
+	// Calculate knob positions as percentages
+	const getMinKnobPercent = () =&gt; {
+		let value = Math.max(minValue, min);
+		value = Math.min(value, max);
+		return ((value - min) / (max - min)) * 100;
+	};
+
+	const getMaxKnobPercent = () =&gt; {
+		let value = Math.max(maxValue, min);
+		value = Math.min(value, max);
+		return ((value - min) / (max - min)) * 100;
+	};
+
+	const minKnobPercent = getMinKnobPercent();
+	const maxKnobPercent = getMaxKnobPercent();
+
+	// Ensure minimum distance between values (defined first so constrainValues can use it)
+	const spaceValues = useCallback(
+		(values: RangeValues, priority: string): RangeValues =&gt; {
+			const newValues = { ...values };
+
+			// Values are already sufficiently far apart
+			if (newValues.max - newValues.min &gt;= minRange) {
+				return newValues;
+			}
+
+			// Handle dragging to far right
+			if (newValues.min &gt; max - minRange) {
+				newValues.max = max;
+				newValues.min = newValues.max - minRange;
+			}
+			// Handle dragging to far left
+			else if (newValues.max &lt; min + minRange) {
+				newValues.min = min;
+				newValues.max = newValues.min + minRange;
+			}
+			// Handle adjusting range in the middle
+			else if (priority === &#x27;max&#x27;) {
+				newValues.min = newValues.max - minRange;
+			} else {
+				newValues.max = newValues.min + minRange;
+			}
+
+			return newValues;
+		},
+		[min, max, minRange],
+	);
+
+	// Constrain values to valid range
+	const constrainValues = useCallback(
+		(values: RangeValues, priority: &#x27;min&#x27; | &#x27;max&#x27; = &#x27;min&#x27;): RangeValues =&gt; {
+			let newValues = { ...values };
+
+			// Don&#x27;t let values exceed bounds
+			newValues.min = Math.max(newValues.min, min);
+			newValues.max = Math.min(newValues.max, max);
+
+			if (priority === &#x27;max&#x27;) {
+				// Ensure min doesn&#x27;t exceed max
+				newValues.min = Math.min(newValues.min, newValues.max);
+				// Ensure max doesn&#x27;t go below min
+				newValues.max = Math.max(newValues.max, newValues.min);
+			} else {
+				// Ensure max doesn&#x27;t go below min
+				newValues.max = Math.max(newValues.max, newValues.min);
+				// Ensure min doesn&#x27;t exceed max
+				newValues.min = Math.min(newValues.min, newValues.max);
+			}
+
+			// Apply minimum range spacing
+			newValues = spaceValues(newValues, priority);
+
+			return newValues;
+		},
+		[min, max, spaceValues],
+	);
+
+	// Handle rail click
+	const handleRailPress = useCallback(
+		(event: React.MouseEvent | React.TouchEvent) =&gt; {
+			if (disabled) return;
+
+			const element = rangeSliderRef.current;
+			if (!element) return;
+
+			const rect = element.getBoundingClientRect();
+			let clientX: number;
+
+			if (&#x27;touches&#x27; in event) {
+				const touch = event.touches[0];
+				if (!touch) return;
+				clientX = touch.clientX;
+			} else {
+				clientX = event.clientX;
+			}
+
+			const offsetX = clientX - rect.left;
+			const percent = offsetX / rect.width;
+			const clickValue = Math.round((max - min) * percent) + min;
+
+			let newValues: RangeValues = { min: minValue, max: maxValue };
+
+			// Determine which knob is closer
+			const minKnobIsCloser = Math.abs(minValue - clickValue) &lt; Math.abs(maxValue - clickValue);
+			const key = minKnobIsCloser ? &#x27;min&#x27; : &#x27;max&#x27;;
+
+			newValues[key] = clickValue;
+			newValues = constrainValues(newValues, key);
+
+			// Start drag on the clicked knob
+			setDragType(key);
+
+			onChange?.(newValues);
+		},
+		[disabled, min, max, minValue, maxValue, constrainValues, onChange],
+	);
+
+	// Handle keyboard navigation
+	const handleKeyDown = useCallback(
+		(key: &#x27;min&#x27; | &#x27;max&#x27;, event: React.KeyboardEvent) =&gt; {
+			if (disabled) return;
+
+			let newValues: RangeValues = { min: minValue, max: maxValue };
+
+			switch (event.key) {
+				case &#x27;ArrowUp&#x27;:
+				case &#x27;ArrowRight&#x27;:
+					event.preventDefault();
+					newValues[key] = newValues[key] + incrementBy;
+					break;
+				case &#x27;ArrowDown&#x27;:
+				case &#x27;ArrowLeft&#x27;:
+					event.preventDefault();
+					newValues[key] = newValues[key] - incrementBy;
+					break;
+				case &#x27;Home&#x27;:
+					event.preventDefault();
+					newValues[key] = min;
+					break;
+				case &#x27;End&#x27;:
+					event.preventDefault();
+					newValues[key] = max;
+					break;
+				default:
+					return;
+			}
+
+			newValues = constrainValues(newValues, key);
+			onChange?.(newValues);
+		},
+		[disabled, minValue, maxValue, min, max, incrementBy, constrainValues, onChange],
+	);
+
+	// Start drag
+	const startDrag = useCallback(
+		(type: &#x27;min&#x27; | &#x27;max&#x27;) =&gt; {
+			if (disabled) return;
+			setDragType(type);
+		},
+		[disabled],
+	);
+
+	// End drag
+	const endDrag = useCallback(() =&gt; {
+		setDragType(null);
+	}, []);
+
+	// Handle drag
+	const handleDrag = useCallback(
+		(event: MouseEvent | TouchEvent) =&gt; {
+			if (!dragType) return;
+
+			const element = rangeSliderRef.current;
+			if (!element) return;
+
+			const rect = element.getBoundingClientRect();
+			let clientX: number;
+
+			if (&#x27;touches&#x27; in event) {
+				// Prevent page scrolling while dragging the slider.
+				event.preventDefault();
+				const touch = event.touches[0];
+				if (!touch) return;
+				clientX = touch.clientX;
+			} else {
+				clientX = event.clientX;
+			}
+
+			const offsetX = clientX - rect.left;
+			const percent = offsetX / rect.width;
+
+			let newValues: RangeValues = { min: minValue, max: maxValue };
+			newValues[dragType] = Math.round((max - min) * percent) + min;
+			newValues = constrainValues(newValues, dragType);
+
+			onChange?.(newValues);
+		},
+		[dragType, min, max, minValue, maxValue, constrainValues, onChange],
+	);
+
+	// Set up drag event listeners
+	useEffect(() =&gt; {
+		if (dragType) {
+			document.body.addEventListener(&#x27;mouseup&#x27;, endDrag);
+			document.body.addEventListener(&#x27;mousemove&#x27;, handleDrag);
+			document.body.addEventListener(&#x27;touchend&#x27;, endDrag);
+			document.body.addEventListener(&#x27;touchmove&#x27;, handleDrag, { passive: false });
+
+			return () =&gt; {
+				document.body.removeEventListener(&#x27;mouseup&#x27;, endDrag);
+				document.body.removeEventListener(&#x27;mousemove&#x27;, handleDrag);
+				document.body.removeEventListener(&#x27;touchend&#x27;, endDrag);
+				document.body.removeEventListener(&#x27;touchmove&#x27;, handleDrag);
+			};
+		}
+	}, [dragType, endDrag, handleDrag]);
+
+	const wrapperClassName = cn(styles.Range, className);
+
+	return (
+		&lt;div
+			ref={(node) =&gt; {
+				rangeSliderRef.current = node;
+				if (typeof ref === &#x27;function&#x27;) {
+					ref(node);
+				} else if (ref) {
+					ref.current = node;
+				}
+			}}
+			className={wrapperClassName}
+			data-disabled={disabled ? &#x27;true&#x27; : undefined}
+			data-qid-component-type=&quot;Luna::Range&quot;
+			id={rangeSliderId}
+			{...rest}
+		&gt;
+			&lt;div className={styles.rail} /&gt;
+			&lt;div className={styles.railActive} style={{ left: `${minKnobPercent}%`, right: `${100 - maxKnobPercent}%` }} /&gt;
+			&lt;div className={styles.railClickTarget} onMouseDown={handleRailPress} onTouchStart={handleRailPress} /&gt;
+
+			{/* Min knob */}
+			&lt;div
+				className={styles.button}
+				style={{ left: `${minKnobPercent}%` }}
+				tabIndex={disabled ? -1 : 0}
+				role=&quot;slider&quot;
+				aria-valuemax={max}
+				aria-valuemin={min}
+				aria-valuenow={minValue}
+				aria-disabled={disabled ? &#x27;true&#x27; : &#x27;false&#x27;}
+				aria-valuetext={minValueText ?? String(minValue)}
+				aria-label={minLabel}
+				data-type=&quot;min&quot;
+				data-test-min
+				onKeyDown={(e) =&gt; handleKeyDown(&#x27;min&#x27;, e)}
+				onMouseDown={() =&gt; startDrag(&#x27;min&#x27;)}
+				onTouchStart={() =&gt; startDrag(&#x27;min&#x27;)}
+			&gt;
+				&lt;div className={styles.content}&gt;
+					&lt;svg className={styles.bars} aria-hidden=&quot;true&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 56 64&quot;&gt;
+						&lt;path d=&quot;M0 0h8v64H0z&quot; /&gt;
+						&lt;path d=&quot;M24 0h8v64h-8z&quot; /&gt;
+						&lt;path d=&quot;M48 0h8v64h-8z&quot; /&gt;
+					&lt;/svg&gt;
+				&lt;/div&gt;
+			&lt;/div&gt;
+
+			{/* Max knob */}
+			&lt;div
+				className={styles.button}
+				style={{ right: `${100 - maxKnobPercent}%` }}
+				tabIndex={disabled ? -1 : 0}
+				role=&quot;slider&quot;
+				aria-valuemax={max}
+				aria-valuemin={min}
+				aria-valuenow={maxValue}
+				aria-disabled={disabled ? &#x27;true&#x27; : &#x27;false&#x27;}
+				aria-valuetext={maxValueText ?? String(maxValue)}
+				aria-label={maxLabel}
+				data-type=&quot;max&quot;
+				data-test-max
+				onKeyDown={(e) =&gt; handleKeyDown(&#x27;max&#x27;, e)}
+				onMouseDown={() =&gt; startDrag(&#x27;max&#x27;)}
+				onTouchStart={() =&gt; startDrag(&#x27;max&#x27;)}
+			&gt;
+				&lt;div className={styles.content}&gt;
+					&lt;svg className={styles.bars} aria-hidden=&quot;true&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 56 64&quot;&gt;
+						&lt;path d=&quot;M0 0h8v64H0z&quot; /&gt;
+						&lt;path d=&quot;M24 0h8v64h-8z&quot; /&gt;
+						&lt;path d=&quot;M48 0h8v64h-8z&quot; /&gt;
+					&lt;/svg&gt;
+				&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default Range;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="radio-group.html" class="nav-btn">← radio-group</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="rich-text.html" class="nav-btn">rich-text →</a>
+  </div>
+</body>
+</html>

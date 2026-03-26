@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>button-with-popup — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>button-with-popup</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>button-with-popup</strong> implementations exist. The Ember version is 72 lines and the React version is 332 lines. The React version is notably larger (332 vs 72 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">button-with-popup.gts</div><pre class="language-typescript">import { isTesting } from &#x27;@embroider/macros&#x27;;
+import type { WithBoundArgs } from &#x27;@glint/template&#x27;;
+
+import { concat, hash } from &#x27;@ember/helper&#x27;;
+import { action } from &#x27;@ember/object&#x27;;
+import { guidFor } from &#x27;@ember/object/internals&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+import { tracked } from &#x27;@glimmer/tracking&#x27;;
+
+import { timeout } from &#x27;ember-concurrency&#x27;;
+import set from &#x27;ember-set-helper/helpers/set&#x27;;
+
+import type LunaButtonWithPopupButton from &#x27;./button-with-popup/button.gts&#x27;;
+import LunaButtonWithPopupButton0 from &#x27;./button-with-popup/button.gts&#x27;;
+import type LunaButtonWithPopupPopup from &#x27;./button-with-popup/popup.gts&#x27;;
+import LunaButtonWithPopupPopup0 from &#x27;./button-with-popup/popup.gts&#x27;;
+
+interface LunaButtonWithPopupSignature {
+	Blocks: {
+		default: [
+			{
+				Button: WithBoundArgs&lt;typeof LunaButtonWithPopupButton, &#x27;id&#x27; | &#x27;popupId&#x27; | &#x27;isOpen&#x27; | &#x27;showPopup&#x27;&gt;;
+				Popup: WithBoundArgs&lt;
+					typeof LunaButtonWithPopupPopup,
+					&#x27;popupId&#x27; | &#x27;isOpen&#x27; | &#x27;relativeTo&#x27; | &#x27;hidePopup&#x27; | &#x27;showPopup&#x27;
+				&gt;;
+				popupIsOpen: boolean;
+			},
+		];
+	};
+}
+
+/**
+ * A button used to show a popup with multiple types of content. Interacting with the popup will not close it. The popup traps the focus and will close if the user presses ESC or clicks outside of it.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/button-with-popup.md)
+ */
+export default class LunaButtonWithPopup extends Component&lt;LunaButtonWithPopupSignature&gt; {
+	targetId = `${guidFor(this)}--target`;
+	popupId = `${guidFor(this)}--popup`;
+
+	@tracked showPopup = false;
+
+	@action
+	async openPopup() {
+		this.showPopup = true;
+
+		await timeout(isTesting() ? 0 : 100);
+	}
+	&lt;template&gt;
+		{{yield
+			(hash
+				Button=(component
+					LunaButtonWithPopupButton0
+					id=this.targetId
+					popupId=this.popupId
+					isOpen=this.showPopup
+					showPopup=this.openPopup
+				)
+				Popup=(component
+					LunaButtonWithPopupPopup0
+					popupId=this.popupId
+					isOpen=this.showPopup
+					relativeTo=(concat &quot;#&quot; this.targetId)
+					hidePopup=(set this &quot;showPopup&quot; false)
+					showPopup=this.openPopup
+				)
+				popupIsOpen=this.showPopup
+			)
+		}}
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">button-with-popup.tsx</div><pre class="language-typescript">import {
+	Children,
+	createContext,
+	type MutableRefObject,
+	type ReactElement,
+	type ReactNode,
+	type RefObject,
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+} from &#x27;react&#x27;;
+
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { Button, type ButtonProps } from &#x27;../button&#x27;;
+import { type OnCloseSource, Popup, type PopupPlacement } from &#x27;../popup&#x27;;
+
+/** Symbol used to identify Button slot when extracting children (avoids string keys like $$). */
+export const BWP_BUTTON = Symbol(&#x27;ButtonWithPopup.Button&#x27;);
+/** Symbol used to identify Popup slot when extracting children. */
+export const BWP_POPUP = Symbol(&#x27;ButtonWithPopup.Popup&#x27;);
+
+/**
+ * Handle provided to popup content for controlling the popup
+ */
+export interface ButtonWithPopupHandle {
+	/** Close the popup */
+	close: (source?: OnCloseSource, event?: Event) =&gt; Promise&lt;void&gt;;
+	/** Open the popup */
+	showPopup: () =&gt; void;
+}
+
+/**
+ * Context for sharing popup state between ButtonWithPopup and its subcomponents
+ */
+interface ButtonWithPopupContextValue {
+	/** Whether the popup is currently open */
+	isOpen: boolean;
+	/** Open the popup */
+	showPopup: (event?: React.MouseEvent) =&gt; void;
+	/** Close the popup */
+	hidePopup: () =&gt; void;
+	/** ID of the trigger button */
+	buttonId: string;
+	/** ID of the popup */
+	popupId: string;
+	/** Ref to the trigger button element */
+	buttonRef: RefObject&lt;HTMLButtonElement | null&gt;;
+	/** Handle for controlling the popup */
+	handle: ButtonWithPopupHandle;
+	/** Ref to store the onClose callback from PopupContent */
+	onCloseCallbackRef: MutableRefObject&lt;((source: OnCloseSource, event: unknown) =&gt; void) | null&gt;;
+}
+
+const ButtonWithPopupContext = createContext&lt;ButtonWithPopupContextValue | null&gt;(null);
+
+function useButtonWithPopupContext() {
+	const context = useContext(ButtonWithPopupContext);
+	if (!context) {
+		throw new Error(&#x27;ButtonWithPopup subcomponents must be used within ButtonWithPopup&#x27;);
+	}
+	return context;
+}
+
+/**
+ * Hook to access the ButtonWithPopup handle from within popup content
+ */
+export function useButtonWithPopupHandle(): ButtonWithPopupHandle {
+	const context = useButtonWithPopupContext();
+	return context.handle;
+}
+
+// ============================================================================
+// PopupButton Subcomponent
+// ============================================================================
+
+interface PopupButtonBaseProps extends Omit&lt;
+	ButtonProps &amp; { href?: undefined },
+	&#x27;active&#x27; | &#x27;aria-haspopup&#x27; | &#x27;aria-expanded&#x27; | &#x27;aria-controls&#x27;
+&gt; {
+	/** Children content */
+	children?: ReactNode;
+}
+
+export type PopupButtonProps = ComponentPropsWithRef&lt;PopupButtonBaseProps, HTMLButtonElement&gt;;
+
+/**
+ * The trigger button for ButtonWithPopup.
+ * Automatically handles ARIA attributes and active state.
+ */
+export function PopupButton({ ref, children, onClick, ...props }: PopupButtonProps) {
+	const { isOpen, showPopup, buttonId, popupId, buttonRef } = useButtonWithPopupContext();
+
+	const handleClick = useCallback(
+		(event: React.MouseEvent&lt;HTMLButtonElement&gt;) =&gt; {
+			showPopup(event);
+			onClick?.(event);
+		},
+		[showPopup, onClick],
+	);
+
+	// Merge refs
+	const setRef = useCallback(
+		(el: HTMLButtonElement | null) =&gt; {
+			(buttonRef as React.MutableRefObject&lt;HTMLButtonElement | null&gt;).current = el;
+			if (typeof ref === &#x27;function&#x27;) {
+				ref(el);
+			} else if (ref &amp;&amp; typeof ref === &#x27;object&#x27;) {
+				(ref as React.MutableRefObject&lt;HTMLButtonElement | null&gt;).current = el;
+			}
+		},
+		[buttonRef, ref],
+	);
+
+	return (
+		&lt;Button
+			ref={setRef}
+			id={buttonId}
+			active={isOpen}
+			aria-haspopup=&quot;dialog&quot;
+			aria-expanded={isOpen}
+			aria-controls={popupId}
+			data-qid-luna-button-with-popup-button
+			onClick={handleClick}
+			{...props}
+		&gt;
+			{children}
+		&lt;/Button&gt;
+	);
+}
+
+PopupButton.displayName = &#x27;ButtonWithPopup.Button&#x27;;
+(PopupButton as unknown as Record&lt;symbol, boolean&gt;)[BWP_BUTTON] = true;
+
+// ============================================================================
+// PopupContent Subcomponent
+// ============================================================================
+
+export interface PopupContentProps {
+	/** Popup placement relative to the button */
+	&#x27;placement&#x27;?: PopupPlacement;
+	/** Whether to show an arrow */
+	&#x27;enableArrow&#x27;?: boolean;
+	/** Children content - use useButtonWithPopupHandle() hook to access close/showPopup functions */
+	&#x27;children&#x27;?: ReactNode;
+	/** Additional class name */
+	&#x27;className&#x27;?: string;
+	/** Called when popup is closed */
+	&#x27;onClose&#x27;?: (source: OnCloseSource, event: unknown) =&gt; void;
+	/** ARIA label for the popup */
+	&#x27;aria-label&#x27;?: string;
+	/** ARIA labelledby for the popup */
+	&#x27;aria-labelledby&#x27;?: string;
+}
+
+/**
+ * The popup content for ButtonWithPopup.
+ * Automatically positions relative to the trigger button.
+ * Unlike ButtonWithMenu, interacting with content does NOT close the popup.
+ * The popup traps focus and closes on ESC or clicking outside.
+ */
+export function PopupContent({
+	placement = &#x27;bottom-start&#x27;,
+	enableArrow,
+	children,
+	className,
+	onClose,
+	&#x27;aria-label&#x27;: ariaLabel,
+	&#x27;aria-labelledby&#x27;: ariaLabelledBy,
+}: PopupContentProps) {
+	const { isOpen, hidePopup, popupId, buttonRef, onCloseCallbackRef } = useButtonWithPopupContext();
+
+	// Register the onClose callback in the ref so handle.close() can call it
+	useEffect(() =&gt; {
+		onCloseCallbackRef.current = onClose ?? null;
+	}, [onClose, onCloseCallbackRef]);
+
+	const handleClose = useCallback(
+		(source: OnCloseSource, event: unknown) =&gt; {
+			hidePopup();
+			onClose?.(source, event);
+		},
+		[hidePopup, onClose],
+	);
+
+	return (
+		&lt;Popup
+			id={popupId}
+			show={isOpen}
+			trapFocus={true}
+			onClose={handleClose}
+			relativeTo={buttonRef}
+			enableArrow={enableArrow}
+			placement={placement}
+			className={className}
+			role=&quot;dialog&quot;
+			aria-label={ariaLabel}
+			aria-labelledby={ariaLabelledBy}
+			data-test-popup
+			data-qid-luna-button-with-popup-popup
+		&gt;
+			{children}
+		&lt;/Popup&gt;
+	);
+}
+
+PopupContent.displayName = &#x27;ButtonWithPopup.Popup&#x27;;
+(PopupContent as unknown as Record&lt;symbol, boolean&gt;)[BWP_POPUP] = true;
+
+// ============================================================================
+// ButtonWithPopup Main Component
+// ============================================================================
+
+export interface ButtonWithPopupProps {
+	/** Children should be ButtonWithPopup.Button and ButtonWithPopup.Popup components */
+	children: ReactNode;
+}
+
+/**
+ * Extract Button and Popup subcomponents from children
+ */
+function extractButtonWithPopupSlots(children: ReactNode): {
+	buttonSlot: ReactElement | null;
+	popupSlot: ReactElement | null;
+	otherChildren: ReactNode[];
+} {
+	let buttonSlot: ReactElement | null = null;
+	let popupSlot: ReactElement | null = null;
+	const otherChildren: ReactNode[] = [];
+
+	Children.forEach(children, (child) =&gt; {
+		if (!child || typeof child !== &#x27;object&#x27; || !(&#x27;type&#x27; in child)) {
+			otherChildren.push(child);
+			return;
+		}
+
+		const element = child as ReactElement &amp; {
+			type: Record&lt;symbol, boolean&gt;;
+		};
+
+		if (element.type?.[BWP_BUTTON]) {
+			buttonSlot = element;
+		} else if (element.type?.[BWP_POPUP]) {
+			popupSlot = element;
+		} else {
+			otherChildren.push(child);
+		}
+	});
+
+	return { buttonSlot, popupSlot, otherChildren };
+}
+
+/**
+ * A button used to show a popup with multiple types of content.
+ * Interacting with the popup will not close it.
+ * The popup traps focus and will close if the user presses ESC or clicks outside of it.
+ *
+ * @example
+ * ```tsx
+ * &lt;ButtonWithPopup&gt;
+ *   &lt;ButtonWithPopup.Button&gt;Actions&lt;/ButtonWithPopup.Button&gt;
+ *   &lt;ButtonWithPopup.Popup aria-label=&quot;Actions popup&quot;&gt;
+ *     &lt;p&gt;Content here&lt;/p&gt;
+ *   &lt;/ButtonWithPopup.Popup&gt;
+ * &lt;/ButtonWithPopup&gt;
+ * ```
+ */
+function ButtonWithPopupComponent({ children }: ButtonWithPopupProps) {
+	const id = useId();
+	const buttonId = `${id}--target`;
+	const popupId = `${id}--popup`;
+	const buttonRef = useRef&lt;HTMLButtonElement | null&gt;(null);
+	const onCloseCallbackRef = useRef&lt;((source: OnCloseSource, event: unknown) =&gt; void) | null&gt;(null);
+
+	const [isOpen, setIsOpen] = useState(false);
+
+	const showPopup = useCallback((event?: React.MouseEvent) =&gt; {
+		// Toggle behavior - clicking the button when popup is open should close it
+		setIsOpen((prev) =&gt; !prev);
+		event?.stopPropagation();
+	}, []);
+
+	const hidePopup = useCallback(() =&gt; {
+		setIsOpen(false);
+	}, []);
+
+	const handle: ButtonWithPopupHandle = {
+		close: async (source?: OnCloseSource, event?: Event) =&gt; {
+			const effectiveSource = source ?? &#x27;manual&#x27;;
+			hidePopup();
+			// Also call the onClose callback if registered
+			const onClose = onCloseCallbackRef.current;
+			if (onClose) onClose(effectiveSource, event);
+		},
+		showPopup: () =&gt; showPopup(),
+	};
+
+	const contextValue: ButtonWithPopupContextValue = {
+		isOpen,
+		showPopup,
+		hidePopup,
+		buttonId,
+		popupId,
+		buttonRef,
+		handle,
+		onCloseCallbackRef,
+	};
+
+	const { buttonSlot, popupSlot, otherChildren } = extractButtonWithPopupSlots(children);
+
+	return (
+		&lt;ButtonWithPopupContext.Provider value={contextValue}&gt;
+			{buttonSlot}
+			{popupSlot}
+			{otherChildren}
+		&lt;/ButtonWithPopupContext.Provider&gt;
+	);
+}
+
+ButtonWithPopupComponent.displayName = &#x27;ButtonWithPopup&#x27;;
+
+/**
+ * ButtonWithPopup with subcomponents attached
+ */
+export const ButtonWithPopup = Object.assign(ButtonWithPopupComponent, {
+	Button: PopupButton,
+	Popup: PopupContent,
+});
+
+export default ButtonWithPopup;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="button-with-menu.html" class="nav-btn">← button-with-menu</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="calendar.html" class="nav-btn">calendar →</a>
+  </div>
+</body>
+</html>

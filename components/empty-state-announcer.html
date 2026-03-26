@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>empty-state-announcer — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>empty-state-announcer</h1>
+    <span class="badge badge-ember">Ember only</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text"><strong>empty-state-announcer</strong> exists only in the Ember/Glimmer library and has not yet been ported to React. It should be considered part of the React migration backlog.</div>
+  </div>
+
+  <div class="columns one-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">empty-state-announcer.gts</div><pre class="language-typescript">import { assert } from &#x27;@ember/debug&#x27;;
+import type Owner from &#x27;@ember/owner&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { consume } from &#x27;ember-provide-consume-context&#x27;;
+
+import { SCHEMA_TABLE_HAD_ROWS_CONTEXT } from &#x27;@auditboard/consts/schema-table&#x27;;
+
+import type { A11yAnnouncerSignature } from &#x27;./a11y-announcer.gts&#x27;;
+import A11yAnnouncer from &#x27;./a11y-announcer.gts&#x27;;
+
+interface EmptyStateAnnouncerSignature {
+	Element: HTMLSpanElement;
+	Args: Omit&lt;A11yAnnouncerSignature[&#x27;Args&#x27;], &#x27;announceOnInit&#x27;&gt;;
+}
+
+/**
+ * A specialized announcer component for empty states in schema tables that only announces
+ * when the table transitions from having data to being empty (not on initial empty load).
+ *
+ * This component wraps A11yAnnouncer and conditionally announces based on whether the schema
+ * table previously had rows. It should be used in Schema Table `:empty` blocks instead of
+ * using A11yAnnouncer directly.
+ *
+ * @example
+ * ```hbs
+ * &lt;SchemaTable::Table ...&gt;
+ *   &lt;:empty&gt;
+ *     &lt;EmptyStateAnnouncer @text={{formatMessage &quot;No results found.&quot;}} /&gt;
+ *   &lt;/:empty&gt;
+ * &lt;/SchemaTable::Table&gt;
+ * ```
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/empty-state-announcer.md)
+ */
+export default class EmptyStateAnnouncer extends Component&lt;EmptyStateAnnouncerSignature&gt; {
+	@consume(SCHEMA_TABLE_HAD_ROWS_CONTEXT) hadRows: boolean | undefined;
+
+	constructor(owner: Owner, args: EmptyStateAnnouncerSignature[&#x27;Args&#x27;]) {
+		super(owner, args);
+		// Ensure the component is being used within a Schema Table context
+		assert(
+			&#x27;EmptyStateAnnouncer must be used within a Schema Table. If you need to make announcements outside of a Schema Table, use A11yAnnouncer instead.&#x27;,
+			this.hadRows !== undefined,
+		);
+	}
+
+	/**
+	 * Only announce if the table previously had rows.
+	 * This prevents announcements when tables load empty initially.
+	 */
+	get shouldAnnounce(): boolean {
+		return this.hadRows === true;
+	}
+
+	&lt;template&gt;
+		&lt;A11yAnnouncer
+			@text={{@text}}
+			@screenReaderText={{@screenReaderText}}
+			@urgency={{@urgency}}
+			@announceOnInit={{this.shouldAnnounce}}
+			@destroyMessage={{@destroyMessage}}
+			...attributes
+		/&gt;
+	&lt;/template&gt;
+}
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="empty-state.html" class="nav-btn">← empty-state</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="event-list.html" class="nav-btn">event-list →</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>code — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>code</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>code</strong> implementations exist. The Ember version is 58 lines and the React version is 64 lines. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">code.gts</div><pre class="language-typescript">import { isTesting } from &#x27;@embroider/macros&#x27;;
+
+import { on } from &#x27;@ember/modifier&#x27;;
+import Component from &#x27;@glimmer/component&#x27;;
+
+import { task, timeout } from &#x27;ember-concurrency&#x27;;
+import perform from &#x27;ember-concurrency/helpers/perform&#x27;;
+import t from &#x27;ember-intl/helpers/t&#x27;;
+
+import Button from &#x27;./button.gts&#x27;;
+import Divider from &#x27;./divider.gts&#x27;;
+import Spacer from &#x27;./spacer.gts&#x27;;
+import XStack from &#x27;./x-stack.gts&#x27;;
+
+interface CodeSignature {
+	Element: HTMLDivElement;
+	Args: {
+		code: string;
+		language: string;
+	};
+	Blocks: {
+		actions: [];
+	};
+}
+
+/**
+ * Formats and displays a piece of source code.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/code.md)
+ */
+export default class CodeComponent extends Component&lt;CodeSignature&gt; {
+	copyTask = task(async () =&gt; {
+		await navigator.clipboard.writeText(this.args.code);
+		// Do we need this timeout if we&#x27;re awaiting above?
+		await timeout(isTesting() ? 0 : 1000);
+	});
+	&lt;template&gt;
+		&lt;div class=&quot;Code&quot; role=&quot;figure&quot; data-qid-component-type=&quot;Luna::Code&quot; ...attributes&gt;
+			&lt;XStack @spacing=&quot;xs&quot; class=&quot;header&quot;&gt;
+				&lt;div class=&quot;title&quot;&gt;{{@language}}&lt;/div&gt;
+
+				&lt;Spacer /&gt;
+
+				{{yield to=&quot;actions&quot;}}
+
+				&lt;Button @size=&quot;xs&quot; @variant=&quot;transparent&quot; data-qid-copy-code {{on &quot;click&quot; (perform this.copyTask)}}&gt;
+					{{#if this.copyTask.isRunning}}
+						{{t &quot;code.copied&quot;}}
+					{{else}}
+						{{t &quot;code.copy&quot;}}
+					{{/if}}
+				&lt;/Button&gt;
+			&lt;/XStack&gt;
+			&lt;Divider @tag=&quot;div&quot; /&gt;
+			&lt;pre class=&quot;pre&quot;&gt;{{@code}}&lt;/pre&gt;
+		&lt;/div&gt;
+	&lt;/template&gt;
+}
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">code.tsx</div><pre class="language-typescript">import { useState } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { Button } from &#x27;../button&#x27;;
+import { Divider } from &#x27;../divider&#x27;;
+import { Spacer } from &#x27;../spacer&#x27;;
+import { XStack } from &#x27;../x-stack&#x27;;
+
+import styles from &#x27;./code.module.css&#x27;;
+
+interface CodeProps {
+	/** Optional ref for the underlying element (React 19 ref-as-prop) */
+	ref?: React.Ref&lt;HTMLDivElement&gt;;
+	/** The code to render */
+	code: string;
+	/** The language of the code snippet */
+	language: string;
+	/** Additional actions to render before the copy button */
+	actions?: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+/**
+ * Formats and displays a piece of source code.
+ *
+ * Matches the Luna::Code Ember component API and styling.
+ */
+export function Code(props: CodeProps) {
+	const { ref, code, language, actions, className, ...rest } = props;
+	const [isCopying, setIsCopying] = useState(false);
+
+	const handleCopy = async () =&gt; {
+		try {
+			await navigator.clipboard.writeText(code);
+			setIsCopying(true);
+			// Reset after 1 second (0ms in test mode)
+			setTimeout(() =&gt; {
+				setIsCopying(false);
+			}, 1000);
+		} catch (error) {
+			console.error(&#x27;Failed to copy code:&#x27;, error);
+		}
+	};
+
+	const codeClassName = cn(styles.Code, className);
+
+	return (
+		&lt;div ref={ref} className={codeClassName} role=&quot;figure&quot; data-qid-component-type=&quot;Luna::Code&quot; {...rest}&gt;
+			&lt;XStack spacing=&quot;xs&quot; className={styles.header}&gt;
+				&lt;div className={styles.title}&gt;{language}&lt;/div&gt;
+				&lt;Spacer /&gt;
+				{actions}
+				&lt;Button size=&quot;xs&quot; variant=&quot;transparent&quot; data-qid-copy-code onClick={handleCopy}&gt;
+					{isCopying ? &#x27;Copied&#x27; : &#x27;Copy&#x27;}
+				&lt;/Button&gt;
+			&lt;/XStack&gt;
+			&lt;Divider tag=&quot;div&quot; /&gt;
+			&lt;pre className={styles.pre}&gt;{code}&lt;/pre&gt;
+		&lt;/div&gt;
+	);
+}
+
+export default Code;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="click-to-edit.html" class="nav-btn">← click-to-edit</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="data-card.html" class="nav-btn">data-card →</a>
+  </div>
+</body>
+</html>

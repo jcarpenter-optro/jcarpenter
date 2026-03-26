@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>banner — Luna Component Comparison</title>
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1117; color: #e2e8f0;
+  min-height: 100vh;
+}
+.topbar {
+  background: #171923; border-bottom: 1px solid #2d3148;
+  padding: 12px 28px; display: flex; align-items: center; gap: 16px;
+}
+.topbar a { color: #64748b; font-size: 13px; text-decoration: none; }
+.topbar a:hover { color: #e2e8f0; }
+.topbar .sep { color: #2d3148; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #f8fafc; font-family: "SF Mono","Fira Code",monospace; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.badge-both    { background: #2e1065; color: #c4b5fd; }
+.badge-ember   { background: #431407; color: #fb923c; }
+.badge-react   { background: #082f49; color: #38bdf8; }
+.analysis {
+  margin: 20px 28px;
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  padding: 16px 20px;
+}
+.analysis-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #64748b; margin-bottom: 8px; font-weight: 600;
+}
+.analysis-text { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+.analysis-text strong { color: #e2e8f0; }
+.columns {
+  display: grid; gap: 0;
+  margin: 0 28px 28px;
+}
+.columns.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+.columns.one-col { grid-template-columns: 1fr; }
+.col-panel {
+  background: #1e2130; border: 1px solid #2d3148; border-radius: 10px;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.col-header {
+  padding: 10px 16px; border-bottom: 1px solid #2d3148;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  background: #171923;
+}
+.col-header .filename {
+  font-family: "SF Mono","Fira Code",monospace;
+  color: #94a3b8; font-size: 11px; margin-left: auto;
+}
+.file-tab {
+  border-top: 1px solid #2d3148;
+  padding: 6px 16px;
+  font-size: 11px; font-family: "SF Mono","Fira Code",monospace;
+  color: #64748b; background: #171923;
+}
+.file-tab:first-child { border-top: none; }
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 20px; color: #374151; font-size: 13px;
+  flex: 1;
+}
+pre {
+  margin: 0; padding: 16px;
+  font-family: "SF Mono","Fira Code","Fira Mono",monospace;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; flex: 1;
+  background: transparent;
+}
+.nav-footer {
+  border-top: 1px solid #2d3148; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  font-size: 12px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid #2d3148; background: transparent;
+  color: #94a3b8; cursor: pointer; text-decoration: none;
+  transition: all 0.15s; display: inline-block;
+}
+.nav-btn:hover { background: #2d3148; color: #f8fafc; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <a href="../index.html">← Dashboard</a>
+    <span class="sep">/</span>
+    <h1>banner</h1>
+    <span class="badge badge-both">Both</span>
+  </div>
+
+  <div class="analysis" style="margin-top:20px">
+    <div class="analysis-label">Analysis</div>
+    <div class="analysis-text">Both <strong>banner</strong> implementations exist. The Ember version is 109 lines and the React version is 173 lines. The React version is notably larger (173 vs 109 lines), suggesting additional complexity or a differing approach. Both versions share the same component name and purpose, though API surface may differ between Glimmer named arguments and React props. React includes a co-located test file.</div>
+  </div>
+
+  <div class="columns two-col">
+<div class="col-panel"><div class="col-header"><span style="color:#f97316">●</span> Ember (Glimmer)</div><div class="file-tab">banner.gts</div><pre class="language-typescript">import type { TOC } from &#x27;@ember/component/template-only&#x27;;
+import { assert } from &#x27;@ember/debug&#x27;;
+import { on } from &#x27;@ember/modifier&#x27;;
+
+import t from &#x27;ember-intl/helpers/t&#x27;;
+import { or } from &#x27;ember-truth-helpers&#x27;;
+
+import Button from &#x27;./button.gts&#x27;;
+import Heading from &#x27;./heading.gts&#x27;;
+import Icon from &#x27;./icon.gts&#x27;;
+import Text from &#x27;./text.gts&#x27;;
+
+export interface BannerSignature {
+	Element: HTMLElement;
+	Args: {
+		heading?: string;
+		description?: string;
+		stacked?: boolean;
+		onClose?: () =&gt; void;
+	};
+	Blocks: {
+		heading?: [];
+		description?: [];
+		body?: [];
+		actions: [];
+	};
+}
+
+// remove when we upgrade to ember-source@5.2, and replace with built-in uniqueId
+let bannerCount = 0;
+function uniqueId(): string {
+	return `banner-${bannerCount++}`;
+}
+
+function boolWithDefault(value: boolean | undefined, defaultValue: boolean): string {
+	return (value ?? defaultValue).toString();
+}
+
+/**
+ * An inline container that highlights key information and actions, making them more visible and accessible within the normal page flow.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/banner.md)
+ */
+export const Banner: TOC&lt;BannerSignature&gt; = &lt;template&gt;
+	{{#let (uniqueId) as |bannerID|}}
+		&lt;aside
+			class=&quot;Banner&quot;
+			data-qid-component-type=&quot;Luna::Banner&quot;
+			aria-labelledby={{bannerID}}
+			data-stacked={{boolWithDefault @stacked true}}
+			...attributes
+		&gt;
+			&lt;div class=&quot;layout&quot; data-body={{has-block &quot;body&quot;}} data-actions={{has-block &quot;actions&quot;}}&gt;
+				{{#if @onClose}}
+					&lt;Button
+						data-qid-banner-close
+						@size=&quot;sm&quot;
+						@variant=&quot;transparent&quot;
+						class=&quot;close&quot;
+						aria-label={{t &quot;banner.dismiss-banner&quot;}}
+						{{on &quot;click&quot; @onClose}}
+					&gt;
+						&lt;Icon @icon=&quot;close&quot; /&gt;
+					&lt;/Button&gt;
+				{{/if}}
+
+				&lt;div class=&quot;content-wrapper&quot; data-qid-content-wrapper&gt;
+					&lt;Heading id={{bannerID}} class=&quot;heading-wrapper&quot; @level={{3}} @font=&quot;400&quot; data-qid-banner-heading&gt;
+						{{#if (has-block &quot;heading&quot;)}}
+							{{yield to=&quot;heading&quot;}}
+						{{else}}
+							{{assert &quot;You must pass a @heading arg or use the &lt;:heading&gt; block&quot; @heading}}
+							{{@heading}}
+						{{/if}}
+					&lt;/Heading&gt;
+
+					{{#if (or @description (has-block &quot;description&quot;))}}
+						&lt;Text class=&quot;description-wrapper&quot; @tag=&quot;div&quot; @weight=&quot;weak&quot; @font=&quot;200&quot; data-qid-banner-description&gt;
+							{{#if (has-block &quot;description&quot;)}}
+								{{yield to=&quot;description&quot;}}
+							{{else}}
+								{{@description}}
+							{{/if}}
+						&lt;/Text&gt;
+					{{/if}}
+				&lt;/div&gt;
+
+				{{#if (has-block &quot;body&quot;)}}
+					&lt;div class=&quot;body-wrapper&quot; data-qid-banner-body&gt;
+						{{yield to=&quot;body&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+
+				{{#if (has-block &quot;actions&quot;)}}
+					&lt;div class=&quot;actions-wrapper&quot; data-qid-banner-actions&gt;
+						{{yield to=&quot;actions&quot;}}
+					&lt;/div&gt;
+				{{/if}}
+			&lt;/div&gt;
+		&lt;/aside&gt;
+	{{/let}}
+&lt;/template&gt;;
+
+/**
+ * An inline container that highlights key information and actions, making them more visible and accessible within the normal page flow.
+ *
+ * [Luna Docs](https://docs.auditboardteam.com/Luna/components/components/banner.md)
+ */
+export default Banner;
+</pre></div><div class="col-panel"><div class="col-header"><span style="color:#38bdf8">●</span> React (TSX)</div><div class="file-tab">banner.tsx</div><pre class="language-typescript">import { Children, Fragment, type ReactElement } from &#x27;react&#x27;;
+
+import { cn } from &#x27;../../utils/cn&#x27;;
+import { type ComponentPropsWithRef } from &#x27;../../utils/component-types&#x27;;
+import { IconButton } from &#x27;../icon-button&#x27;;
+
+import styles from &#x27;./banner.module.css&#x27;;
+
+interface BannerSlots {
+	heading?: React.ReactNode;
+	description?: React.ReactNode;
+	body?: React.ReactNode;
+	actions?: React.ReactNode;
+}
+
+/**
+ * Extracts slot content from children by matching component displayName.
+ * This allows children to be passed in any order while ensuring they render
+ * in the correct positions.
+ */
+function extractBannerSlots(children: React.ReactNode): BannerSlots {
+	const slots: BannerSlots = {};
+
+	const processChild = (child: React.ReactNode): void =&gt; {
+		if (!child) return;
+
+		if (Array.isArray(child)) {
+			child.forEach(processChild);
+			return;
+		}
+
+		if (typeof child === &#x27;object&#x27; &amp;&amp; &#x27;type&#x27; in child) {
+			const element = child as ReactElement&lt;{ children?: React.ReactNode }&gt;;
+			const displayName = (element.type as { displayName?: string }).displayName;
+
+			switch (displayName) {
+				case &#x27;Banner.Heading&#x27;:
+					slots.heading = element.props.children;
+					break;
+				case &#x27;Banner.Description&#x27;:
+					slots.description = element.props.children;
+					break;
+				case &#x27;Banner.Body&#x27;:
+					slots.body = element.props.children;
+					break;
+				case &#x27;Banner.Actions&#x27;:
+					slots.actions = element.props.children;
+					break;
+				default:
+					// Handle fragments by recursing into their children
+					if (element.type === Fragment) {
+						Children.forEach(element.props.children, processChild);
+					}
+			}
+		}
+	};
+
+	Children.forEach(children, processChild);
+	return slots;
+}
+
+interface BannerBaseProps {
+	/** Whether to stack the content vertically (default: true) */
+	stacked?: boolean;
+	/** Callback when the close button is clicked */
+	onClose?: () =&gt; void;
+	/** Compound component children (Banner.Heading, Banner.Description, etc.) */
+	children: React.ReactNode;
+	/** Additional CSS class */
+	className?: string;
+}
+
+export type BannerProps = ComponentPropsWithRef&lt;BannerBaseProps, HTMLElement&gt;;
+
+interface BannerSubcomponentProps {
+	children: React.ReactNode;
+}
+
+/**
+ * An aside element for highlighting key information.
+ *
+ * Use compound components to compose the banner:
+ * - `Banner.Heading` - Optional heading content
+ * - `Banner.Description` - Optional description content
+ * - `Banner.Body` - Optional body content
+ * - `Banner.Actions` - Optional action buttons
+ *
+ * Children can be passed in any order - they will always render in the correct position.
+ *
+ * @example
+ * ```tsx
+ * &lt;Banner stacked onClose={() =&gt; console.log(&#x27;closed&#x27;)}&gt;
+ *   &lt;Banner.Heading&gt;
+ *     &lt;Heading level={3} font=&quot;400&quot;&gt;Important Notice&lt;/Heading&gt;
+ *   &lt;/Banner.Heading&gt;
+ *   &lt;Banner.Description&gt;
+ *     &lt;Text font=&quot;200&quot; weight=&quot;weak&quot;&gt;This is important information.&lt;/Text&gt;
+ *   &lt;/Banner.Description&gt;
+ * &lt;/Banner&gt;
+ * ```
+ */
+function BannerRoot(props: BannerProps) {
+	const { ref, stacked = true, onClose, children, className, ...rest } = props;
+
+	// Extract slot content from children (order-independent)
+	const slots = extractBannerSlots(children);
+
+	const hasHeading = slots.heading;
+	const hasDescription = slots.description;
+
+	return (
+		&lt;aside
+			ref={ref}
+			className={cn(styles.Banner, className)}
+			data-stacked={stacked}
+			data-qid-component-type=&quot;Luna::Banner&quot;
+			{...rest}
+		&gt;
+			{onClose &amp;&amp; (
+				&lt;div className={styles.CloseButton}&gt;
+					&lt;IconButton
+						icon=&quot;close&quot;
+						tooltip=&quot;Close&quot;
+						variant=&quot;transparent&quot;
+						size=&quot;sm&quot;
+						onClick={onClose}
+						data-testid=&quot;banner-close-button&quot;
+					/&gt;
+				&lt;/div&gt;
+			)}
+
+			{(hasHeading || hasDescription) &amp;&amp; (
+				&lt;div className={styles.Text}&gt;
+					{slots.heading}
+					{slots.description}
+				&lt;/div&gt;
+			)}
+
+			{slots.body &amp;&amp; &lt;div className={styles.Body}&gt;{slots.body}&lt;/div&gt;}
+
+			{slots.actions &amp;&amp; &lt;div className={styles.Actions}&gt;{slots.actions}&lt;/div&gt;}
+		&lt;/aside&gt;
+	);
+}
+
+BannerRoot.displayName = &#x27;Banner&#x27;;
+
+// Subcomponents - these don&#x27;t render themselves, they&#x27;re extracted by the parent
+const BannerHeading = ({ children }: BannerSubcomponentProps) =&gt; children;
+BannerHeading.displayName = &#x27;Banner.Heading&#x27;;
+
+const BannerDescription = ({ children }: BannerSubcomponentProps) =&gt; children;
+BannerDescription.displayName = &#x27;Banner.Description&#x27;;
+
+const BannerBody = ({ children }: BannerSubcomponentProps) =&gt; children;
+BannerBody.displayName = &#x27;Banner.Body&#x27;;
+
+const BannerActions = ({ children }: BannerSubcomponentProps) =&gt; children;
+BannerActions.displayName = &#x27;Banner.Actions&#x27;;
+
+/**
+ * Banner compound component with namespaced subcomponents.
+ *
+ * Subcomponents can be passed in any order - they will render in the correct position.
+ */
+export const Banner = Object.assign(BannerRoot, {
+	Heading: BannerHeading,
+	Description: BannerDescription,
+	Body: BannerBody,
+	Actions: BannerActions,
+});
+
+export default Banner;
+</pre></div>  </div>
+
+  <div class="nav-footer">
+    <a href="badge.html" class="nav-btn">← badge</a>
+    <a href="../index.html" class="nav-btn">All Components</a>
+    <a href="block.html" class="nav-btn">block →</a>
+  </div>
+</body>
+</html>
