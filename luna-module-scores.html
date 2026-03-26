@@ -151,7 +151,7 @@
       <div class="breadcrumb"><a href="index.html">Projects</a> / Luna Token Adoption</div>
       <h1>Luna Token Adoption: Module Scores</h1>
       <p class="text-subdued" style="margin-top:var(--space-xs);">Scans CSS/SCSS for hardcoded values that match Luna design token values. Score = var(--luna-*) usages / (usages + violations).</p>
-      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 26, 2026 at 05:36 PM</p>
+      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 26, 2026 at 05:38 PM</p>
     </div>
   </header>
 
@@ -1069,11 +1069,9 @@ font-size: var(--luna-font-size-m);',
           html += '<p class="text-xs text-subdued" style="margin-bottom:var(--space-s);">' + tip.body + '</p>';
           html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-s);">';
           html += '<div><div class="text-xs" style="color:var(--color-danger);font-weight:600;margin-bottom:2px;">Before</div>';
-          html += '<div class="code-example"><span class="code-before">' + tip.before.replace(/
-/g, '<br>') + '</span></div></div>';
+          html += '<div class="code-example"><span class="code-before">' + tip.before.replace(/\n/g, '<br>') + '</span></div></div>';
           html += '<div><div class="text-xs" style="color:var(--color-success);font-weight:600;margin-bottom:2px;">After</div>';
-          html += '<div class="code-example"><span class="code-after">' + tip.after.replace(/
-/g, '<br>') + '</span></div></div>';
+          html += '<div class="code-example"><span class="code-after">' + tip.after.replace(/\n/g, '<br>') + '</span></div></div>';
           html += '</div></div>';
         });
       }
