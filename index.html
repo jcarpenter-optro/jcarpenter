@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Luna Design System: Ember vs React</title>
   <style>
+    #gate{position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999}
+    #gate.hidden{display:none}
+    .gate-box{background:#1e2130;border:1px solid #2d3148;border-radius:12px;padding:40px;width:340px;text-align:center}
+    .gate-box h2{font-size:18px;font-weight:700;color:#f8fafc;margin-bottom:6px}
+    .gate-box p{font-size:13px;color:#64748b;margin-bottom:24px}
+    .gate-box input[type=password]{width:100%;padding:10px 14px;background:#0f1117;border:1px solid #2d3148;border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;margin-bottom:12px}
+    .gate-box input[type=password]:focus{border-color:#7c3aed}
+    .gate-box button{width:100%;padding:10px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+    .gate-box button:hover{background:#6d28d9}
+    .gate-error{font-size:12px;color:#f87171;margin-top:8px;min-height:18px}
+  </style>
+  <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1117;color:#e2e8f0;padding:32px;min-height:100vh}
     h1{font-size:24px;font-weight:700;color:#f8fafc;margin-bottom:4px}
@@ -60,6 +72,60 @@
   </style>
 </head>
 <body>
+
+  <!-- Auth gate: password stored as SHA-256 hash only, plaintext never in source -->
+  <div id="gate">
+    <div class="gate-box">
+      <h2>Luna Component Report</h2>
+      <p>Enter the password to continue.</p>
+      <form id="gate-form" autocomplete="on" action="">
+        <input
+          type="password"
+          id="gate-input"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Password"
+          autofocus
+        />
+        <button type="submit">Continue</button>
+      </form>
+      <div class="gate-error" id="gate-error"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const HASH = 'bf86efa1b79fae08e5be8223da99ac3454c68a81bd00afae145549ebffeda02b';
+      const KEY  = 'luna_auth';
+
+      async function sha256(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      function unlock() {
+        document.getElementById('gate').classList.add('hidden');
+      }
+
+      // Already authenticated this session or previously saved
+      if (localStorage.getItem(KEY) === HASH) { unlock(); return; }
+
+      document.getElementById('gate-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const val  = document.getElementById('gate-input').value;
+        const hash = await sha256(val);
+        if (hash === HASH) {
+          localStorage.setItem(KEY, HASH);
+          unlock();
+        } else {
+          document.getElementById('gate-error').textContent = 'Incorrect password.';
+          document.getElementById('gate-input').value = '';
+          document.getElementById('gate-input').focus();
+        }
+      });
+    })();
+  </script>
+
   <h1>Luna Design System: Ember vs React</h1>
   <p class="subtitle">March 26, 2026 at 01:04 PM</p>
 
