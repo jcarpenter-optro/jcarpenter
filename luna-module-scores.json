@@ -1,0 +1,434 @@
+[
+  {
+    "name": "admin",
+    "dir": "apps/client/app/components/module-admin",
+    "description": "Admin panel",
+    "css_files": 0,
+    "token_usages": 0,
+    "violations": 0,
+    "by_cat": {
+      "color": 0,
+      "space": 0,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 100,
+    "grade": "A",
+    "exists": true,
+    "top_files": []
+  },
+  {
+    "name": "opsaudits",
+    "dir": "apps/client/app/components/module-opsaudits",
+    "description": "Operational audits",
+    "css_files": 6,
+    "token_usages": 0,
+    "violations": 0,
+    "by_cat": {
+      "color": 0,
+      "space": 0,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 100,
+    "grade": "A",
+    "exists": true,
+    "top_files": []
+  },
+  {
+    "name": "assessments",
+    "dir": "apps/client/app/components/module-assessments",
+    "description": "Assessments",
+    "css_files": 7,
+    "token_usages": 0,
+    "violations": 5,
+    "by_cat": {
+      "color": 0,
+      "space": 5,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 0,
+    "grade": "F",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-assessments/view/stepper/ratings.css",
+        "violations": 3,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-assessments/components/assessable-response-table.css",
+        "violations": 1,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-assessments/components/assessment-progress-bar.css",
+        "violations": 1,
+        "token_usages": 0
+      }
+    ]
+  },
+  {
+    "name": "compliance",
+    "dir": "apps/client/app/components/module-compliance-assessments",
+    "description": "Compliance management",
+    "css_files": 67,
+    "token_usages": 81,
+    "violations": 85,
+    "by_cat": {
+      "color": 0,
+      "space": 85,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 49,
+    "grade": "D",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/layered-tree/node.css",
+        "violations": 14,
+        "token_usages": 3
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/task/item.css",
+        "violations": 6,
+        "token_usages": 5
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/view/assessment-task.css",
+        "violations": 5,
+        "token_usages": 4
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/view/assessment/info/overview.css",
+        "violations": 5,
+        "token_usages": 5
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/view/assessment-item/info.css",
+        "violations": 4,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/view/assessment/info/evidence.css",
+        "violations": 4,
+        "token_usages": 2
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/ecw/csv-import.css",
+        "violations": 4,
+        "token_usages": 7
+      },
+      {
+        "path": "apps/client/app/components/module-compliance-assessments/layered-tree.css",
+        "violations": 3,
+        "token_usages": 2
+      }
+    ]
+  },
+  {
+    "name": "hubs",
+    "dir": "apps/client/app/components/manage-hub",
+    "description": "Hubs",
+    "css_files": 3,
+    "token_usages": 5,
+    "violations": 3,
+    "by_cat": {
+      "color": 0,
+      "space": 3,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 62,
+    "grade": "C",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/manage-hub/modals/preview-control.css",
+        "violations": 2,
+        "token_usages": 3
+      },
+      {
+        "path": "apps/client/app/components/manage-hub/modals/manage-control-environment-setup/workflow-option-frame.css",
+        "violations": 1,
+        "token_usages": 2
+      }
+    ]
+  },
+  {
+    "name": "issues",
+    "dir": "apps/client/app/components/module-issues",
+    "description": "Issue tracking",
+    "css_files": 5,
+    "token_usages": 7,
+    "violations": 11,
+    "by_cat": {
+      "color": 0,
+      "space": 11,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 39,
+    "grade": "D",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-issues/shared/issue-list-bulk-actions.css",
+        "violations": 4,
+        "token_usages": 1
+      },
+      {
+        "path": "apps/client/app/components/module-issues/view/issue-summary-report-new.css",
+        "violations": 4,
+        "token_usages": 6
+      },
+      {
+        "path": "apps/client/app/components/module-issues/shared/issue-framework-item-id-code-cell.css",
+        "violations": 3,
+        "token_usages": 0
+      }
+    ]
+  },
+  {
+    "name": "tasks",
+    "dir": "apps/client/app/components/module-tasks",
+    "description": "Task management",
+    "css_files": 21,
+    "token_usages": 49,
+    "violations": 28,
+    "by_cat": {
+      "color": 0,
+      "space": 28,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 64,
+    "grade": "C",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-tasks/shared/task-card.css",
+        "violations": 6,
+        "token_usages": 2
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/view/workstep-task.css",
+        "violations": 6,
+        "token_usages": 6
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/view/task-container.css",
+        "violations": 4,
+        "token_usages": 1
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/shared/index-task-header.css",
+        "violations": 2,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/shared/index-header.css",
+        "violations": 2,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/view/index.css",
+        "violations": 2,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/workstream-task/task-details-team-members.css",
+        "violations": 1,
+        "token_usages": 2
+      },
+      {
+        "path": "apps/client/app/components/module-tasks/workstream-task/task-team-members-panel.css",
+        "violations": 1,
+        "token_usages": 7
+      }
+    ]
+  },
+  {
+    "name": "resource-planner",
+    "dir": "apps/client/app/components/module-resource-planner",
+    "description": "Resource planning",
+    "css_files": 3,
+    "token_usages": 0,
+    "violations": 9,
+    "by_cat": {
+      "color": 0,
+      "space": 9,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 0,
+    "grade": "F",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-resource-planner/card/resource-card.css",
+        "violations": 6,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-resource-planner/card/booking-history-card.css",
+        "violations": 3,
+        "token_usages": 0
+      }
+    ]
+  },
+  {
+    "name": "dashboard",
+    "dir": "apps/client/app/components/module-dashboard",
+    "description": "Dashboards",
+    "css_files": 12,
+    "token_usages": 3,
+    "violations": 7,
+    "by_cat": {
+      "color": 0,
+      "space": 7,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 30,
+    "grade": "F",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-dashboard/sigma/bookmark-menu-button.css",
+        "violations": 3,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-dashboard/esg-metric-value/list-item.css",
+        "violations": 2,
+        "token_usages": 1
+      },
+      {
+        "path": "apps/client/app/components/module-dashboard/sigma/embed.css",
+        "violations": 1,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-dashboard/view/metric-update-request.css",
+        "violations": 1,
+        "token_usages": 1
+      },
+      {
+        "path": "apps/client/app/components/module-dashboard/sigma/admin/table.css",
+        "violations": 0,
+        "token_usages": 1
+      }
+    ]
+  },
+  {
+    "name": "risks",
+    "dir": "apps/client/app/components/module-risks",
+    "description": "Risk management",
+    "css_files": 62,
+    "token_usages": 45,
+    "violations": 80,
+    "by_cat": {
+      "color": 0,
+      "space": 80,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 36,
+    "grade": "D",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/module-risks/inventory/risk-entities/table-header.css",
+        "violations": 6,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-risks/inventory/hierarchy/table-header.css",
+        "violations": 6,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-risks/hierarchy/risk-tree/table-header.css",
+        "violations": 5,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-risks/shared/brackets/range-editor.css",
+        "violations": 5,
+        "token_usages": 13
+      },
+      {
+        "path": "apps/client/app/components/module-risks/view/intake/intake.css",
+        "violations": 5,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-risks/intake/subsection.css",
+        "violations": 4,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/module-risks/inventory/risk-entities/node.css",
+        "violations": 4,
+        "token_usages": 1
+      },
+      {
+        "path": "apps/client/app/components/module-risks/view/control-mapping/mapping-step-footer.css",
+        "violations": 4,
+        "token_usages": 0
+      }
+    ]
+  },
+  {
+    "name": "owner-dashboard",
+    "dir": "apps/client/app/components/owner-dashboard",
+    "description": "Owner dashboard",
+    "css_files": 10,
+    "token_usages": 10,
+    "violations": 7,
+    "by_cat": {
+      "color": 0,
+      "space": 7,
+      "radius": 0,
+      "typography": 0
+    },
+    "score": 59,
+    "grade": "C",
+    "exists": true,
+    "top_files": [
+      {
+        "path": "apps/client/app/components/owner-dashboard/dashboard-nav.css",
+        "violations": 3,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/owner-dashboard/tasks/tasks-overview.css",
+        "violations": 2,
+        "token_usages": 3
+      },
+      {
+        "path": "apps/client/app/components/owner-dashboard/risks/risks-chart.css",
+        "violations": 1,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/owner-dashboard/overview-panel/doughnut-chart.css",
+        "violations": 1,
+        "token_usages": 0
+      },
+      {
+        "path": "apps/client/app/components/owner-dashboard/tasks/tasks-list.css",
+        "violations": 0,
+        "token_usages": 4
+      },
+      {
+        "path": "apps/client/app/components/owner-dashboard/risks/my-risks-page.css",
+        "violations": 0,
+        "token_usages": 3
+      }
+    ]
+  }
+]
