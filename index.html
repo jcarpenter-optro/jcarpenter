@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Luna Design System: Ember vs React</title>
+  <title>Jeff Carpenter: Projects</title>
   <style>
     #gate{position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999}
     #gate.hidden{display:none}
@@ -15,78 +15,71 @@
     .gate-box button{width:100%;padding:10px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
     .gate-box button:hover{background:#6d28d9}
     .gate-error{font-size:12px;color:#f87171;margin-top:8px;min-height:18px}
-  </style>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1117;color:#e2e8f0;padding:32px;min-height:100vh}
-    h1{font-size:24px;font-weight:700;color:#f8fafc;margin-bottom:4px}
-    .subtitle{color:#64748b;font-size:13px;margin-bottom:32px}
-    .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:32px}
-    .stat-card{background:#1e2130;border:1px solid #2d3148;border-radius:10px;padding:20px}
-    .stat-card .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:8px}
-    .stat-card .value{font-size:32px;font-weight:700;line-height:1}
-    .stat-card .sub{font-size:11px;color:#64748b;margin-top:6px}
-    .color-ember{color:#f97316}.color-react{color:#38bdf8}.color-shared{color:#a78bfa}
-    .color-gap-ember{color:#fb7185}.color-gap-react{color:#34d399}
-    .callouts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
-    .callout{border-radius:10px;padding:16px 20px;border-left:3px solid;display:flex;gap:14px;align-items:flex-start}
-    .callout-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}
-    .callout-body .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-    .callout-body .callout-text{font-size:13px;line-height:1.5;color:#94a3b8}
-    .callout-body .callout-text strong{color:#e2e8f0}
-    .callout-info{background:#0f1f3d;border-color:#38bdf8}.callout-info .callout-title{color:#38bdf8}
-    .callout-warn{background:#1c1407;border-color:#fbbf24}.callout-warn .callout-title{color:#fbbf24}
-    .callout-success{background:#052e16;border-color:#34d399}.callout-success .callout-title{color:#34d399}
-    .callout-danger{background:#1f0a0a;border-color:#f87171}.callout-danger .callout-title{color:#f87171}
-    .section-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:12px}
-    .panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-    .panel{background:#1e2130;border:1px solid #2d3148;border-radius:10px;overflow:hidden}
-    .panel-header{padding:14px 20px;border-bottom:1px solid #2d3148;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
-    .pill{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
-    .pill-count{background:#1e293b;color:#94a3b8;margin-left:auto}
-    .chip-grid{padding:16px 20px;display:flex;flex-wrap:wrap;gap:8px}
-    .chip{font-size:12px;padding:4px 10px;border-radius:6px;font-family:"SF Mono","Fira Code",monospace}
-    .chip-ember-only{background:#431407;color:#fb923c;border:1px solid #7c2d12}
-    .chip-react-only{background:#082f49;color:#38bdf8;border:1px solid #0c4a6e}
-    .bar-wrap{width:100%;height:6px;background:#1a1f2e;border-radius:3px;overflow:hidden;margin-bottom:32px}
-    .bar-fill{height:100%;display:flex}
-    .legend{display:flex;gap:20px;margin-bottom:12px}
-    .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8}
-    .legend-dot{width:10px;height:10px;border-radius:3px}
-    .ld-shared{background:#7c3aed}.ld-ember{background:#ea580c}.ld-react{background:#0284c7}
-    .main-table-wrap{background:#1e2130;border:1px solid #2d3148;border-radius:10px;overflow:hidden}
-    .filter-bar{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid #2d3148}
-    .filter-btn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #2d3148;background:transparent;color:#94a3b8;cursor:pointer;transition:all .15s}
-    .filter-btn:hover,.filter-btn.active{background:#2d3148;color:#f8fafc}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    thead th{padding:10px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:600;border-bottom:1px solid #2d3148;background:#171923}
-    tbody tr{border-bottom:1px solid #1a1f2e;transition:background .1s}
-    tbody tr:last-child{border-bottom:none}
-    tbody tr:hover{background:#252a3d}
-    td{padding:9px 16px}
-    .component-name{font-family:"SF Mono","Fira Code",monospace;font-size:12px;color:#e2e8f0}
-    .status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px}
-    .status-both{background:#2e1065;color:#c4b5fd}.status-ember{background:#431407;color:#fb923c}.status-react{background:#082f49;color:#38bdf8}
-    .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
-    .dot-ember{background:#f97316}.dot-react{background:#38bdf8}.dot-none{background:#374151}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 60px 32px;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    .header { margin-bottom: 48px; }
+    h1 { font-size: 28px; font-weight: 700; color: #f8fafc; margin-bottom: 8px; }
+    .tagline { font-size: 15px; color: #64748b; }
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #374151;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .project-list { display: flex; flex-direction: column; gap: 12px; }
+    .project-card {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 20px 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .project-card:hover { border-color: #7c3aed; background: #22253a; }
+    .project-card .left {}
+    .project-card .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 4px;
+    }
+    .project-card .desc { font-size: 13px; color: #64748b; }
+    .project-card .arrow { color: #374151; font-size: 18px; flex-shrink: 0; margin-left: 16px; }
+    .project-card:hover .arrow { color: #7c3aed; }
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      background: #2e1065;
+      color: #c4b5fd;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Auth gate: password stored as SHA-256 hash only, plaintext never in source -->
   <div id="gate">
     <div class="gate-box">
-      <h2>Luna Component Report</h2>
+      <h2>Jeff Carpenter: Projects</h2>
       <p>Enter the password to continue.</p>
       <form id="gate-form" autocomplete="on" action="">
-        <input
-          type="password"
-          id="gate-input"
-          name="password"
-          autocomplete="current-password"
-          placeholder="Password"
-          autofocus
-        />
+        <input type="password" id="gate-input" name="password" autocomplete="current-password" placeholder="Password" autofocus />
         <button type="submit">Continue</button>
       </form>
       <div class="gate-error" id="gate-error"></div>
@@ -97,22 +90,15 @@
     (function () {
       const HASH = 'bf86efa1b79fae08e5be8223da99ac3454c68a81bd00afae145549ebffeda02b';
       const KEY  = 'luna_auth';
-
       async function sha256(str) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
       }
-
-      function unlock() {
-        document.getElementById('gate').classList.add('hidden');
-      }
-
-      // Already authenticated this session or previously saved
+      function unlock() { document.getElementById('gate').classList.add('hidden'); }
       if (localStorage.getItem(KEY) === HASH) { unlock(); return; }
-
-      document.getElementById('gate-form').addEventListener('submit', async function (e) {
+      document.getElementById('gate-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const val  = document.getElementById('gate-input').value;
+        const val = document.getElementById('gate-input').value;
         const hash = await sha256(val);
         if (hash === HASH) {
           localStorage.setItem(KEY, HASH);
@@ -126,186 +112,32 @@
     })();
   </script>
 
-  <h1>Luna Design System: Ember vs React</h1>
-  <p class="subtitle">March 26, 2026 at 01:04 PM</p>
-
-  <div class="stats-grid">
-    <div class="stat-card"><div class="label">Ember Components</div><div class="value color-ember">76</div><div class="sub">luna-core (Glimmer/GTS)</div></div>
-    <div class="stat-card"><div class="label">React Components</div><div class="value color-react">70</div><div class="sub">luna-react (TSX)</div></div>
-    <div class="stat-card"><div class="label">In Both</div><div class="value color-shared">67</div><div class="sub">85% parity</div></div>
-    <div class="stat-card"><div class="label">Ember Only</div><div class="value color-gap-ember">9</div><div class="sub">Missing from React</div></div>
-    <div class="stat-card"><div class="label">React Only</div><div class="value color-gap-react">3</div><div class="sub">Ahead of Ember</div></div>
-  </div>
-
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot ld-shared"></div> Shared (67)</div>
-    <div class="legend-item"><div class="legend-dot ld-ember"></div> Ember only (9)</div>
-    <div class="legend-item"><div class="legend-dot ld-react"></div> React only (3)</div>
-  </div>
-  <div class="bar-wrap"><div class="bar-fill">
-    <div style="width:84.8%;background:#7c3aed"></div>
-    <div style="width:11.4%;background:#ea580c"></div>
-    <div style="width:3.8%;background:#0284c7"></div>
-  </div></div>
-
-  <div class="callouts">
-    <div class="callout callout-success">
-      <div class="callout-icon">✓</div>
-      <div class="callout-body">
-        <div class="callout-title">85% parity on a corrected baseline</div>
-        <div class="callout-text">Derived from <strong>index.ts exports</strong>, not directory listings. Previous counts were off because components in subdirectories (growl, modal-layout, navigation, skeleton, textarea, select-multiple) were missed.</div>
-      </div>
+  <div class="container">
+    <div class="header">
+      <h1>Jeff Carpenter</h1>
+      <p class="tagline">Engineering dashboards and reports</p>
     </div>
-    <div class="callout callout-danger">
-      <div class="callout-icon">⚠</div>
-      <div class="callout-body">
-        <div class="callout-title">9 components missing from React</div>
-        <div class="callout-text">The remaining backlog includes <strong>format-markdown</strong>, <strong>search-highlight</strong>, <strong>select-date-range</strong>, <strong>portal</strong>, and <strong>animation</strong>, among others.</div>
-      </div>
-    </div>
-    <div class="callout callout-info">
-      <div class="callout-icon">ℹ</div>
-      <div class="callout-body">
-        <div class="callout-title">tooltip: React is ahead here</div>
-        <div class="callout-text">React has a dedicated <strong>Tooltip</strong> component. Ember covers this via a <strong>tooltip modifier</strong>, not a component. React also exports <strong>Help</strong> separately, giving it two tooltip-style APIs.</div>
-      </div>
-    </div>
-    <div class="callout callout-warn">
-      <div class="callout-icon">~</div>
-      <div class="callout-body">
-        <div class="callout-title">Name mismatches exist in shared components</div>
-        <div class="callout-text">Some components match by slug but differ in their exported name: <strong>SetupGrowl</strong> (Ember) vs <strong>Growl</strong> (React), <strong>ModalLayout</strong> (Ember) vs <strong>modal-layout</strong> dir (React). Click any component to see details.</div>
-      </div>
+
+    <div class="section-label">Projects</div>
+
+    <div class="project-list">
+
+      <a href="luna-components.html" class="project-card">
+        <div class="left">
+          <div class="title">Luna Design System: Ember vs React</div>
+          <div style="margin-top:6px">
+            <span class="tag">Design System</span>
+            <span class="tag">Ember</span>
+            <span class="tag">React</span>
+          </div>
+          <div class="desc">Component parity report comparing luna-core (Glimmer) and luna-react. Tracks which components exist in both libraries, which are missing, and side-by-side code comparisons for all 79 components.</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <!-- ADD NEW PROJECTS ABOVE THIS LINE -->
+
     </div>
   </div>
-
-  <div class="panels">
-    <div class="panel">
-      <div class="panel-header"><span class="color-gap-ember">●</span> Ember Only: Missing from React <span class="pill pill-count">9</span></div>
-      <div class="chip-grid">
-        <a href="components/animation.html" style="text-decoration:none"><span class="chip chip-ember-only">animation</span></a>
-        <a href="components/empty-state-announcer.html" style="text-decoration:none"><span class="chip chip-ember-only">empty-state-announcer</span></a>
-        <a href="components/format-markdown.html" style="text-decoration:none"><span class="chip chip-ember-only">format-markdown</span></a>
-        <a href="components/legacy-compat-this-should-be-luna-field.html" style="text-decoration:none"><span class="chip chip-ember-only">legacy-compat-this-should-be-luna-field</span></a>
-        <a href="components/portal.html" style="text-decoration:none"><span class="chip chip-ember-only">portal</span></a>
-        <a href="components/search-highlight.html" style="text-decoration:none"><span class="chip chip-ember-only">search-highlight</span></a>
-        <a href="components/select-date-range.html" style="text-decoration:none"><span class="chip chip-ember-only">select-date-range</span></a>
-        <a href="components/setup.html" style="text-decoration:none"><span class="chip chip-ember-only">setup</span></a>
-        <a href="components/ui-control-size.html" style="text-decoration:none"><span class="chip chip-ember-only">ui-control-size</span></a>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><span class="color-gap-react">●</span> React Only: Ahead of Ember <span class="pill pill-count">3</span></div>
-      <div class="chip-grid">
-        <a href="components/chart.html" style="text-decoration:none"><span class="chip chip-react-only">chart</span></a>
-        <a href="components/rich-text-editor.html" style="text-decoration:none"><span class="chip chip-react-only">rich-text-editor</span></a>
-        <a href="components/tooltip.html" style="text-decoration:none"><span class="chip chip-react-only">tooltip</span></a>
-      </div>
-    </div>
-  </div>
-
-  <div class="main-table-wrap">
-    <div class="panel-header">All Components <span class="pill pill-count">79 total</span></div>
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterTable('all',this)">All</button>
-      <button class="filter-btn" onclick="filterTable('both',this)">In Both</button>
-      <button class="filter-btn" onclick="filterTable('ember-only',this)">Ember Only</button>
-      <button class="filter-btn" onclick="filterTable('react-only',this)">React Only</button>
-    </div>
-    <table id="component-table">
-      <thead><tr><th>Component</th><th>Status</th><th>Ember</th><th>React</th></tr></thead>
-      <tbody>
-        <tr data-status="both"><td class="component-name"><a href="components/a11y-announcer.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">a11y-announcer</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/accordion.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">accordion</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/animation.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">animation</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/avatar.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">avatar</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/avatar-list.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">avatar-list</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/badge.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">badge</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/banner.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">banner</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/block.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">block</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/button.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">button</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/button-with-menu.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">button-with-menu</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/button-with-popup.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">button-with-popup</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/calendar.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">calendar</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="react-only"><td class="component-name"><a href="components/chart.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">chart</a></td><td><span class="status-badge status-react">React only</span></td><td><span class="dot dot-none"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/checkbox.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">checkbox</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/checkbox-tree.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">checkbox-tree</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/click-to-edit.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">click-to-edit</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/code.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">code</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/data-card.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">data-card</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/definition-list.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">definition-list</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/divider.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">divider</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/empty-state.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">empty-state</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/empty-state-announcer.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">empty-state-announcer</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/event-list.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">event-list</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/event-list-item.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">event-list-item</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/field.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">field</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/form.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">form</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/format-markdown.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">format-markdown</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/frame.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">frame</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/growl.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">growl</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/heading.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">heading</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/help.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">help</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/help-with-popup.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">help-with-popup</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/icon.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">icon</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/icon-button.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">icon-button</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/illustration.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">illustration</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/input.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">input</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/input-error.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">input-error</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/label.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">label</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/legacy-compat-this-should-be-luna-field.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">legacy-compat-this-should-be-luna-field</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/link.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">link</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/menu.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">menu</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/modal.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">modal</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/modal-layout.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">modal-layout</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/navigation.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">navigation</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/notice.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">notice</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/option.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">option</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/option-heading.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">option-heading</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/popup.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">popup</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/portal.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">portal</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/progress-bar.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">progress-bar</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/radio-button.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">radio-button</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/radio-group.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">radio-group</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/range.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">range</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="react-only"><td class="component-name"><a href="components/rich-text-editor.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">rich-text-editor</a></td><td><span class="status-badge status-react">React only</span></td><td><span class="dot dot-none"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/search-highlight.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">search-highlight</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-date.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-date</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/select-date-range.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-date-range</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-multiple.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-multiple</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-recurrence.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-recurrence</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-recurrence-start-date.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-recurrence-start-date</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-recurrence-start-time.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-recurrence-start-time</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-recurrence-termination.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-recurrence-termination</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/select-time.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">select-time</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/selected-list.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">selected-list</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/setup.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">setup</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/skeleton.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">skeleton</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/spacer.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">spacer</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/spinner.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">spinner</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/sr-only.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">sr-only</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/tablist.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">tablist</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/text.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">text</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/text-with-menu.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">text-with-menu</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/textarea.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">textarea</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/toggle.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">toggle</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="react-only"><td class="component-name"><a href="components/tooltip.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">tooltip</a></td><td><span class="status-badge status-react">React only</span></td><td><span class="dot dot-none"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="ember-only"><td class="component-name"><a href="components/ui-control-size.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">ui-control-size</a></td><td><span class="status-badge status-ember">Ember only</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-none"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/x-stack.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">x-stack</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-        <tr data-status="both"><td class="component-name"><a href="components/y-stack.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #374151;" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#374151'">y-stack</a></td><td><span class="status-badge status-both">Both</span></td><td><span class="dot dot-ember"></span></td><td><span class="dot dot-react"></span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <script>
-    function filterTable(status, btn) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('#component-table tbody tr').forEach(row => {
-        row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
-      });
-    }
-  </script>
 </body>
 </html>
