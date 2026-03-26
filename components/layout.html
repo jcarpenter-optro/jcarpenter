@@ -250,5 +250,17 @@ export default class LunaLayoutNavigation&lt;TagName extends OptionalTagName&gt;
     <a href="../luna-components.html" class="nav-btn">All Components</a>
     <a href="legacy-compat-this-should-be-luna-field.html" class="nav-btn">legacy-compat-this-should-be-luna-field →</a>
   </div>
+
+<script>
+(function(){
+  document.querySelectorAll('pre').forEach(function(pre){
+    var lines=pre.innerHTML.split('\n');
+    if(lines.length&&lines[lines.length-1].trim()==='')lines.pop();
+    pre.innerHTML=lines.map(function(l,i){
+      return '<span class="code-line"><span class="code-ln">'+(i+1)+'</span><span class="code-text">'+l+'</span></span>';
+    }).join('\n');
+  });
+})();
+</script>
 </body>
 </html>
