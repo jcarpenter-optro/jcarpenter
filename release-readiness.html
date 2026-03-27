@@ -84,7 +84,8 @@
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: var(--text-s); }
     thead th { font-size: calc(var(--text-xs) * 1.5); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-subdued); text-align: left; padding: var(--space-xl) var(--space-m); border-bottom: var(--border-thick); white-space: normal; }
-    thead th .th-inner { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; }
+    thead th .th-inner { display: flex; align-items: flex-start; gap: var(--space-xs); flex-wrap: nowrap; }
+    thead th .th-icon { padding-top: 0.15em; }
     thead th .th-icon { flex-shrink: 0; opacity: 0.7; }
     thead th .th-icon svg { width: 1.3em; height: 1.3em; }
     tbody td { padding: var(--space-m); border-bottom: var(--border-thin); vertical-align: middle; color: var(--color-paragraph); }
@@ -177,11 +178,11 @@
         <table>
           <thead>
             <tr>
-              <th>Module</th>
+              <th></th>
               <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="3" r="1.5" fill="currentColor"/><path d="M4 6.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 6.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.5 13.5L8 10.5l2.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A11y</div></th>
               <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.5S6 5 6 8s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 5.5h10M3 10.5h10" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>i18n</div></th>
-              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 10.5A6 6 0 116 3.5a4 4 0 007.5 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Luna Tokens</div></th>
-              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Smart Forms</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 10.5A6 6 0 116 3.5a4 4 0 007.5 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Luna<br>Tokens</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Smart<br>Forms</div></th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
