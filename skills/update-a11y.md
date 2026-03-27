@@ -9,8 +9,8 @@ Use this skill to re-run accessibility and i18n evaluations against the 13 audit
 ## Prereqs
 
 - Repo: `/Users/jcarpenter/Git Repositories/auditboard-frontend`
-- Dashboard: `~/dashboard-projects/auditboard-a11y-i18n.html`
-- If `~/dashboard-projects/` is missing: `git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard-projects`
+- Dashboard: `/Users/jcarpenter/Git Repositories/dashboard-projects/auditboard-a11y-i18n.html`
+- If `/Users/jcarpenter/Git Repositories/dashboard-projects/` is missing: `git clone https://github.com/jcarpenter-optro/dashboard-projects.git "/Users/jcarpenter/Git Repositories/dashboard-projects"`
 - Style guide: `~/.claude/skills/publish-dashboard.md`
 - Eval skills: `~/.claude/skills/eval-accessibility.md`, `~/.claude/skills/eval-i18n.md`
 - Coordinator: `~/.claude/skills/eval-coordinator.md`
@@ -57,7 +57,7 @@ For each module, produce:
 
 > **Do not change style or layout.** Only update data. The CSS, HTML structure, icons, and visual layout of the deployed `auditboard-a11y-i18n.html` are the canonical versions. The only permitted change in this file is replacing the `const MODULES` array and updating the date.
 
-Open `~/dashboard-projects/auditboard-a11y-i18n.html`.
+Open `/Users/jcarpenter/Git Repositories/dashboard-projects/auditboard-a11y-i18n.html`.
 
 Replace the entire `const MODULES = [...]` array in the `<script>` block with the fresh evaluation results from Phase 1.
 
@@ -91,7 +91,7 @@ Format each entry as:
 ## Phase 3: Deploy
 
 ```bash
-cd ~/dashboard-projects
+cd "/Users/jcarpenter/Git Repositories/dashboard-projects"
 git add auditboard-a11y-i18n.html
 git commit -m "chore: refresh a11y + i18n scores $(date +%Y-%m-%d)"
 git push origin main

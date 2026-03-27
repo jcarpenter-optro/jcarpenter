@@ -15,15 +15,15 @@ A component parity report comparing:
 - **React:** `libraries/luna-react/package/src` (TSX components)
 
 Published at: https://jcarpenter-optro.github.io/dashboard-projects/luna-components.html
-Generator script: `~/dashboard-projects/scripts/generate-luna-report.py`
-Output directory: `~/dashboard-projects/` (GitHub Pages working copy of `jcarpenter-optro/dashboard-projects`)
+Generator script: `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/generate-luna-report.py`
+Output directory: `/Users/jcarpenter/Git Repositories/dashboard-projects/` (GitHub Pages working copy of `jcarpenter-optro/dashboard-projects`)
 
-If `~/dashboard-projects/` does not exist:
+If `/Users/jcarpenter/Git Repositories/dashboard-projects/` does not exist:
 ```bash
-git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard-projects
+git clone https://github.com/jcarpenter-optro/dashboard-projects.git "/Users/jcarpenter/Git Repositories/dashboard-projects"
 ```
 
-If `~/dashboard-projects/scripts/generate-luna-report.py` does not exist, clone the repo first (`git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard-projects`) — the script lives at `scripts/generate-luna-report.py` in that repo.
+If `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/generate-luna-report.py` does not exist, clone the repo first (`git clone https://github.com/jcarpenter-optro/dashboard-projects.git "/Users/jcarpenter/Git Repositories/dashboard-projects"`) — the script lives at `scripts/generate-luna-report.py` in that repo.
 
 ---
 
@@ -129,13 +129,13 @@ git pull origin develop
 Run the generator script **for its data output only** — capture the summary and component list, but do not let it overwrite the deployed HTML:
 
 ```bash
-python3 ~/dashboard-projects/scripts/generate-luna-report.py --dry-run 2>&1 | tail -5
+python3 /Users/jcarpenter/Git Repositories/dashboard-projects/scripts/generate-luna-report.py --dry-run 2>&1 | tail -5
 ```
 
 If the script does not support `--dry-run`, run it into a temp file instead:
 
 ```bash
-python3 ~/dashboard-projects/scripts/generate-luna-report.py --out /tmp/luna-fresh/
+python3 /Users/jcarpenter/Git Repositories/dashboard-projects/scripts/generate-luna-report.py --out /tmp/luna-fresh/
 ```
 
 Collect from the output:
@@ -144,7 +144,7 @@ Collect from the output:
 
 ### Step 3: Update data in the existing luna-components.html
 
-Open `~/dashboard-projects/luna-components.html`. Update **only** these sections — touch nothing else:
+Open `/Users/jcarpenter/Git Repositories/dashboard-projects/luna-components.html`. Update **only** these sections — touch nothing else:
 
 1. **Stat card values**: the five `<div class="stat-card__value">` numbers (Ember, React, In Both, Ember Only, React Only)
 2. **Legend counts**: the "(N)" numbers in the three legend `<span>` elements
@@ -163,7 +163,7 @@ Component sub-pages (`components/*.html`) contain actual source code that change
 import glob
 EMBER_SVG = '<svg width="10" height="12" viewBox="0 0 14 16" fill="none" style="flex-shrink:0"><path d="M7 0.5C7 0.5 13 4.5 13 9.5C13 13 10.5 15.5 7 15.5C3.5 15.5 1 13 1 9.5C1 4.5 7 0.5 7 0.5Z" fill="#E04E39"/><path d="M7 6C7 6 10.5 8.5 10.5 11.5C10.5 13.5 8.8 15 7 15C5.2 15 3.5 13.5 3.5 11.5C3.5 8.5 7 6 7 6Z" fill="#FF8870"/></svg>'
 REACT_SVG = '<svg width="12" height="12" viewBox="-50 -50 100 100" fill="none" style="flex-shrink:0"><circle r="9" fill="#61DAFB"/><ellipse rx="47" ry="18" stroke="#61DAFB" stroke-width="5"/><ellipse rx="47" ry="18" stroke="#61DAFB" stroke-width="5" transform="rotate(60)"/><ellipse rx="47" ry="18" stroke="#61DAFB" stroke-width="5" transform="rotate(120)"/></svg>'
-for f in glob.glob('~/dashboard-projects/components/*.html'):
+for f in glob.glob('/Users/jcarpenter/Git Repositories/dashboard-projects/components/*.html'):
     txt = open(f).read()
     txt = txt.replace('<div class="col-header">Ember (Glimmer)</div>', f'<div class="col-header">{EMBER_SVG}Ember (Glimmer)</div>')
     txt = txt.replace('<div class="col-header">React (TSX)</div>', f'<div class="col-header">{REACT_SVG}React (TSX)</div>')
@@ -180,7 +180,7 @@ Before publishing, verify the numbers are plausible:
 ### Step 6: Commit and push
 
 ```bash
-cd ~/dashboard-projects
+cd "/Users/jcarpenter/Git Repositories/dashboard-projects"
 git add luna-components.html components/
 git commit -m "chore: refresh Ember vs React parity report"
 git push origin main

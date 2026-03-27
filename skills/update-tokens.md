@@ -8,18 +8,18 @@ Use this skill when asked to refresh, re-run, or update the Luna Token Adoption 
 
 ## What this skill does
 
-Runs `~/dashboard-projects/scripts/luna-module-audit.py` against the current state of the repo, writes the updated HTML report to the GitHub Pages working copy, and pushes it live. No manual steps required.
+Runs `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/luna-module-audit.py` against the current state of the repo, writes the updated HTML report to the GitHub Pages working copy, and pushes it live. No manual steps required.
 
 ## Prerequisites
 
 - **Repo root:** `/Users/jcarpenter/Git Repositories/auditboard-frontend`
-- **Scanner:** `~/dashboard-projects/scripts/luna-module-audit.py` (Python 3, at `/usr/bin/python3`)
-- **GitHub Pages working copy:** `~/dashboard-projects/`
+- **Scanner:** `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/luna-module-audit.py` (Python 3, at `/usr/bin/python3`)
+- **GitHub Pages working copy:** `/Users/jcarpenter/Git Repositories/dashboard-projects/`
 - **Live URL:** https://jcarpenter-optro.github.io/dashboard-projects/luna-module-scores.html
 
-If `~/dashboard-projects/` does not exist, clone it first:
+If `/Users/jcarpenter/Git Repositories/dashboard-projects/` does not exist, clone it first:
 ```bash
-git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard-projects
+git clone https://github.com/jcarpenter-optro/dashboard-projects.git "/Users/jcarpenter/Git Repositories/dashboard-projects"
 ```
 
 ## Steps
@@ -30,13 +30,13 @@ git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard
 
 ```bash
 cd "/Users/jcarpenter/Git Repositories/auditboard-frontend"
-/usr/bin/python3 ~/dashboard-projects/scripts/luna-module-audit.py --out ~/dashboard-projects/luna-module-scores.json --format json
+/usr/bin/python3 /Users/jcarpenter/Git Repositories/dashboard-projects/scripts/luna-module-audit.py --out /Users/jcarpenter/Git Repositories/dashboard-projects/luna-module-scores.json --format json
 ```
 
 If the script does not support `--format json`, run it to a temp file and extract the data:
 
 ```bash
-/usr/bin/python3 ~/dashboard-projects/scripts/luna-module-audit.py --out /tmp/luna-scores-fresh.html
+/usr/bin/python3 /Users/jcarpenter/Git Repositories/dashboard-projects/scripts/luna-module-audit.py --out /tmp/luna-scores-fresh.html
 ```
 
 Then read the fresh scores from stdout or the JSON sidecar file.
@@ -45,7 +45,7 @@ Print the per-module results so the user can see what changed.
 
 ### 2. Update data in the existing luna-module-scores.html
 
-Open `~/dashboard-projects/luna-module-scores.html`. Update **only** these sections — touch nothing else:
+Open `/Users/jcarpenter/Git Repositories/dashboard-projects/luna-module-scores.html`. Update **only** these sections — touch nothing else:
 
 1. **Embedded JSON data**: the `const DATA = {...}` or equivalent object in the `<script>` block
 2. **Summary stat values**: overall score, total violations, token usages, files scanned
@@ -56,7 +56,7 @@ Do **not** touch: `<style>`, page layout, heading structure, panel structure, or
 ### 3. Commit and push
 
 ```bash
-cd ~/dashboard-projects
+cd "/Users/jcarpenter/Git Repositories/dashboard-projects"
 git add luna-module-scores.html luna-module-scores.json
 git commit -m "chore: refresh Luna token adoption scores"
 git push
@@ -137,6 +137,6 @@ If `token_usages + violations == 0` (no scannable declarations found), the modul
 
 **Token file missing:** If a Luna token CSS file doesn't exist, that category is skipped silently. Check that `libraries/luna-tokens/package/src/styles/` contains `color.css`, `space.css`, `size.css`, `radius.css`, `typography.css`.
 
-**Module directory not found:** The scanner skips missing directories. If a module scores unexpectedly at 100% with 0 files, verify the directory path in `MODULES` in `~/dashboard-projects/scripts/luna-module-audit.py`.
+**Module directory not found:** The scanner skips missing directories. If a module scores unexpectedly at 100% with 0 files, verify the directory path in `MODULES` in `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/luna-module-audit.py`.
 
 **JS broken after editing the Python script:** All `\n` inside the Python f-string that generates JS must be written as `\\n`. This applies everywhere: regex literals (`/\\n/g`), string values (`'line one;\\nline two;'`), etc. A bare `\n` in a Python f-string becomes a real newline in the output, breaking JS string literals and regex literals silently — the entire script block fails to parse and no click handlers work.

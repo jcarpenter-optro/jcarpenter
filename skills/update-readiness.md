@@ -12,7 +12,7 @@ Use this skill when asked to refresh or republish the Release Readiness dashboar
 
 A combined view of A11y, i18n, and Luna token adoption scores per module. Each score cell is clickable and opens a lightbox with facet-specific risks, recommendations, and a Claude Code prompt.
 
-- **File:** `~/dashboard-projects/release-readiness.html`
+- **File:** `/Users/jcarpenter/Git Repositories/dashboard-projects/release-readiness.html`
 - **Live URL:** https://jcarpenter-optro.github.io/dashboard-projects/release-readiness.html
 
 ---
@@ -23,8 +23,8 @@ The following files must already reflect the latest data before running this ski
 
 | Source | Updated by |
 |---|---|
-| `~/dashboard-projects/luna-module-scores.json` | `update-tokens` skill |
-| `~/dashboard-projects/auditboard-a11y-i18n.html` | `update-a11y` skill |
+| `/Users/jcarpenter/Git Repositories/dashboard-projects/luna-module-scores.json` | `update-tokens` skill |
+| `/Users/jcarpenter/Git Repositories/dashboard-projects/auditboard-a11y-i18n.html` | `update-a11y` skill |
 
 If either file is stale, run the corresponding skill first.
 
@@ -35,14 +35,14 @@ If either file is stale, run the corresponding skill first.
 ### Step 1: Read token data from luna-module-scores.json
 
 ```bash
-cat ~/dashboard-projects/luna-module-scores.json
+cat /Users/jcarpenter/Git Repositories/dashboard-projects/luna-module-scores.json
 ```
 
 For each module in the JSON, note: `name`, `score`, `violations`, `css_files`, `token_usages`, `by_cat`, `top_files`.
 
 ### Step 2: Extract a11y and i18n data from auditboard-a11y-i18n.html
 
-Read the `const MODULES = [...]` array from the `<script>` block in `~/dashboard-projects/auditboard-a11y-i18n.html`.
+Read the `const MODULES = [...]` array from the `<script>` block in `/Users/jcarpenter/Git Repositories/dashboard-projects/auditboard-a11y-i18n.html`.
 
 For each module, collect: `name`, `a11y`, `i18n`, `a11yRisks`, `a11yRecs`, `i18nRisks`, `i18nRecs`.
 
@@ -52,7 +52,7 @@ The 11 token modules are all of the above except workspace and site-configuratio
 
 ### Step 3: Rebuild the const MODULES array
 
-Open `~/dashboard-projects/release-readiness.html`. Find the `const MODULES = [` block in the `<script>` section. Replace the entire array (from `const MODULES = [` through the closing `];`) with the freshly merged data, using this format per entry:
+Open `/Users/jcarpenter/Git Repositories/dashboard-projects/release-readiness.html`. Find the `const MODULES = [` block in the `<script>` section. Replace the entire array (from `const MODULES = [` through the closing `];`) with the freshly merged data, using this format per entry:
 
 ```js
 { name:'<name>', display:'<Display Name>',
@@ -98,7 +98,7 @@ In the `<header>` subtitle of `release-readiness.html`, update the "Generated YY
 ### Step 6: Commit and push
 
 ```bash
-cd ~/dashboard-projects
+cd "/Users/jcarpenter/Git Repositories/dashboard-projects"
 git add release-readiness.html
 git commit -m "chore: refresh Release Readiness scores $(date +%Y-%m-%d)"
 git push origin main

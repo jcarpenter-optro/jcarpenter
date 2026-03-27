@@ -32,10 +32,10 @@ cd "/Users/jcarpenter/Git Repositories/auditboard-frontend"
 git pull origin develop
 ```
 
-Also ensure `~/dashboard-projects/` exists (clone if not):
+Also ensure `/Users/jcarpenter/Git Repositories/dashboard-projects/` exists (clone if not):
 
 ```bash
-git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard-projects
+git clone https://github.com/jcarpenter-optro/dashboard-projects.git "/Users/jcarpenter/Git Repositories/dashboard-projects"
 ```
 
 ---
@@ -45,13 +45,13 @@ git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard
 Use the Agent tool to spawn three subagents simultaneously. Do not wait for one to finish before starting the next.
 
 **Agent 1 — Ember vs React parity:**
-> Follow the update-ember-react skill: run `~/dashboard-projects/scripts/generate-luna-report.py`, check the summary, commit and push luna-components.html and all component sub-pages to `~/dashboard-projects/`.
+> Follow the update-ember-react skill: run `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/generate-luna-report.py`, check the summary, commit and push luna-components.html and all component sub-pages to `/Users/jcarpenter/Git Repositories/dashboard-projects/`.
 
 **Agent 2 — Luna token scores:**
-> Follow the update-tokens skill: run `~/dashboard-projects/scripts/luna-module-audit.py --out ~/dashboard-projects/luna-module-scores.html` from the auditboard-frontend repo root, then commit and push luna-module-scores.html and luna-module-scores.json to `~/dashboard-projects/`.
+> Follow the update-tokens skill: run `/Users/jcarpenter/Git Repositories/dashboard-projects/scripts/luna-module-audit.py --out /Users/jcarpenter/Git Repositories/dashboard-projects/luna-module-scores.html` from the auditboard-frontend repo root, then commit and push luna-module-scores.html and luna-module-scores.json to `/Users/jcarpenter/Git Repositories/dashboard-projects/`.
 
 **Agent 3 — A11y + i18n audit:**
-> Follow the eval-coordinator skill: evaluate the a11y and i18n facets for each module, write `auditboard-a11y-i18n-report.json`, generate `auditboard-a11y-i18n.html` using the optro-dashboard template, then commit and push to `~/dashboard-projects/`.
+> Follow the eval-coordinator skill: evaluate the a11y and i18n facets for each module, write `auditboard-a11y-i18n-report.json`, generate `auditboard-a11y-i18n.html` using the optro-dashboard template, then commit and push to `/Users/jcarpenter/Git Repositories/dashboard-projects/`.
 
 ---
 
