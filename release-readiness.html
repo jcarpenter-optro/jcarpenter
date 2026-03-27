@@ -216,7 +216,7 @@
         i18nRisks:['842-file scope makes coverage uniformity hard to verify'],
         i18nRecs:['Run intl-extractor against full workspace directory to surface drifted strings'],
         tokens: null,
-        smartForms: null
+        smartForms: { score: null, reason: 'All routes are read-only audit log and datatable views with no user-facing form fields. Verified by inspecting all five route templates: audit-log, recent-views, unread, index, and 404.' }
       },
       { name:'site-configuration', display:'Site Configuration',
         a11y:63, i18n:88,
@@ -234,7 +234,7 @@
         i18nRisks:['OpsAudit-specific terminology needs translator context notes'],
         i18nRecs:['Add Applanga context notes for "OpsAudit" and "Work Step" to prevent mistranslation'],
         tokens:{ score:100, violations:0, css_files:6, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] },
-        smartForms: null
+        smartForms: { score: null, reason: 'The primary create flow is a 3-step wizard (Select Template, Select Auditable Entities, Select Audit Attributes). Multi-step wizard flows are an approved exemption from Smart Forms governance per the Form Governance and Exception Process policy.' }
       },
       { name:'assessments', display:'Assessments',
         a11y:82, i18n:85,
@@ -249,7 +249,7 @@
             {path:'apps/client/app/components/module-assessments/components/assessment-progress-bar.css',violations:1}
           ]
         },
-        smartForms: null
+        smartForms: { score: null, reason: 'The module is exclusively a multi-step assessment workflow (select assessables, assign reviewers, assign interviewees, ratings). All create modals delegate to other modules. Assessment workflows are an approved exemption from Smart Forms governance.' }
       },
       { name:'compliance', display:'Compliance',
         a11y:72, i18n:83,
@@ -332,7 +332,7 @@
             {path:'apps/client/app/components/module-resource-planner/card/booking-history-card.css',violations:3}
           ]
         },
-        smartForms: null
+        smartForms: { score: null, reason: 'All components are read-only displays: resource summaries, booking history cards, and project lists. No Form, Field, Input, or Textarea elements exist anywhere in the module.' }
       },
       { name:'dashboard', display:'Dashboard',
         a11y:62, i18n:64,
@@ -384,7 +384,7 @@
             {path:'apps/client/app/components/owner-dashboard/overview-panel/doughnut-chart.css',violations:1}
           ]
         },
-        smartForms: null
+        smartForms: { score: null, reason: 'A read-only summary dashboard showing task groups, control items, risk charts, and issue lists. No create, edit, or submit forms exist. The field.gjs component is a display-only label/value pair with no form input.' }
       },
     ];
 
@@ -472,8 +472,12 @@
       const tokCell = m.tokens !== null
         ? '<td>' + scoreBtn(m.tokens.score, 'tokens', m.name) + '</td>'
         : '<td>' + scoreBtn(null, 'tokens', m.name) + '</td>';
-      const sfScore = (m.smartForms !== null && m.smartForms !== undefined) ? m.smartForms.score : null;
-      const sfCell = '<td>' + scoreBtn(sfScore, 'smart-forms', m.name) + '</td>';
+      const sfScore = m.smartForms ? m.smartForms.score : null;
+      const sfCell = '<td>' + (m.smartForms
+        ? (sfScore !== null
+          ? scoreBtn(sfScore, 'smart-forms', m.name)
+          : '<button class="score-btn null-score" onclick="openDrawer(\'' + m.name + '\',\'smart-forms\')" style="cursor:pointer;" aria-label="View ' + m.display + ' Smart Forms exemption reason">N/A</button>')
+        : '<button class="score-btn null-score" disabled title="Not yet evaluated">—</button>') + '</td>';
       moduleRowsHtml += '<tr class="data-row">' +
         '<td><span class="module-name">' + escHtml(m.name) + '</span></td>' +
         '<td>' + scoreBtn(m.a11y, 'a11y', m.name) + '</td>' +
@@ -531,33 +535,42 @@
 
     function buildA11yPrompt(m) {
       const L = [];
-      L.push('You are reviewing the ' + m.name + ' module in auditboard-frontend for accessibility issues.');
+      L.push('Fix the following accessibility violations in the ' + m.display + ' module of auditboard-frontend.');
+      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('Current score: ' + m.a11y + '/100 (' + letterGrade(m.a11y) + ')');
       L.push('');
-      L.push('CURRENT SCORE: ' + m.a11y + '/100 (' + letterGrade(m.a11y) + ')');
-      L.push('');
-      L.push('RISKS IDENTIFIED:');
+      L.push('VIOLATIONS TO FIX:');
       m.a11yRisks.forEach(function(r) { L.push('- ' + r); });
       L.push('');
-      L.push('RECOMMENDED FIXES:');
+      L.push('REQUIRED CHANGES (implement each one):');
       m.a11yRecs.forEach(function(r) { L.push('- ' + r); });
       L.push('');
-      L.push('Please help me address these accessibility issues. Start by searching for the relevant files, then propose concrete code changes.');
+      L.push('HOW TO PROCEED:');
+      L.push('1. Use Grep to locate each file referenced in the violations above within apps/client/app/components/ and apps/client/app/routes/.');
+      L.push('2. Read each file, find the exact element or pattern described, and apply the fix.');
+      L.push('3. Do not add placeholder fixes or TODOs — make the actual code change.');
+      L.push('4. After each fix, confirm with Grep that the aria attribute or pattern is now present in the file.');
+      L.push('5. Do not change anything outside the scope of the listed violations.');
       return L.join('\n');
     }
 
     function buildI18nPrompt(m) {
       const L = [];
-      L.push('You are reviewing the ' + m.name + ' module in auditboard-frontend for internationalization issues.');
+      L.push('Fix the following internationalization issues in the ' + m.display + ' module of auditboard-frontend.');
+      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('Current score: ' + m.i18n + '/100 (' + letterGrade(m.i18n) + ')');
       L.push('');
-      L.push('CURRENT SCORE: ' + m.i18n + '/100 (' + letterGrade(m.i18n) + ')');
-      L.push('');
-      L.push('RISKS IDENTIFIED:');
+      L.push('ISSUES TO FIX:');
       m.i18nRisks.forEach(function(r) { L.push('- ' + r); });
       L.push('');
-      L.push('RECOMMENDED FIXES:');
+      L.push('REQUIRED CHANGES (implement each one):');
       m.i18nRecs.forEach(function(r) { L.push('- ' + r); });
       L.push('');
-      L.push('Please help me address these i18n issues. Start by searching for the relevant files, then propose concrete code changes.');
+      L.push('HOW TO PROCEED:');
+      L.push('1. Use Grep to locate each file referenced in the issues above within apps/client/app/components/ and apps/client/app/routes/.');
+      L.push('2. Read each file, find the exact hardcoded string or pattern described, and replace it with a formatMessage call or the fix specified.');
+      L.push('3. If the fix requires a new translation key, add it to apps/client/app/locales/en-US.json in the appropriate section. Do not leave missing keys.');
+      L.push('4. Do not change anything outside the scope of the listed issues.');
       return L.join('\n');
     }
 
@@ -772,32 +785,54 @@
     function buildSmartFormsPrompt(m) {
       if (!m.smartForms || m.smartForms.score === null) return '';
       const L = [];
-      L.push('You are reviewing the ' + m.name + ' module in auditboard-frontend for Smart Forms governance compliance.');
+      L.push('Fix the following Smart Forms governance violations in the ' + m.display + ' module of auditboard-frontend.');
+      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('Current compliance score: ' + m.smartForms.score + '/100 (' + letterGrade(m.smartForms.score) + ')');
       L.push('');
-      L.push('CURRENT SCORE: ' + m.smartForms.score + '/100 (Grade ' + letterGrade(m.smartForms.score) + ')');
+      L.push('GOVERNANCE RULES (non-negotiable):');
+      L.push('- All user-facing forms must use @auditboard/schema-form. Import SchemaForm or use schemaFormEngineResource.');
+      L.push('- LunaFormGroup from @auditboard/legacy-design-system must not be used for any governed form.');
+      L.push('- Create forms (modals for creating new records): row layout (labels above inputs), submit-group validation on click, always-enabled submit button, bordered inputs.');
+      L.push('- Click-to-edit forms (detail pages, quickviews): column layout (labels left of inputs), blur-save per field, transparent inputs.');
+      L.push('- FormBehavior subclasses live in apps/client/app/smart-form/<module>/.');
       L.push('');
-      L.push('RISKS IDENTIFIED:');
+      L.push('VIOLATIONS FOUND:');
       m.smartForms.risks.forEach(function(r) { L.push('- ' + r); });
       L.push('');
-      L.push('RECOMMENDED FIXES:');
+      L.push('REQUIRED CHANGES (implement each one):');
       m.smartForms.recs.forEach(function(r) { L.push('- ' + r); });
       L.push('');
-      L.push('GOVERNANCE REQUIREMENT: All forms must use @auditboard/schema-form (SchemaForm / schemaFormEngineResource). Legacy LunaFormGroup usage must be migrated. Create forms use row layout with submit-group validation; click-to-edit forms use column layout with blur-save per field.');
-      L.push('');
-      L.push('Please help me address these Smart Forms compliance issues. Start by searching for the relevant files, then propose concrete code changes.');
+      L.push('HOW TO PROCEED:');
+      L.push('1. Grep for LunaFormGroup in the module\'s component and route directories to locate every legacy form.');
+      L.push('2. Read each file identified. Understand the form\'s purpose: is it a create modal or a detail/edit view?');
+      L.push('3. For each governed form, replace LunaFormGroup with the appropriate SchemaForm pattern.');
+      L.push('   - Create modal: use schemaFormEngineResource + <SchemaForm @engine={{this.engine}}> with a FormBehavior subclass in apps/client/app/smart-form/' + m.name + '/.');
+      L.push('   - Detail view: use schemaFormEngineResource in the component class; render <SchemaForm> in the template.');
+      L.push('4. Remove the @disabled condition from any submit button. Show validation errors on submit instead of blocking the button.');
+      L.push('5. After changes, run: grep -r "LunaFormGroup" apps/client/app/components/ apps/client/app/routes/ | grep ' + m.name);
+      L.push('   Confirm zero results for this module before finishing.');
       return L.join('\n');
     }
 
     function buildSmartFormsContent(m) {
-      if (!m.smartForms || m.smartForms.score === null) {
+      if (!m.smartForms) {
         _currentPrompt = '';
-        const isUnevaluated = !m.smartForms;
-        return '<div class="callout callout--info">' +
-          '<div class="callout__title">' + (isUnevaluated ? 'Not Yet Evaluated' : 'Not Applicable') + '</div>' +
-          '<div class="callout__body">' + (isUnevaluated
-            ? 'Smart Forms scores have not been generated for this module yet. Run <code>eval-coordinator</code> or <code>eval-smart-forms</code> against the auditboard-frontend repo to populate scores.'
-            : 'This module is exempt from Smart Forms governance. It likely contains multi-step forms, questionnaire surveys, or assessment workflows that are pending feature parity support.') +
-          '</div>' +
+        return '<div class="callout callout--warning">' +
+          '<div class="callout__title">Not Yet Evaluated</div>' +
+          '<div class="callout__body">Smart Forms scores have not been generated for this module yet. Run <code>eval-coordinator</code> or <code>eval-smart-forms</code> against the auditboard-frontend repo to populate scores.</div>' +
+        '</div>';
+      }
+      if (m.smartForms.score === null) {
+        _currentPrompt = '';
+        const svgInfo = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--color-subdued);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+        return '<div class="callout callout--success" style="margin-bottom:var(--space-l);">' +
+          '<div class="callout__title">Exempt from Smart Forms Governance</div>' +
+          '<div class="callout__body">This module does not require Smart Forms adoption under the current governance policy.</div>' +
+        '</div>' +
+        '<div class="drawer-section">' +
+          '<div class="drawer-section-title">' + svgInfo + 'Why This Module Is Exempt</div>' +
+          '<p style="font-size:var(--text-xs);line-height:1.7;color:var(--color-paragraph);">' + escHtml(m.smartForms.reason) + '</p>' +
+          '<p style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:var(--space-s);">Approved exemptions: multi-step wizards, questionnaire surveys, assessment workflows, and read-only display modules. Re-evaluate if editable forms are added.</p>' +
         '</div>';
       }
       const sf = m.smartForms;
@@ -849,6 +884,7 @@
           '<div style="display:flex;gap:var(--space-s);flex-wrap:wrap;">' +
             (scoreVal !== null ? '<span class="badge ' + badgeClass + '">' + scoreDisplay + '</span>' : '') +
             (gradeDisplay ? '<span class="badge ' + badgeClass + '">Grade ' + gradeDisplay + '</span>' : '') +
+            (scoreVal === null && facet === 'smart-forms' && m.smartForms ? '<span class="badge badge--default">Exempt</span>' : '') +
             '<span class="badge badge--default">' + facetLabel + '</span>' +
           '</div>' +
         '</div>' +
