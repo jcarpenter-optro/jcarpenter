@@ -186,6 +186,8 @@
               <th class="th-clickable" onclick="openColumnDrawer('i18n')" title="Click to learn how i18n scores are evaluated"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.5S6 5 6 8s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 5.5h10M3 10.5h10" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>i18n</div></th>
               <th class="th-clickable" onclick="openColumnDrawer('tokens')" title="Click to learn how Luna Token scores are evaluated"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 10.5A6 6 0 116 3.5a4 4 0 007.5 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Luna<br>Tokens</div></th>
               <th class="th-clickable" onclick="openColumnDrawer('smart-forms')" title="Click to learn how Smart Forms scores are evaluated"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Smart<br>Forms</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></span>General<br>Consistency</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 2L13.5 7L8 14L2.5 7L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2.5 7H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Luna<br>Consistency</div></th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -452,6 +454,10 @@
     const avgTokens = Math.round(tokenModules.reduce((s, m) => s + m.tokens.score, 0) / tokenModules.length);
     const sfModules = MODULES.filter(m => m.smartForms !== null && m.smartForms !== undefined);
     const avgSmartForms = sfModules.length > 0 ? Math.round(sfModules.reduce((s, m) => s + m.smartForms.score, 0) / sfModules.length) : null;
+    const gcModules = MODULES.filter(m => m.generalConsistency && m.generalConsistency.score !== null && m.generalConsistency.score !== undefined);
+    const avgGC = gcModules.length > 0 ? Math.round(gcModules.reduce((s, m) => s + m.generalConsistency.score, 0) / gcModules.length) : null;
+    const lcModules = MODULES.filter(m => m.lunaConsistency && m.lunaConsistency.score !== null && m.lunaConsistency.score !== undefined);
+    const avgLC = lcModules.length > 0 ? Math.round(lcModules.reduce((s, m) => s + m.lunaConsistency.score, 0) / lcModules.length) : null;
 
     // ---- Render table ----
     const tbody = document.getElementById('table-body');
@@ -468,6 +474,14 @@
         ? '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgSmartForms) + '">' + avgSmartForms + ' <span style="font-size:var(--text-l);opacity:0.75;">(' + letterGrade(avgSmartForms) + ')</span></div>' +
             '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + sfModules.length + ' Modules</div></div></td>'
         : '<td><div style="font-size:var(--text-xs);color:var(--color-subdued);">Not yet evaluated</div></td>') +
+      (avgGC !== null
+        ? '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgGC) + '">' + avgGC + ' <span style="font-size:var(--text-l);opacity:0.75;">(' + letterGrade(avgGC) + ')</span></div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + gcModules.length + ' Modules</div></div></td>'
+        : '<td><div style="font-size:var(--text-xs);color:var(--color-subdued);">Not yet evaluated</div></td>') +
+      (avgLC !== null
+        ? '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgLC) + '">' + avgLC + ' <span style="font-size:var(--text-l);opacity:0.75;">(' + letterGrade(avgLC) + ')</span></div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + lcModules.length + ' Modules</div></div></td>'
+        : '<td><div style="font-size:var(--text-xs);color:var(--color-subdued);">Not yet evaluated</div></td>') +
       '</tr>';
 
     let moduleRowsHtml = '';
@@ -481,12 +495,26 @@
           ? scoreBtn(sfScore, 'smart-forms', m.name)
           : '<button class="score-btn null-score" onclick="openDrawer(\'' + m.name + '\',\'smart-forms\')" style="cursor:pointer;" aria-label="View ' + m.display + ' Smart Forms exemption reason">N/A</button>')
         : '<button class="score-btn null-score" disabled title="Not yet evaluated">—</button>') + '</td>';
+      const gcScore = m.generalConsistency ? m.generalConsistency.score : null;
+      const gcCell = '<td>' + (m.generalConsistency
+        ? (gcScore !== null
+          ? scoreBtn(gcScore, 'general-consistency', m.name)
+          : '<button class="score-btn null-score" disabled>N/A</button>')
+        : '<button class="score-btn null-score" disabled title="Not yet evaluated">—</button>') + '</td>';
+      const lcScore = m.lunaConsistency ? m.lunaConsistency.score : null;
+      const lcCell = '<td>' + (m.lunaConsistency
+        ? (lcScore !== null
+          ? scoreBtn(lcScore, 'luna-consistency', m.name)
+          : '<button class="score-btn null-score" disabled>N/A</button>')
+        : '<button class="score-btn null-score" disabled title="Not yet evaluated">—</button>') + '</td>';
       moduleRowsHtml += '<tr class="data-row">' +
         '<td><span class="module-name">' + escHtml(m.name) + '</span></td>' +
         '<td>' + scoreBtn(m.a11y, 'a11y', m.name) + '</td>' +
         '<td>' + scoreBtn(m.i18n, 'i18n', m.name) + '</td>' +
         tokCell +
         sfCell +
+        gcCell +
+        lcCell +
         '</tr>';
     });
 
@@ -498,82 +526,322 @@
       if (t.violations === 0) return m.name + ' already scores 100% on Luna token adoption. No CSS changes are needed.';
       const path = MODULE_PATHS[m.name] || 'apps/client/app/components/' + m.name;
       const L = [];
-      L.push('You are helping migrate the ' + m.name + ' module in the auditboard-frontend Ember.js app to use Luna design tokens instead of hardcoded CSS values.');
+      L.push('You are helping migrate the ' + m.name + ' module in the auditboard-frontend Ember.js app to use Luna design tokens instead of hardcoded CSS values. Make every replacement listed in the token reference below. Do not stop until every CSS/SCSS file in the module has been scanned and all matching hardcoded values have been replaced.');
       L.push('');
-      L.push('CONTEXT');
-      L.push('The ' + m.name + ' module (' + m.display + ') currently scores ' + t.score + '% on Luna token adoption (Grade ' + letterGrade(t.score) + '). The scanner found ' + t.violations + ' hardcoded CSS declarations across ' + t.css_files + ' file' + (t.css_files !== 1 ? 's' : '') + ' that should use Luna token variables.');
+      L.push('REPOSITORY');
+      L.push('  Root:             /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('  Module source:    ' + path + '/');
+      L.push('  Score to improve: ' + t.score + '% (Grade ' + letterGrade(t.score) + ')');
       L.push('');
+      L.push('SCAN SUMMARY');
+      L.push('The scanner found ' + t.violations + ' hardcoded CSS declarations across ' + t.css_files + ' file' + (t.css_files !== 1 ? 's' : '') + ' that should use Luna token variables.');
       L.push('Violations by category:');
       if (t.by_cat.space > 0)      L.push('  Space / size:  ' + t.by_cat.space + '  (margin, padding, gap, width, height using raw px/rem)');
       if (t.by_cat.color > 0)      L.push('  Color:         ' + t.by_cat.color + '  (hardcoded hex values in color/background/border)');
       if (t.by_cat.radius > 0)     L.push('  Border-radius: ' + t.by_cat.radius + '  (raw px values)');
       if (t.by_cat.typography > 0) L.push('  Typography:    ' + t.by_cat.typography + '  (raw rem font-size values)');
       L.push('');
-      L.push('YOUR TASK');
-      L.push('Scan the CSS and SCSS files in this module and replace all hardcoded values that match Luna tokens. The module source lives at:');
-      L.push('  ' + path + '/');
-      L.push('');
       if (t.top_files && t.top_files.length > 0) {
-        L.push('Start with these high-violation files:');
+        L.push('Highest-violation files (start here):');
         t.top_files.forEach(function(f) { L.push('  ' + f.path + '  (' + f.violations + ' violation' + (f.violations !== 1 ? 's' : '') + ')'); });
         L.push('');
       }
       L.push('TOKEN REFERENCE: SPACE / SIZE');
-      L.push('Replace hardcoded values in spacing properties with:');
-      L.push('  2px -> var(--luna-space-xxs)  |  4px -> var(--luna-space-xs)   |  8px -> var(--luna-space-s)');
-      L.push('  12px -> var(--luna-space-m)   |  16px -> var(--luna-space-base) |  24px -> var(--luna-space-l)');
-      L.push('  32px -> var(--luna-space-xl)  |  40px -> var(--luna-space-xxl)  |  48px -> var(--luna-space-xxxl)  |  64px -> var(--luna-space-xxxxl)');
+      L.push('Replace hardcoded values in spacing properties (margin, padding, gap, width, height, top, right, bottom, left, min-width, min-height, max-width, max-height) with:');
+      L.push('  2px  / 0.125rem  ->  var(--luna-space-xxs)');
+      L.push('  4px  / 0.25rem   ->  var(--luna-space-xs)');
+      L.push('  8px  / 0.5rem    ->  var(--luna-space-s)');
+      L.push('  12px / 0.75rem   ->  var(--luna-space-m)');
+      L.push('  16px / 1rem      ->  var(--luna-space-base)');
+      L.push('  24px / 1.5rem    ->  var(--luna-space-l)');
+      L.push('  32px / 2rem      ->  var(--luna-space-xl)');
+      L.push('  40px / 2.5rem    ->  var(--luna-space-xxl)');
+      L.push('  48px / 3rem      ->  var(--luna-space-xxxl)');
+      L.push('  64px / 4rem      ->  var(--luna-space-xxxxl)');
       L.push('');
-      L.push('RULES');
+      if (t.by_cat.color > 0) {
+        L.push('TOKEN REFERENCE: COLOR');
+        L.push('Replace hardcoded hex values in color, background-color, background, border-color, fill, and stroke properties with:');
+        L.push('  #1A1C21  ->  var(--luna-color-ink)');
+        L.push('  #343741  ->  var(--luna-color-paragraph)');
+        L.push('  #646A76  ->  var(--luna-color-subdued)');
+        L.push('  #E3E8F2  ->  var(--luna-color-light-shade)');
+        L.push('  #F5F7FA  ->  var(--luna-color-lightest-shade)');
+        L.push('  #FFFFFF  ->  var(--luna-color-empty-shade)');
+        L.push('  #0B64DD  ->  var(--luna-color-primary)');
+        L.push('  #F1F6FF  ->  var(--luna-color-primary-bg)');
+        L.push('  #008A5E  ->  var(--luna-color-success)');
+        L.push('  #E6F5F0  ->  var(--luna-color-success-bg)');
+        L.push('  #C61E25  ->  var(--luna-color-danger)');
+        L.push('  #FDECEA  ->  var(--luna-color-danger-bg)');
+        L.push('  #825803  ->  var(--luna-color-warning-text)');
+        L.push('  #FACB3D  ->  var(--luna-color-warning)');
+        L.push('  #FFF8E1  ->  var(--luna-color-warning-bg)');
+        L.push('');
+      }
+      if (t.by_cat.radius > 0) {
+        L.push('TOKEN REFERENCE: BORDER RADIUS');
+        L.push('Replace hardcoded values in border-radius (and longhand variants: border-top-left-radius, etc.) with:');
+        L.push('  4px   ->  var(--luna-radius-s)');
+        L.push('  8px   ->  var(--luna-radius-m)');
+        L.push('  12px  ->  var(--luna-radius-l)');
+        L.push('');
+      }
+      if (t.by_cat.typography > 0) {
+        L.push('TOKEN REFERENCE: TYPOGRAPHY');
+        L.push('Replace hardcoded values in font-size with:');
+        L.push('  0.857rem  ->  var(--luna-font-size-xs)');
+        L.push('  1rem      ->  var(--luna-font-size-s)');
+        L.push('  1.143rem  ->  var(--luna-font-size-m)');
+        L.push('  1.429rem  ->  var(--luna-font-size-l)');
+        L.push('  1.714rem  ->  var(--luna-font-size-xl)');
+        L.push('');
+      }
+      L.push('RULES (follow exactly)');
       L.push('- Only edit .css and .scss files. Do NOT touch .gjs, .gts, .hbs, .ts, or .js files.');
-      L.push('- Do NOT replace 0 values.');
-      L.push('- Do NOT replace values not listed in the token reference above.');
-      L.push('- Preserve all formatting, indentation, and comments.');
+      L.push('- Do NOT replace 0 values. Zero never needs a token.');
+      L.push('- Do NOT replace "1px" border widths (e.g. "border: 1px solid #E3E8F2"). Only replace the color part of borders when hardcoded.');
+      L.push('- Do NOT replace values inside url() expressions.');
+      L.push('- Do NOT replace values inside calc() expressions unless the entire calc value is a single token-mappable literal.');
+      L.push('- Do NOT replace CSS custom property declarations (--my-var: 8px). Only replace standard property values on the right side of CSS rules.');
+      L.push('- Do NOT replace values not listed in the token reference above. Leave them and report them in your summary.');
+      L.push('- Confirm each replacement is semantically correct: do not replace a border-radius value with a space token even if the pixel value matches.');
+      L.push('- Preserve all formatting, indentation, and comments in every file you edit.');
       L.push('');
-      L.push('AFTER MAKING ALL CHANGES');
-      L.push('Run: git diff --stat');
-      L.push('Report back with: (1) files modified (2) violations replaced (3) any values left unchanged and why.');
+      L.push('HOW TO PROCEED');
+      L.push('');
+      L.push('Step 1 — Discover all CSS/SCSS files in the module');
+      L.push('  Glob: ' + path + '/**/*.{css,scss}');
+      L.push('  Read the full list of results before proceeding.');
+      L.push('');
+      L.push('Step 2 — Process the highest-violation files first');
+      L.push('  Start with the files listed in "Highest-violation files" above.');
+      L.push('  For each file:');
+      L.push('    a. Read the full file content');
+      L.push('    b. Scan every CSS property declaration for hardcoded values that appear in the token reference');
+      L.push('    c. Apply all replacements in a single Edit operation per file');
+      L.push('    d. Read the file back and confirm no token-mappable hardcoded values remain');
+      L.push('');
+      L.push('Step 3 — Sweep all remaining CSS/SCSS files');
+      L.push('  After the top files, process every remaining .css and .scss file from Step 1.');
+      L.push('  Apply the same read-replace-verify loop.');
+      L.push('');
+      L.push('Step 4 — Final verification');
+      L.push('  Run: git diff --stat');
+      L.push('  Then run these Grep searches to catch any remaining hardcoded values in the module:');
+      L.push('    Pattern: #[0-9A-Fa-f]{3,6}  (remaining hex colors)  path: ' + path);
+      L.push('    Pattern: [0-9]+(px|rem)  (remaining pixel/rem values)  path: ' + path + '  file types: .css .scss');
+      L.push('');
+      L.push('Step 5 — Report back');
+      L.push('  1. Every file modified (list each path)');
+      L.push('  2. Total number of replacements made');
+      L.push('  3. Any hardcoded values that were NOT in the token reference and were left unchanged — list the value, the CSS property, and the file it appears in');
       return L.join('\n');
     }
 
     function buildA11yPrompt(m) {
+      const path = MODULE_PATHS[m.name] || 'apps/client/app/components/' + m.name;
       const L = [];
-      L.push('Fix the following accessibility violations in the ' + m.display + ' module of auditboard-frontend.');
-      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
-      L.push('Current score: ' + m.a11y + '/100 (' + letterGrade(m.a11y) + ')');
+      L.push('You are a senior accessibility engineer. Fix every accessibility violation listed below in the ' + m.display + ' module of auditboard-frontend. Make the actual code changes — do not add TODOs, comments, or placeholders. Do not stop until every required change is implemented and verified.');
       L.push('');
-      L.push('VIOLATIONS TO FIX:');
-      m.a11yRisks.forEach(function(r) { L.push('- ' + r); });
+      L.push('REPOSITORY');
+      L.push('  Root:           /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('  Components:     ' + path + '/');
+      L.push('  Routes:         apps/client/app/routes/' + m.name + '/  (check with Glob — may not exist)');
+      L.push('  Templates:      apps/client/app/templates/' + m.name + '/  (check with Glob — may not exist)');
+      L.push('  Score to fix:   ' + m.a11y + '/100 (Grade ' + letterGrade(m.a11y) + ')');
       L.push('');
-      L.push('REQUIRED CHANGES (implement each one):');
-      m.a11yRecs.forEach(function(r) { L.push('- ' + r); });
+      L.push('TECH STACK');
+      L.push('Ember.js app using Glimmer components (.gts / .gjs) and Handlebars templates (.hbs):');
       L.push('');
-      L.push('HOW TO PROCEED:');
-      L.push('1. Use Grep to locate each file referenced in the violations above within apps/client/app/components/ and apps/client/app/routes/.');
-      L.push('2. Read each file, find the exact element or pattern described, and apply the fix.');
-      L.push('3. Do not add placeholder fixes or TODOs — make the actual code change.');
-      L.push('4. After each fix, confirm with Grep that the aria attribute or pattern is now present in the file.');
-      L.push('5. Do not change anything outside the scope of the listed violations.');
+      L.push('  ARIA attributes are added directly to elements in templates:');
+      L.push('    <button type="button" aria-label="Close dialog">');
+      L.push('    <input aria-describedby="{{this.errorId}}" ...>');
+      L.push('    <span id="{{this.errorId}}" class="sr-only">{{this.errorMessage}}</span>');
+      L.push('');
+      L.push('  Event handlers use the {{on}} modifier in templates:');
+      L.push('    <div role="button" tabindex="0" {{on "click" this.handleClick}} {{on "keydown" this.handleKeyDown}}>');
+      L.push('  Keyboard handler class method (add alongside any click handler on a non-button element):');
+      L.push('    handleKeyDown = (event: KeyboardEvent): void => {');
+      L.push('      if (event.key === "Enter" || event.key === " ") {');
+      L.push('        event.preventDefault();');
+      L.push('        this.handleClick();');
+      L.push('      }');
+      L.push('    };');
+      L.push('');
+      L.push('  Screen reader live regions for dynamic announcements:');
+      L.push('    <div role="status" aria-live="polite" aria-atomic="true" class="sr-only">{{this.announcement}}</div>');
+      L.push('  To trigger the announcement, set this.announcement = "Operation complete" in your action.');
+      L.push('  The sr-only class must be present in the module CSS (position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;)');
+      L.push('');
+      L.push('  Modal / dialog focus management:');
+      L.push('    Luna Modal handles focus trapping automatically. For custom overlays, use the focusTrap modifier:');
+      L.push('    import { focusTrap } from "@ember/focus-trap";');
+      L.push('    <div {{focusTrap}} role="dialog" aria-modal="true" aria-labelledby="dialog-title">');
+      L.push('');
+      L.push('  Route transition focus reset:');
+      L.push('    In the affected route class, override activate():');
+      L.push('    activate() {');
+      L.push('      super.activate(...arguments);');
+      L.push('      schedule("afterRender", this, () => {');
+      L.push('        const heading = document.querySelector("h1, [data-focus-target]");');
+      L.push('        if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus(); }');
+      L.push('      });');
+      L.push('    }');
+      L.push('    Import: import { schedule } from "@ember/runloop";');
+      L.push('');
+      L.push('  Form inputs must have visible labels associated programmatically:');
+      L.push('    Option 1 (preferred): wrap in <label>Label text <Input ...></label>');
+      L.push('    Option 2: <label for="field-id">Label</label> <Input id="field-id" ...>');
+      L.push('    Option 3 (icon-only): <Input aria-label="Search" ...>');
+      L.push('');
+      L.push('VIOLATIONS TO FIX');
+      m.a11yRisks.forEach(function(r) { L.push('  - ' + r); });
+      L.push('');
+      L.push('REQUIRED CHANGES (implement each one completely)');
+      m.a11yRecs.forEach(function(r) { L.push('  - ' + r); });
+      L.push('');
+      L.push('HOW TO PROCEED');
+      L.push('');
+      L.push('Step 1 — Discover all files in the module');
+      L.push('  Run these Glob patterns:');
+      L.push('    ' + path + '/**/*.{gts,gjs,hbs}');
+      L.push('    apps/client/app/routes/' + m.name + '/**/*.{ts,js}');
+      L.push('  Read the full result list before proceeding.');
+      L.push('');
+      L.push('Step 2 — Locate each violation precisely');
+      L.push('  Use Grep with these patterns to find the exact lines causing each violation:');
+      L.push('    Click without keyboard handler:   {{on "click"  (then check the same element for {{on "keydown")');
+      L.push('    Missing ARIA label on button:     <[Bb]utton  (check each result for aria-label or visible text)');
+      L.push('    Div used as interactive element:  role="button"  or  <div.*click');
+      L.push('    Missing alt on image:             <img  (check each result for alt=)');
+      L.push('    Unlabeled form input:             <[Ii]nput  (check each result for aria-label, aria-labelledby, or wrapping <label>)');
+      L.push('    Missing focus management:         openModal\|showDialog\|isOpen  (check if focusTrap or focus() call follows)');
+      L.push('    Missing live region:              aria-live  (check if any exists; add one if none found)');
+      L.push('');
+      L.push('Step 3 — Fix each violation in order');
+      L.push('  For every item in REQUIRED CHANGES above:');
+      L.push('    a. Read the full file where the violation exists');
+      L.push('    b. Apply the minimum change needed — do not refactor unrelated code');
+      L.push('    c. If adding a keyboard handler, add the class method and the {{on "keydown"}} modifier in the same edit');
+      L.push('    d. If adding an aria-label to a Luna component (e.g., <Input>), use the @ariaLabel argument: <Input @ariaLabel="..." ...>');
+      L.push('    e. Confirm the fix with Grep before moving on');
+      L.push('');
+      L.push('Step 4 — Final sweep');
+      L.push('  After all changes, run these Grep searches across ' + path + ':');
+      L.push('    {{on "click"  — verify every result also has {{on "keydown" or is on a native <button> element');
+      L.push('    <img  — verify every result has an alt= attribute');
+      L.push('    <[Ii]nput  — verify every result has a label association');
+      L.push('  Fix any violations found in this sweep.');
+      L.push('');
+      L.push('Step 5 — Report back');
+      L.push('  For every file modified: list the file path, what changed (before and after), and which violation it resolves.');
+      L.push('  For any violation you could not resolve: state the exact reason and what would be needed to fix it.');
       return L.join('\n');
     }
 
     function buildI18nPrompt(m) {
+      const path = MODULE_PATHS[m.name] || 'apps/client/app/components/' + m.name;
       const L = [];
-      L.push('Fix the following internationalization issues in the ' + m.display + ' module of auditboard-frontend.');
-      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
-      L.push('Current score: ' + m.i18n + '/100 (' + letterGrade(m.i18n) + ')');
+      L.push('You are a senior internationalization engineer. Fix every i18n issue listed below in the ' + m.display + ' module of auditboard-frontend. Make the actual code changes — do not add TODOs, comments, or placeholders. Do not stop until every required change is implemented and verified.');
       L.push('');
-      L.push('ISSUES TO FIX:');
-      m.i18nRisks.forEach(function(r) { L.push('- ' + r); });
+      L.push('REPOSITORY');
+      L.push('  Root:             /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('  Module source:    ' + path + '/');
+      L.push('  Translation file: apps/client/app/locales/en-US.json');
+      L.push('  Score to fix:     ' + m.i18n + '/100 (Grade ' + letterGrade(m.i18n) + ')');
       L.push('');
-      L.push('REQUIRED CHANGES (implement each one):');
-      m.i18nRecs.forEach(function(r) { L.push('- ' + r); });
+      L.push('TECH STACK: ember-intl');
+      L.push('This app uses ember-intl for all translations. Key patterns:');
       L.push('');
-      L.push('HOW TO PROCEED:');
-      L.push('1. Use Grep to locate each file referenced in the issues above within apps/client/app/components/ and apps/client/app/routes/.');
-      L.push('2. Read each file, find the exact hardcoded string or pattern described, and replace it with a formatMessage call or the fix specified.');
-      L.push('3. If the fix requires a new translation key, add it to apps/client/app/locales/en-US.json in the appropriate section. Do not leave missing keys.');
-      L.push('4. Do not change anything outside the scope of the listed issues.');
+      L.push('  In .gts / .gjs / .hbs templates:');
+      L.push('    Hardcoded (wrong):   <p>Welcome back</p>');
+      L.push('    Translated (right):  <p>{{t "' + m.name + '.welcomeBack"}}</p>');
+      L.push('    With interpolation:  <p>{{t "' + m.name + '.greeting" name=this.userName}}</p>');
+      L.push('    Pluralization:       <p>{{t "' + m.name + '.itemCount" count=this.itemCount}}</p>');
+      L.push('    Hardcoded attr:      <input placeholder="Search...">');
+      L.push('    Translated attr:     <input placeholder={{t "' + m.name + '.searchPlaceholder"}}>');
+      L.push('');
+      L.push('  In component / route class files (.ts / .js):');
+      L.push('    Add service injection near the top of the class:');
+      L.push('      import { service } from "@ember/service";');
+      L.push('      import type IntlService from "ember-intl/services/intl";');
+      L.push('      // inside class body:');
+      L.push('      @service declare intl: IntlService;');
+      L.push('    Usage:');
+      L.push('      this.errorMessage = this.intl.t("' + m.name + '.errorGeneric");');
+      L.push('      this.intl.t("' + m.name + '.deleteConfirm", { name: this.record.name })');
+      L.push('');
+      L.push('  Locale-aware date and number formatting:');
+      L.push('    Dates in templates:   {{format-date this.date format="date"}}');
+      L.push('    Dates in JS:          this.intl.formatDate(date, { format: "date" })');
+      L.push('    Numbers:              {{format-number this.count}}');
+      L.push('    Currency:             {{format-number this.amount style="currency" currency="USD"}}');
+      L.push('    Never format with:    new Date().toLocaleDateString(), "$" + amount, or manual ternaries for plurals');
+      L.push('');
+      L.push('  Adding keys to apps/client/app/locales/en-US.json:');
+      L.push('    Keys are nested JSON under the module namespace:');
+      L.push('    {');
+      L.push('      "' + m.name + '": {');
+      L.push('        "pageTitle": "' + m.display + '",');
+      L.push('        "createModal": {');
+      L.push('          "title": "Create New Item",');
+      L.push('          "submitLabel": "Create"');
+      L.push('        },');
+      L.push('        "itemCount": "{count, plural, one {# item} other {# items}}"');
+      L.push('      }');
+      L.push('    }');
+      L.push('');
+      L.push('  Key naming rules:');
+      L.push('    - Always prefix with the module slug: "' + m.name + '.<context>.<purpose>"');
+      L.push('    - Use camelCase segments: "' + m.name + '.createModal.title"');
+      L.push('    - Keys must be descriptive — "' + m.name + '.deleteConfirmBody" not "' + m.name + '.str1"');
+      L.push('    - Before adding a key, grep en-US.json for the English string to avoid duplicates');
+      L.push('    - If an equivalent key already exists under a different namespace, reuse it');
+      L.push('');
+      L.push('ISSUES TO FIX');
+      m.i18nRisks.forEach(function(r) { L.push('  - ' + r); });
+      L.push('');
+      L.push('REQUIRED CHANGES (implement each one completely)');
+      m.i18nRecs.forEach(function(r) { L.push('  - ' + r); });
+      L.push('');
+      L.push('HOW TO PROCEED');
+      L.push('');
+      L.push('Step 1 — Read the current translation file');
+      L.push('  Read apps/client/app/locales/en-US.json');
+      L.push('  Note the existing key structure for the "' + m.name + '" namespace so your new keys follow the same pattern.');
+      L.push('  If the "' + m.name + '" namespace does not yet exist, you will create it.');
+      L.push('');
+      L.push('Step 2 — Discover all source files in the module');
+      L.push('  Glob: ' + path + '/**/*.{gts,gjs,hbs}');
+      L.push('  Glob: apps/client/app/routes/' + m.name + '/**/*.{ts,js}  (if routes exist)');
+      L.push('');
+      L.push('Step 3 — Fix each issue completely');
+      L.push('  For every item in REQUIRED CHANGES:');
+      L.push('    a. Grep for the hardcoded string or problematic pattern in the module source');
+      L.push('       (e.g., grep for the English word or phrase to find the exact file and line)');
+      L.push('    b. Read the full file');
+      L.push('    c. Replace the hardcoded string with the correct {{t "key"}} helper or this.intl.t("key") call');
+      L.push('    d. If the component class does not have @service declare intl injected, add it');
+      L.push('    e. Add the new key + English value to apps/client/app/locales/en-US.json');
+      L.push('       — do not duplicate a key that already exists with the same English value');
+      L.push('    f. Confirm the hardcoded string is gone with Grep');
+      L.push('');
+      L.push('Step 4 — Run the translation extractor');
+      L.push('  Run: pnpm --filter @auditboard/client generate:en-US');
+      L.push('  If successful, re-read apps/client/app/locales/en-US.json to confirm your new keys are present.');
+      L.push('  If the command fails, note the error but do not block on it — the manually added keys are still valid.');
+      L.push('');
+      L.push('Step 5 — Final sweep verification');
+      L.push('  Grep the module source for remaining hardcoded user-visible strings:');
+      L.push('    Pattern: >"[A-Z]  in .gts/.gjs/.hbs  (JSX/template text node starting uppercase)');
+      L.push('    Pattern: = "[A-Z][a-z]  in .ts/.js  (JS string starting with capital word — may be user-visible)');
+      L.push('    Pattern: aria-label="[A-Z]  in .gts/.gjs/.hbs  (hardcoded ARIA text needs translating too)');
+      L.push('    Pattern: placeholder="[A-Z]  (hardcoded placeholder text)');
+      L.push('  Review every match and translate any user-visible copy not yet covered.');
+      L.push('');
+      L.push('Step 6 — Report back');
+      L.push('  List every file modified, every translation key added (key path + English value), and any issue you could not fully resolve with the exact reason.');
       return L.join('\n');
     }
 
@@ -787,33 +1055,109 @@
 
     function buildSmartFormsPrompt(m) {
       if (!m.smartForms || m.smartForms.score === null) return '';
+      const path = MODULE_PATHS[m.name] || 'apps/client/app/components/' + m.name;
       const L = [];
-      L.push('Fix the following Smart Forms governance violations in the ' + m.display + ' module of auditboard-frontend.');
-      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
-      L.push('Current compliance score: ' + m.smartForms.score + '/100 (' + letterGrade(m.smartForms.score) + ')');
+      L.push('You are a senior frontend engineer specializing in AuditBoard\'s design system. Fix every Smart Forms governance violation listed below in the ' + m.display + ' module of auditboard-frontend. Make the actual code changes — do not add TODOs, comments, or placeholders. Do not stop until every violation is resolved and verified.');
       L.push('');
-      L.push('GOVERNANCE RULES (non-negotiable):');
-      L.push('- All user-facing forms must use @auditboard/schema-form. Import SchemaForm or use schemaFormEngineResource.');
-      L.push('- LunaFormGroup from @auditboard/legacy-design-system must not be used for any governed form.');
-      L.push('- Create forms (modals for creating new records): row layout (labels above inputs), submit-group validation on click, always-enabled submit button, bordered inputs.');
-      L.push('- Click-to-edit forms (detail pages, quickviews): column layout (labels left of inputs), blur-save per field, transparent inputs.');
-      L.push('- FormBehavior subclasses live in apps/client/app/smart-form/<module>/.');
+      L.push('REPOSITORY');
+      L.push('  Root:                /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('  Module components:   ' + path + '/');
+      L.push('  Smart-form schemas:  apps/client/app/smart-form/' + m.name + '/  (create this directory if it does not exist)');
+      L.push('  Score to fix:        ' + m.smartForms.score + '/100 (Grade ' + letterGrade(m.smartForms.score) + ')');
       L.push('');
-      L.push('VIOLATIONS FOUND:');
-      m.smartForms.risks.forEach(function(r) { L.push('- ' + r); });
+      L.push('GOVERNANCE POLICY');
+      L.push('All user-facing forms in this module must use @auditboard/schema-form. The only exemptions are:');
+      L.push('  - Multi-step wizards');
+      L.push('  - Assessment/questionnaire workflows');
+      L.push('  - Forms behind a feature flag that explicitly gates Smart Forms rollout');
       L.push('');
-      L.push('REQUIRED CHANGES (implement each one):');
-      m.smartForms.recs.forEach(function(r) { L.push('- ' + r); });
+      L.push('SMART FORMS PATTERNS');
       L.push('');
-      L.push('HOW TO PROCEED:');
-      L.push('1. Grep for LunaFormGroup in the module\'s component and route directories to locate every legacy form.');
-      L.push('2. Read each file identified. Understand the form\'s purpose: is it a create modal or a detail/edit view?');
-      L.push('3. For each governed form, replace LunaFormGroup with the appropriate SchemaForm pattern.');
-      L.push('   - Create modal: use schemaFormEngineResource + <SchemaForm @engine={{this.engine}}> with a FormBehavior subclass in apps/client/app/smart-form/' + m.name + '/.');
-      L.push('   - Detail view: use schemaFormEngineResource in the component class; render <SchemaForm> in the template.');
-      L.push('4. Remove the @disabled condition from any submit button. Show validation errors on submit instead of blocking the button.');
-      L.push('5. After changes, run: grep -r "LunaFormGroup" apps/client/app/components/ apps/client/app/routes/ | grep ' + m.name);
-      L.push('   Confirm zero results for this module before finishing.');
+      L.push('Pattern A: Create modal (new record creation)');
+      L.push('  Layout:         Row-based — labels above inputs, inputs full width');
+      L.push('  Inputs:         Bordered appearance (not transparent click-to-edit)');
+      L.push('  Validation:     Group validation on submit click — never field-by-field on blur');
+      L.push('  Submit button:  Always enabled — show inline validation errors on click, never disable the button');
+      L.push('  Implementation:');
+      L.push('    // In the component class:');
+      L.push('    import { schemaFormEngineResource } from "@auditboard/schema-form";');
+      L.push('    engine = schemaFormEngineResource(this, () => ({');
+      L.push('      behavior: new ' + m.name.charAt(0).toUpperCase() + m.name.slice(1) + 'CreateFormBehavior(),');
+      L.push('      mode: "create",');
+      L.push('    }));');
+      L.push('    // In the template:');
+      L.push('    <SchemaForm @engine={{this.engine}} />');
+      L.push('    <Button @onClick={{this.engine.submit}}>Create</Button>');
+      L.push('');
+      L.push('Pattern B: Click-to-edit detail form (quickview or detail page)');
+      L.push('  Layout:         Column-based — label left, input right, two-column grid');
+      L.push('  Inputs:         Transparent/inline appearance — static text until focused');
+      L.push('  Validation:     Per-field validation on blur — save immediately on valid blur');
+      L.push('  Context:        Rendered inside a quickview panel or detail page, never a modal');
+      L.push('  Implementation:');
+      L.push('    import { schemaFormEngineResource } from "@auditboard/schema-form";');
+      L.push('    engine = schemaFormEngineResource(this, () => ({');
+      L.push('      behavior: new ' + m.name.charAt(0).toUpperCase() + m.name.slice(1) + 'DetailFormBehavior(),');
+      L.push('      mode: "edit",');
+      L.push('      record: this.args.record,');
+      L.push('    }));');
+      L.push('');
+      L.push('FormBehavior subclass structure (create in apps/client/app/smart-form/' + m.name + '/):');
+      L.push('    import FormBehavior from "@auditboard/schema-form/form-behavior";');
+      L.push('    export default class ' + m.name.charAt(0).toUpperCase() + m.name.slice(1) + 'CreateFormBehavior extends FormBehavior {');
+      L.push('      fields = [');
+      L.push('        { key: "name", label: "Name", component: "text-input", required: true },');
+      L.push('        // add all fields the form needs');
+      L.push('      ];');
+      L.push('      async onSubmit(data: Record<string, unknown>) {');
+      L.push('        // call the API with data');
+      L.push('      }');
+      L.push('    }');
+      L.push('');
+      L.push('VIOLATIONS FOUND');
+      m.smartForms.risks.forEach(function(r) { L.push('  - ' + r); });
+      L.push('');
+      L.push('REQUIRED CHANGES (implement each one completely)');
+      m.smartForms.recs.forEach(function(r) { L.push('  - ' + r); });
+      L.push('');
+      L.push('HOW TO PROCEED');
+      L.push('');
+      L.push('Step 1 — Inventory all forms in the module');
+      L.push('  Grep for these patterns across ' + path + ':');
+      L.push('    LunaFormGroup  — finds all legacy form containers');
+      L.push('    LunaSettingsContainer  — another legacy form pattern');
+      L.push('    <form  — finds raw HTML forms');
+      L.push('    isBasicFormTemplate\|isDatatableTemplate  — v1 template flags');
+      L.push('    withFlag\|getFlag.*smartForms\|allowSmartForms  — feature flags still gating Smart Forms');
+      L.push('  For each match: note the file, read it, and determine if it is a create form or a detail/edit form.');
+      L.push('');
+      L.push('Step 2 — For each legacy form, replace it with the Smart Forms pattern');
+      L.push('  a. Read the full component file');
+      L.push('  b. Identify the form type (create modal vs. click-to-edit detail)');
+      L.push('  c. Create the corresponding FormBehavior subclass in apps/client/app/smart-form/' + m.name + '/');
+      L.push('     — map every existing field to the fields[] array with correct key, label, component, and required');
+      L.push('     — port any submit logic from the current onSubmit/save action to onSubmit() in the behavior');
+      L.push('  d. Replace the LunaFormGroup template block with <SchemaForm @engine={{this.engine}} />');
+      L.push('  e. Add the schemaFormEngineResource to the component class');
+      L.push('  f. If the submit button has a @disabled or @isDisabled binding, remove it entirely');
+      L.push('  g. Confirm the legacy import is gone with Grep');
+      L.push('');
+      L.push('Step 3 — Remove feature flag gates');
+      L.push('  If any withFlag or getFlag call is still gating Smart Forms rollout in this module:');
+      L.push('    a. Read the file containing the flag gate');
+      L.push('    b. Keep the Smart Forms branch of the conditional and delete the legacy branch entirely');
+      L.push('    c. Remove the withFlag wrapper — the Smart Forms code should run unconditionally');
+      L.push('');
+      L.push('Step 4 — Final verification');
+      L.push('  Run these Grep searches and confirm zero results for this module:');
+      L.push('    Grep: LunaFormGroup  in ' + path);
+      L.push('    Grep: LunaSettingsContainer  in ' + path);
+      L.push('    Grep: isBasicFormTemplate\|isDatatableTemplate  in ' + path);
+      L.push('    Grep: @disabled.*=\|:disabled  on any submit button  in ' + path);
+      L.push('');
+      L.push('Step 5 — Report back');
+      L.push('  For every form migrated: list the file, the FormBehavior class created, and which pattern (create/detail) was used.');
+      L.push('  For any violation you could not resolve: state the exact reason (e.g., form is behind an exemption condition).');
       return L.join('\n');
     }
 
@@ -846,6 +1190,135 @@
       return '<div class="callout callout--' + calloutType + '" style="margin-bottom:var(--space-l);">' +
           '<div class="callout__title">Score: ' + sf.score + '/100 (Grade ' + letterGrade(sf.score) + ')</div>' +
           '<div class="callout__body">Evaluates adoption of <code>@auditboard/schema-form</code>, migration away from LunaFormGroup, and compliance with AuditBoard Form Pattern guidelines (layout, validation, labeling).</div>' +
+        '</div>' +
+        '<div class="drawer-section">' +
+          '<div class="drawer-section-title">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+            'Findings' +
+          '</div>' +
+          '<div class="drawer-grid">' +
+            '<div>' +
+              '<div class="drawer-col-label" style="color:var(--color-danger);">Risks</div>' +
+              '<ul class="risk-list" style="color:var(--color-danger);">' + risks + '</ul>' +
+            '</div>' +
+            '<div>' +
+              '<div class="drawer-col-label" style="color:var(--color-success);">Recommendations</div>' +
+              '<ul class="risk-list" style="color:var(--color-success);">' + recs + '</ul>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        promptSection();
+    }
+
+    // ---- General Consistency content ----
+    function buildGeneralConsistencyPrompt(m) {
+      if (!m.generalConsistency || m.generalConsistency.score === null) return '';
+      const path = MODULE_PATHS[m.name] || 'apps/client/app/components/' + m.name;
+      const L = [];
+      L.push('Fix the following General Consistency violations in the ' + m.display + ' module of auditboard-frontend.');
+      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('Current score: ' + m.generalConsistency.score + '/100 (' + letterGrade(m.generalConsistency.score) + ')');
+      L.push('');
+      L.push('VIOLATIONS FOUND:');
+      m.generalConsistency.risks.forEach(function(r) { L.push('- ' + r); });
+      L.push('');
+      L.push('REQUIRED CHANGES (implement each one):');
+      m.generalConsistency.recs.forEach(function(r) { L.push('- ' + r); });
+      L.push('');
+      L.push('HOW TO PROCEED:');
+      L.push('1. Use Grep to locate each file referenced in the violations above within ' + path + '/.');
+      L.push('2. For computed() macros: replace with a native getter over @tracked state.');
+      L.push('3. For observer() calls: replace with reactive logic in the getter or a resource.');
+      L.push('4. For this.get()/this.set(): replace with direct property access on @tracked fields.');
+      L.push('5. For classic components (EmberObject.extend): migrate to @glimmer/component class syntax.');
+      L.push('6. After each fix confirm the pattern is gone with Grep before moving on.');
+      L.push('7. Do not change anything outside the scope of the listed violations.');
+      return L.join('\n');
+    }
+
+    function buildGeneralConsistencyContent(m) {
+      if (!m.generalConsistency) {
+        _currentPrompt = '';
+        return '<div class="callout callout--warning">' +
+          '<div class="callout__title">Not Yet Evaluated</div>' +
+          '<div class="callout__body">General Consistency scores have not been generated for this module yet. Run <code>eval-coordinator</code> against the auditboard-frontend repo to populate scores.</div>' +
+        '</div>';
+      }
+      const gc = m.generalConsistency;
+      const calloutType = gc.score >= 80 ? 'success' : gc.score >= 65 ? 'warning' : 'danger';
+      const risks = gc.risks.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
+      const recs  = gc.recs.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
+      _currentPrompt = buildGeneralConsistencyPrompt(m);
+      return '<div class="callout callout--' + calloutType + '" style="margin-bottom:var(--space-l);">' +
+          '<div class="callout__title">Score: ' + gc.score + '/100 (Grade ' + letterGrade(gc.score) + ')</div>' +
+          '<div class="callout__body">Evaluates adherence to AuditBoard\'s Ember.js/Glimmer coding conventions: component architecture, template syntax, reactive state patterns, loading and error states, Luna component sourcing, and naming conventions.</div>' +
+        '</div>' +
+        '<div class="drawer-section">' +
+          '<div class="drawer-section-title">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+            'Findings' +
+          '</div>' +
+          '<div class="drawer-grid">' +
+            '<div>' +
+              '<div class="drawer-col-label" style="color:var(--color-danger);">Risks</div>' +
+              '<ul class="risk-list" style="color:var(--color-danger);">' + risks + '</ul>' +
+            '</div>' +
+            '<div>' +
+              '<div class="drawer-col-label" style="color:var(--color-success);">Recommendations</div>' +
+              '<ul class="risk-list" style="color:var(--color-success);">' + recs + '</ul>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        promptSection();
+    }
+
+    // ---- Luna Consistency content ----
+    function buildLunaConsistencyPrompt(m) {
+      if (!m.lunaConsistency || m.lunaConsistency.score === null) return '';
+      const path = MODULE_PATHS[m.name] || 'apps/client/app/components/' + m.name;
+      const L = [];
+      L.push('Fix the following Luna Design System consistency violations in the ' + m.display + ' module of auditboard-frontend.');
+      L.push('Repo root: /Users/jcarpenter/Git Repositories/auditboard-frontend');
+      L.push('Current score: ' + m.lunaConsistency.score + '/100 (' + letterGrade(m.lunaConsistency.score) + ')');
+      L.push('');
+      L.push('LUNA STANDARDS (non-negotiable):');
+      L.push('- Import UI components from @auditboard/luna-core. Do not use raw <button>, <input>, <select>, or <table> where Luna equivalents exist.');
+      L.push('- CSS files must use --luna-space-*, --luna-color-*, --luna-radius-* custom properties instead of hardcoded px/hex values.');
+      L.push('- Do not import LunaFormGroup or LunaSettingsContainer from @auditboard/legacy-design-system where Luna Field/Input is available.');
+      L.push('- Apply {{trap-focus}} to all modal and drawer overlays.');
+      L.push('');
+      L.push('VIOLATIONS FOUND:');
+      m.lunaConsistency.risks.forEach(function(r) { L.push('- ' + r); });
+      L.push('');
+      L.push('REQUIRED CHANGES (implement each one):');
+      m.lunaConsistency.recs.forEach(function(r) { L.push('- ' + r); });
+      L.push('');
+      L.push('HOW TO PROCEED:');
+      L.push('1. Use Grep to locate each file referenced in the violations above within ' + path + '/.');
+      L.push('2. For raw HTML elements: replace with the Luna equivalent from @auditboard/luna-core.');
+      L.push('3. For CSS hardcoded values: replace with the appropriate --luna-* custom property.');
+      L.push('4. For LunaFormGroup: replace with Luna Field + Input primitives or SchemaForm.');
+      L.push('5. For missing {{trap-focus}}: add the modifier to the overlay container element.');
+      L.push('6. Do not change anything outside the scope of the listed violations.');
+      return L.join('\n');
+    }
+
+    function buildLunaConsistencyContent(m) {
+      if (!m.lunaConsistency) {
+        _currentPrompt = '';
+        return '<div class="callout callout--warning">' +
+          '<div class="callout__title">Not Yet Evaluated</div>' +
+          '<div class="callout__body">Luna Consistency scores have not been generated for this module yet. Run <code>eval-coordinator</code> against the auditboard-frontend repo to populate scores.</div>' +
+        '</div>';
+      }
+      const lc = m.lunaConsistency;
+      const calloutType = lc.score >= 80 ? 'success' : lc.score >= 65 ? 'warning' : 'danger';
+      const risks = lc.risks.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
+      const recs  = lc.recs.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
+      _currentPrompt = buildLunaConsistencyPrompt(m);
+      return '<div class="callout callout--' + calloutType + '" style="margin-bottom:var(--space-l);">' +
+          '<div class="callout__title">Score: ' + lc.score + '/100 (Grade ' + letterGrade(lc.score) + ')</div>' +
+          '<div class="callout__body">Evaluates how completely and correctly the module uses the Luna Design System: component adoption from <code>@auditboard/luna-core</code>, CSS token usage, avoidance of legacy-design-system imports, correct Luna API usage, and Luna accessibility modifier coverage.</div>' +
         '</div>' +
         '<div class="drawer-section">' +
           '<div class="drawer-section-title">' +
@@ -1014,9 +1487,16 @@
       const scoreVal = facet === 'a11y' ? m.a11y
         : facet === 'i18n' ? m.i18n
         : facet === 'tokens' ? (m.tokens ? m.tokens.score : null)
-        : (m.smartForms ? m.smartForms.score : null);
+        : facet === 'smart-forms' ? (m.smartForms ? m.smartForms.score : null)
+        : facet === 'general-consistency' ? (m.generalConsistency ? m.generalConsistency.score : null)
+        : (m.lunaConsistency ? m.lunaConsistency.score : null);
       const badgeClass = scoreVal !== null ? scoreBadgeClass(scoreVal) : 'badge--default';
-      const facetLabel = facet === 'a11y' ? 'Accessibility' : facet === 'i18n' ? 'Internationalization' : facet === 'tokens' ? 'Luna Token Adoption' : 'Smart Forms';
+      const facetLabel = facet === 'a11y' ? 'Accessibility'
+        : facet === 'i18n' ? 'Internationalization'
+        : facet === 'tokens' ? 'Luna Token Adoption'
+        : facet === 'smart-forms' ? 'Smart Forms'
+        : facet === 'general-consistency' ? 'General Consistency'
+        : 'Luna Consistency';
       const scoreDisplay = scoreVal !== null ? (facet === 'tokens' ? scoreVal + '%' : scoreVal + '') : 'N/A';
       const gradeDisplay = scoreVal !== null ? letterGrade(scoreVal) : '';
 
@@ -1034,10 +1514,12 @@
         '<button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>';
 
       const body = document.getElementById('drawerBody');
-      if (facet === 'a11y')              body.innerHTML = buildA11yContent(m);
-      else if (facet === 'i18n')         body.innerHTML = buildI18nContent(m);
-      else if (facet === 'tokens')       body.innerHTML = buildTokensContent(m);
-      else if (facet === 'smart-forms')  body.innerHTML = buildSmartFormsContent(m);
+      if (facet === 'a11y')                     body.innerHTML = buildA11yContent(m);
+      else if (facet === 'i18n')                body.innerHTML = buildI18nContent(m);
+      else if (facet === 'tokens')              body.innerHTML = buildTokensContent(m);
+      else if (facet === 'smart-forms')         body.innerHTML = buildSmartFormsContent(m);
+      else if (facet === 'general-consistency') body.innerHTML = buildGeneralConsistencyContent(m);
+      else if (facet === 'luna-consistency')    body.innerHTML = buildLunaConsistencyContent(m);
 
       document.getElementById('drawer-overlay').classList.add('open');
       const drawer = document.getElementById('drawer');
