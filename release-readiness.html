@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Release Readiness: auditboard-frontend</title>
+  <title>Release Readiness: AuditBoard Frontend</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
@@ -11,6 +11,8 @@
     :root {
       --color-primary: #0B64DD;
       --color-primary-bg: #F1F6FF;
+      --color-accent: #BC1E70;
+      --color-accent-secondary: #008B87;
       --color-success: #008A5E;
       --color-success-bg: #E6F5F0;
       --color-warning: #FACB3D;
@@ -47,145 +49,116 @@
       --space-l:   24px;
       --space-xl:  32px;
       --space-xxl: 40px;
-      --border-color: #E3E8F2;
+      --space-xxxl: 48px;
       --border-thin: 1px solid #E3E8F2;
       --border-thick: 2px solid #E3E8F2;
       --border-radius: 4px;
-      --shadow-xs: 0 1px 2px hsla(217,30%,24%,.08), 0 2px 4px hsla(217,30%,24%,.06);
-      --shadow-s:  0 1px 3px hsla(217,30%,24%,.10), 0 4px 8px hsla(217,30%,24%,.07);
-      --shadow-m:  0 2px 6px hsla(217,30%,24%,.10), 0 8px 16px hsla(217,30%,24%,.08);
-      --page-max-width: 1200px;
+      --shadow-s: 0 1px 3px hsla(217,30%,24%,.10), 0 4px 8px hsla(217,30%,24%,.07);
+      --page-max-width: 1100px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--font-body); font-size: var(--text-s); font-weight: var(--font-weight-regular); line-height: var(--line-height-s); color: var(--color-paragraph); background: var(--color-lightest-shade); -webkit-font-smoothing: antialiased; }
-    h1, h2, h3, h4 { font-family: var(--font-body); color: var(--color-ink); line-height: var(--line-height-m); }
-    h1 { font-size: var(--text-xl); font-weight: var(--font-weight-semibold); }
-    p { line-height: var(--line-height-s); }
-    .text-subdued { color: var(--color-subdued); }
+    h4 { font-size: var(--text-m); font-weight: var(--font-weight-semibold); color: var(--color-ink); }
     a { color: var(--color-primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    /* Page header */
+
     .page-header { background: var(--color-empty-shade); border-bottom: var(--border-thin); padding: var(--space-l) 0; }
     .page-header-inner { max-width: var(--page-max-width); margin: 0 auto; padding: 0 var(--space-l); }
     .breadcrumb { font-size: var(--text-xs); color: var(--color-subdued); margin-bottom: var(--space-xs); }
     .breadcrumb a { color: var(--color-primary); }
-    /* Page body */
+    .page-header h1 { font-size: var(--text-l); font-weight: var(--font-weight-semibold); color: var(--color-ink); }
+    .page-header p { font-size: var(--text-xs); color: var(--color-subdued); margin-top: var(--space-xs); }
+
     .page-body { max-width: var(--page-max-width); margin: 0 auto; padding: var(--space-l); }
-    /* Stat row */
-    .stat-row { display: grid; gap: var(--space-m); grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: var(--space-l); }
-    .stat-card { background: var(--color-empty-shade); border: var(--border-thin); border-radius: var(--border-radius); padding: var(--space-m) var(--space-l); }
-    .stat-card__label { font-size: var(--text-xs); color: var(--color-subdued); margin-bottom: var(--space-xs); text-transform: uppercase; letter-spacing: 0.05em; font-weight: var(--font-weight-semibold); }
-    .stat-card__value { font-size: var(--text-xl); font-weight: var(--font-weight-semibold); color: var(--color-ink); font-variant-numeric: tabular-nums; line-height: 1; }
-    .stat-card__description { font-size: var(--text-xs); color: var(--color-subdued); margin-top: var(--space-xs); }
-    /* Panel */
-    .panel { background: var(--color-empty-shade); border: var(--border-thin); border-radius: var(--border-radius); }
-    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-m) var(--space-l); border-bottom: var(--border-thin); }
-    .panel-title { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-subdued); margin: 0; }
-    /* Badge */
-    .badge { display: inline-flex; align-items: center; font-size: var(--text-xs); font-weight: var(--font-weight-semibold); padding: 2px var(--space-s); border-radius: var(--border-radius); line-height: 1.5; }
+
+    .badge { display: inline-flex; align-items: center; font-size: var(--text-xs); font-weight: var(--font-weight-semibold); padding: 2px var(--space-s); border-radius: var(--border-radius); line-height: 1.5; white-space: nowrap; }
     .badge--default { background: var(--color-lightest-shade); color: var(--color-subdued); border: var(--border-thin); }
     .badge--success { background: var(--color-success-bg); color: var(--color-success); }
     .badge--warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
     .badge--danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
-    /* Callout */
-    .callout { border-radius: var(--border-radius); padding: var(--space-m) var(--space-l); border-left: 4px solid; margin-bottom: var(--space-m); }
-    .callout--info    { background: var(--color-primary-bg); border-color: var(--color-primary); }
-    .callout__title { font-size: var(--text-s); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-xs); color: var(--color-ink); }
-    .callout__body { font-size: var(--text-s); color: var(--color-paragraph); }
-    /* Table */
+    .badge--na      { background: var(--color-lightest-shade); color: var(--color-subdued); border: var(--border-thin); font-style: italic; }
+
+    .panel { background: var(--color-empty-shade); border: var(--border-thin); border-radius: var(--border-radius); }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-m) var(--space-l); border-bottom: var(--border-thin); }
+
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: var(--text-s); }
     thead th { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-subdued); text-align: left; padding: var(--space-s) var(--space-m); border-bottom: var(--border-thick); white-space: nowrap; }
     tbody td { padding: var(--space-m); border-bottom: var(--border-thin); vertical-align: middle; color: var(--color-paragraph); }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: var(--color-lightest-shade); }
-    /* Score buttons */
-    .score-btn { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-xs); font-weight: var(--font-weight-semibold); padding: 3px var(--space-s); border-radius: var(--border-radius); line-height: 1.5; border: none; cursor: pointer; font-family: var(--font-body); transition: opacity 0.12s, box-shadow 0.12s; }
-    .score-btn:hover { opacity: 0.82; box-shadow: var(--shadow-xs); }
-    .score-btn.success { background: var(--color-success-bg); color: var(--color-success); }
-    .score-btn.warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
-    .score-btn.danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
-    .score-btn.null-score { background: var(--color-lightest-shade); color: var(--color-subdued); border: var(--border-thin); cursor: default; }
-    .score-btn.null-score:hover { opacity: 1; box-shadow: none; }
-    /* Drawer / Lightbox */
+    tbody tr.data-row:hover { background: var(--color-lightest-shade); }
+    td.score-td { cursor: pointer; }
+    td.score-td:hover .badge { filter: brightness(0.92); }
+
+    /* Average row */
+    tr.avg-row td { background: var(--color-lightest-shade); border-bottom: var(--border-thick); padding: var(--space-xl) var(--space-m); }
+    .avg-row__label { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-subdued); }
+    .avg-score { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+    .avg-score__value { font-size: var(--text-xxl); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; line-height: 1; }
+
+    .module-name { font-weight: var(--font-weight-semibold); color: var(--color-ink); font-family: var(--font-mono); font-size: var(--text-xs); }
+    .module-display { font-size: var(--text-xs); color: var(--color-subdued); margin-top: 2px; }
+
+    /* Drawer */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(7,16,31,0.55); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(2px); }
     .drawer-overlay.open { opacity: 1; pointer-events: auto; }
-    .drawer { position: fixed; top: 50%; left: 50%; width: 92%; max-width: 960px; max-height: 88vh; background: var(--color-empty-shade); border: var(--border-thin); border-radius: 10px; box-shadow: 0 24px 64px hsla(217,30%,10%,.28), 0 4px 16px hsla(217,30%,24%,.14); z-index: 101; transform: translate(-50%, -50%) scale(0.96); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(.34,1.3,.64,1), opacity 0.15s; overflow-y: auto; display: flex; flex-direction: column; }
+    .drawer { position: fixed; top: 50%; left: 50%; width: 92%; max-width: 940px; max-height: 88vh; background: var(--color-empty-shade); border: var(--border-thin); border-radius: 10px; box-shadow: 0 24px 64px hsla(217,30%,10%,.28), 0 4px 16px hsla(217,30%,24%,.14); z-index: 101; transform: translate(-50%, -50%) scale(0.96); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(.34,1.3,.64,1), opacity 0.15s; overflow-y: auto; display: flex; flex-direction: column; }
     .drawer.open { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
     .drawer-header { position: sticky; top: 0; background: var(--color-empty-shade); border-bottom: var(--border-thin); padding: var(--space-l); display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-m); z-index: 1; border-radius: 10px 10px 0 0; }
-    .drawer-header-title h3 { font-size: var(--text-m); font-weight: var(--font-weight-semibold); color: var(--color-ink); }
-    .drawer-header-title .drawer-subtitle { font-size: var(--text-xs); color: var(--color-subdued); margin-top: 2px; }
-    .drawer-close { background: none; border: none; cursor: pointer; color: var(--color-subdued); font-size: 20px; padding: var(--space-xs); border-radius: var(--border-radius); line-height: 1; flex-shrink: 0; }
+    .drawer-close { background: none; border: none; cursor: pointer; color: var(--color-subdued); font-size: 18px; padding: var(--space-xs); border-radius: var(--border-radius); line-height: 1; }
     .drawer-close:hover { background: var(--color-lightest-shade); color: var(--color-ink); }
     .drawer-body { padding: var(--space-l); flex: 1; }
     .drawer-section { margin-bottom: var(--space-xl); }
     .drawer-section:last-child { margin-bottom: 0; }
-    .drawer-section-title { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink); margin-bottom: var(--space-m); padding-bottom: var(--space-s); border-bottom: var(--border-thin); }
-    .drawer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-l); }
-    @media (max-width: 640px) { .drawer-grid { grid-template-columns: 1fr; } }
-    .drawer-col-label { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-subdued); margin-bottom: var(--space-s); }
-    .risk-list { list-style: none; padding: 0; margin: 0; }
-    .risk-list li { font-size: var(--text-xs); color: var(--color-paragraph); padding: var(--space-xs) 0 var(--space-xs) var(--space-m); border-bottom: var(--border-thin); position: relative; line-height: var(--line-height-s); }
-    .risk-list li:last-child { border-bottom: none; }
-    .risk-list li::before { content: ''; position: absolute; left: 4px; top: 10px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.4; }
-    .token-file-list { list-style: none; padding: 0; margin: 0; }
-    .token-file-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-xs) 0; border-bottom: var(--border-thin); gap: var(--space-m); }
-    .token-file-item:last-child { border-bottom: none; }
-    .token-file-path { font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-paragraph); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .token-file-stats { display: flex; gap: var(--space-s); flex-shrink: 0; }
-    /* Password gate */
-    #gate { position: fixed; inset: 0; background: var(--color-lightest-shade); z-index: 999; display: flex; align-items: center; justify-content: center; }
-    #gate.hidden { display: none; }
-    .gate-card { background: var(--color-empty-shade); border: var(--border-thin); border-radius: 8px; padding: var(--space-xxl); width: 100%; max-width: 380px; box-shadow: var(--shadow-m); }
-    .gate-card h2 { font-size: var(--text-l); font-weight: var(--font-weight-semibold); color: var(--color-ink); margin-bottom: var(--space-xs); }
-    .gate-card p { font-size: var(--text-xs); color: var(--color-subdued); margin-bottom: var(--space-l); }
-    .gate-input { width: 100%; font-size: var(--text-s); font-family: var(--font-body); padding: var(--space-s) var(--space-m); border: var(--border-thin); border-radius: var(--border-radius); outline: none; color: var(--color-ink); background: var(--color-empty-shade); margin-bottom: var(--space-m); }
-    .gate-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(11,100,221,0.15); }
-    .gate-btn { width: 100%; padding: var(--space-s) var(--space-m); background: var(--color-primary); color: #fff; border: none; border-radius: var(--border-radius); font-size: var(--text-s); font-family: var(--font-body); font-weight: var(--font-weight-semibold); cursor: pointer; }
-    .gate-btn:hover { background: #0852b5; }
-    .gate-error { font-size: var(--text-xs); color: var(--color-danger); margin-top: var(--space-s); display: none; }
-    .gate-error.visible { display: block; }
-    .module-name { font-weight: var(--font-weight-semibold); color: var(--color-ink); }
+    .drawer-section-title { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink); margin-bottom: var(--space-m); display: flex; align-items: center; gap: var(--space-s); padding-bottom: var(--space-s); border-bottom: var(--border-thin); }
+    .risk-list, .rec-list { list-style: none; padding: 0; }
+    .risk-list li, .rec-list li { font-size: var(--text-xs); color: var(--color-paragraph); line-height: 1.6; padding: var(--space-xxs) 0 var(--space-xxs) var(--space-m); position: relative; }
+    .risk-list li::before { content: ''; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--color-danger); }
+    .rec-list li::before { background: var(--color-primary); }
+    .stat-card { background: var(--color-empty-shade); border: var(--border-thin); border-radius: var(--border-radius); padding: var(--space-m) var(--space-l); }
+    .stat-card__label { font-size: var(--text-xs); color: var(--color-subdued); margin-bottom: var(--space-xs); text-transform: uppercase; letter-spacing: 0.05em; font-weight: var(--font-weight-semibold); }
+    .stat-card__value { font-size: var(--text-xl); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; line-height: 1; }
+    .cat-bar-row { display: flex; align-items: center; gap: var(--space-m); margin-bottom: var(--space-s); }
+    .cat-bar-label { font-size: var(--text-xs); color: var(--color-ink); width: 80px; flex-shrink: 0; }
+    .cat-bar-track { flex: 1; height: 8px; background: var(--color-light-shade); border-radius: 4px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 4px; background: var(--color-warning); }
+    .cat-bar-count { font-size: var(--text-xs); color: var(--color-subdued); width: 50px; text-align: right; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .token-file-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-xs) 0; border-bottom: var(--border-thin); gap: var(--space-m); }
+    .token-file-row:last-child { border-bottom: none; }
+    .token-file-path { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-paragraph); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .prompt-pre { font-size: var(--text-xs); line-height: 1.65; background: var(--color-lightest-shade); border: var(--border-thin); border-radius: var(--border-radius); padding: var(--space-m) var(--space-l); white-space: pre-wrap; word-break: break-word; color: var(--color-paragraph); font-family: var(--font-body); overflow: hidden; }
+    .prompt-pre.prompt-collapsed { max-height: 4.95em; }
+    .prompt-toggle { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: var(--color-primary); font-size: var(--text-xs); cursor: pointer; padding: var(--space-xs) 0; font-family: var(--font-body); font-weight: var(--font-weight-semibold); margin-top: var(--space-xs); }
+    .prompt-toggle:hover { text-decoration: underline; }
+    .prompt-copy-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: var(--border-thin); border-radius: var(--border-radius); color: var(--color-primary); font-size: var(--text-xs); font-family: var(--font-body); font-weight: var(--font-weight-semibold); cursor: pointer; padding: 2px var(--space-s); transition: all 0.15s; }
+    .prompt-copy-btn:hover { background: var(--color-primary-bg); }
+    .prompt-copy-btn.copied { color: var(--color-success); border-color: var(--color-success); background: var(--color-success-bg); }
   </style>
 </head>
 <body>
 
-<!-- Password gate -->
-<div id="gate">
-  <div class="gate-card">
-    <h2>Release Readiness</h2>
-    <p>auditboard-frontend &mdash; internal dashboard</p>
-    <input id="gate-pw" type="password" class="gate-input" placeholder="Enter password" autocomplete="current-password">
-    <button class="gate-btn" onclick="checkPassword()">Unlock</button>
-    <div id="gate-error" class="gate-error">Incorrect password. Try again.</div>
-  </div>
-</div>
-
-<!-- Page content -->
-<div id="page" style="display:none;">
-
   <header class="page-header">
     <div class="page-header-inner">
       <div class="breadcrumb"><a href="index.html">Projects</a> / Release Readiness</div>
-      <h1>Release Readiness: auditboard-frontend</h1>
-      <p class="text-subdued" style="margin-top:var(--space-xs);">Composite view of Accessibility, Internationalization, and Luna Token Adoption scores across 13 modules.</p>
-      <p class="text-subdued" style="margin-top:var(--space-xs);font-size:var(--text-xs);">March 26, 2026</p>
+      <h1>Release Readiness: AuditBoard Frontend</h1>
+      <p>A11y, i18n, and Luna token adoption per module · Click any score for details</p>
+      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 26, 2026 at 06:00 PM</p>
     </div>
   </header>
 
   <main class="page-body">
-    <div id="stat-row" class="stat-row"></div>
+
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">Module Scores</span>
-        <span id="module-count-badge" class="badge badge--default">13 modules</span>
+        <h4>Module Scores</h4>
+        <span class="badge badge--default">13 modules</span>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th>Module</th>
-              <th>Accessibility</th>
+              <th>A11y</th>
               <th>i18n</th>
               <th>Luna Tokens</th>
             </tr>
@@ -194,463 +167,545 @@
         </table>
       </div>
     </div>
+
   </main>
 
-</div>
-
-<!-- Lightbox overlay -->
-<div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
-
-<!-- Drawer -->
-<div id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
-  <div class="drawer-header">
-    <div class="drawer-header-title">
-      <h3 id="drawer-title">Module Details</h3>
-      <div class="drawer-subtitle" id="drawer-subtitle"></div>
-    </div>
-    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close">&#x2715;</button>
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header" id="drawerHeader"></div>
+    <div class="drawer-body" id="drawerBody"></div>
   </div>
-  <div class="drawer-body" id="drawer-body"></div>
-</div>
 
-<script>
-  // Password gate
-  const HASH = 'bf86efa1b79fae08e5be8223da99ac3454c68a81bd00afae145549ebffeda02b';
+  <script>
+    const MODULES = [
+      { name:'admin', display:'Admin',
+        a11y:75, i18n:82,
+        a11yRisks:['No aria-live regions for async status changes','Icon-only buttons rely on @tooltip as sole label'],
+        a11yRecs:['Add role="status" aria-live="polite" around search result counts','Add explicit aria-label to all IconButton usages'],
+        i18nRisks:['PROJ#{id} pattern should be documented as format-exempt'],
+        i18nRecs:['Run pnpm generate:en-US to capture strings from recent admin work'],
+        tokens:{ score:100, violations:0, css_files:0, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] }
+      },
+      { name:'workspace', display:'Workspace',
+        a11y:66, i18n:80,
+        a11yRisks:['No explicit focus management on route transitions','ARIA entirely delegated to Luna internals across 51 sub-routes'],
+        a11yRecs:['Audit 51 workspace sub-routes for custom interactive elements bypassing Luna','Add focus-management on modal/drawer open for custom overlay patterns'],
+        i18nRisks:['842-file scope makes coverage uniformity hard to verify'],
+        i18nRecs:['Run intl-extractor against full workspace directory to surface drifted strings'],
+        tokens: null
+      },
+      { name:'site-configuration', display:'Site Configuration',
+        a11y:63, i18n:88,
+        a11yRisks:['app-settings.gjs (576 lines) has only 1 aria-label despite dense form content','features.gjs (887 lines) has no detected ARIA in sampled sections'],
+        a11yRecs:['Add aria-describedby linking each @helperText to its input in app-settings.gjs','Audit features.gjs toggles and selects for missing labels'],
+        i18nRisks:['Character limits embedded in label strings block translator flexibility'],
+        i18nRecs:['Parameterize character limits: formatMessage("Company Name (max {limit} chars)", { limit: 200 })'],
+        tokens: null
+      },
+      { name:'opsaudits', display:'Ops Audits',
+        a11y:52, i18n:76,
+        a11yRisks:['0 aria-label/describedby/role attributes in any sampled template','Import modal open has no screen reader announcement'],
+        a11yRecs:['Add aria-label to all icon-only buttons in workflow list templates','Add focus management on import modal open: move focus to first focusable element'],
+        i18nRisks:['OpsAudit-specific terminology needs translator context notes'],
+        i18nRecs:['Add Applanga context notes for "OpsAudit" and "Work Step" to prevent mistranslation'],
+        tokens:{ score:100, violations:0, css_files:6, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] }
+      },
+      { name:'assessments', display:'Assessments',
+        a11y:82, i18n:85,
+        a11yRisks:['didInsert focus management (comment.gjs:163) is Ember-classic; verify lifecycle compatibility'],
+        a11yRecs:['Document aria-labelledby="comments-heading-{{@model.id}}" as the team standard for dynamic region labeling'],
+        i18nRisks:['Email notification setting labels need translator context for configuration-specific copy'],
+        i18nRecs:['Add @description hint strings to complex notification setting labels'],
+        tokens:{ score:0, violations:5, css_files:7, token_usages:0, by_cat:{color:0,space:5,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-assessments/view/stepper/ratings.css',violations:3},
+            {path:'apps/client/app/components/module-assessments/components/assessable-response-table.css',violations:1},
+            {path:'apps/client/app/components/module-assessments/components/assessment-progress-bar.css',violations:1}
+          ]
+        }
+      },
+      { name:'compliance', display:'Compliance',
+        a11y:72, i18n:83,
+        a11yRisks:['Drag-and-drop reviewer reordering needs keyboard + screen reader verification'],
+        a11yRecs:['Test reviewer reordering with keyboard only and verify VoiceOver announcements'],
+        i18nRisks:['Framework-specific terms (ECW, crosswalk, instantiated control) risk semantic drift in translation'],
+        i18nRecs:['Create a compliance-specific translator glossary in Applanga for technical terms'],
+        tokens:{ score:49, violations:85, css_files:67, token_usages:81, by_cat:{color:0,space:85,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-compliance-assessments/layered-tree/node.css',violations:14},
+            {path:'apps/client/app/components/module-compliance-assessments/task/item.css',violations:6},
+            {path:'apps/client/app/components/module-compliance-assessments/view/assessment-task.css',violations:5},
+            {path:'apps/client/app/components/module-compliance-assessments/view/assessment/info/overview.css',violations:5},
+            {path:'apps/client/app/components/module-compliance-assessments/view/assessment-item/info.css',violations:4},
+            {path:'apps/client/app/components/module-compliance-assessments/view/assessment/info/evidence.css',violations:4},
+            {path:'apps/client/app/components/module-compliance-assessments/ecw/csv-import.css',violations:4},
+            {path:'apps/client/app/components/module-compliance-assessments/layered-tree.css',violations:3}
+          ]
+        }
+      },
+      { name:'hubs', display:'Hubs',
+        a11y:53, i18n:78,
+        a11yRisks:['0 ARIA attributes across all sampled hubs templates','Export actions have no screen reader announcement when dialog opens'],
+        a11yRecs:['Add aria-label to export/import action buttons','Add aria-live="polite" region that announces when data table finishes loading'],
+        i18nRisks:['"Superuser" label may need locale-appropriate privilege terminology'],
+        i18nRecs:['Verify "Superuser" is translated appropriately across all 9 locales'],
+        tokens:{ score:62, violations:3, css_files:3, token_usages:5, by_cat:{color:0,space:3,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/manage-hub/modals/preview-control.css',violations:2},
+            {path:'apps/client/app/components/manage-hub/modals/manage-control-environment-setup/workflow-option-frame.css',violations:1}
+          ]
+        }
+      },
+      { name:'issues', display:'Issues',
+        a11y:60, i18n:74,
+        a11yRisks:['View switcher has no aria-current on the active view'],
+        a11yRecs:['Add aria-current="page" to active Switcher.list-link in issues-view-switcher.gjs'],
+        i18nRisks:['"Mitigation Plans" and "Issues" conditionally hardcoded at issues-view-switcher.gjs:19'],
+        i18nRecs:['Replace conditional hardcoded strings with formatMessage calls'],
+        tokens:{ score:39, violations:11, css_files:5, token_usages:7, by_cat:{color:0,space:11,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-issues/shared/issue-list-bulk-actions.css',violations:4},
+            {path:'apps/client/app/components/module-issues/view/issue-summary-report-new.css',violations:4},
+            {path:'apps/client/app/components/module-issues/shared/issue-framework-item-id-code-cell.css',violations:3}
+          ]
+        }
+      },
+      { name:'tasks', display:'Tasks',
+        a11y:80, i18n:86,
+        a11yRisks:['Target-area overlay Button (task-list-toolkit.gjs:57) may create duplicate interactive elements for keyboard users'],
+        a11yRecs:['Verify the target-area overlay button with VoiceOver: confirm it is not announced twice alongside the Heading'],
+        i18nRisks:['PROJ#{id} badge pattern needs translator documentation'],
+        i18nRecs:['Add translator description comment to the PROJ#{id} formatMessage call'],
+        tokens:{ score:64, violations:28, css_files:21, token_usages:49, by_cat:{color:0,space:28,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-tasks/shared/task-card.css',violations:6},
+            {path:'apps/client/app/components/module-tasks/view/workstep-task.css',violations:6},
+            {path:'apps/client/app/components/module-tasks/view/task-container.css',violations:4},
+            {path:'apps/client/app/components/module-tasks/shared/index-task-header.css',violations:2},
+            {path:'apps/client/app/components/module-tasks/shared/index-header.css',violations:2},
+            {path:'apps/client/app/components/module-tasks/view/index.css',violations:2},
+            {path:'apps/client/app/components/module-tasks/workstream-task/task-details-team-members.css',violations:1},
+            {path:'apps/client/app/components/module-tasks/workstream-task/task-team-members-panel.css',violations:1}
+          ]
+        }
+      },
+      { name:'resource-planner', display:'Resource Planner',
+        a11y:72, i18n:81,
+        a11yRisks:['Search aria-label interpolates @modelType directly; may be an untranslated internal enum key'],
+        a11yRecs:['Map @modelType to a human-readable formatMessage string before using it in aria-label'],
+        i18nRisks:['@modelType passed to aria-label interpolation may be an internal key not a locale label'],
+        i18nRecs:['Use intl.formatMessage to look up display name for each modelType'],
+        tokens:{ score:0, violations:9, css_files:3, token_usages:0, by_cat:{color:0,space:9,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-resource-planner/card/resource-card.css',violations:6},
+            {path:'apps/client/app/components/module-resource-planner/card/booking-history-card.css',violations:3}
+          ]
+        }
+      },
+      { name:'dashboard', display:'Dashboard',
+        a11y:62, i18n:64,
+        a11yRisks:['project-counts table has no caption or aria-label','Status values communicated only by badge color with no text alternative'],
+        a11yRecs:['Add &lt;caption&gt; or aria-label to the project counts table','Add visually-hidden text alternative when status is communicated only by badge color'],
+        i18nRisks:['Status enums (Inactive, Open, Submitted, Certified) may flow from API as English strings with no i18n mapping'],
+        i18nRecs:['Audit how status enum values are rendered: add a status-to-i18n mapping layer if they come raw from the API'],
+        tokens:{ score:30, violations:7, css_files:12, token_usages:3, by_cat:{color:0,space:7,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-dashboard/sigma/bookmark-menu-button.css',violations:3},
+            {path:'apps/client/app/components/module-dashboard/esg-metric-value/list-item.css',violations:2},
+            {path:'apps/client/app/components/module-dashboard/sigma/embed.css',violations:1},
+            {path:'apps/client/app/components/module-dashboard/view/metric-update-request.css',violations:1}
+          ]
+        }
+      },
+      { name:'risks', display:'Risks',
+        a11y:70, i18n:84,
+        a11yRisks:['"No Results Found" text not wrapped in aria-live region','Accordion expand/collapse state may not be announced if aria-expanded is only inside Luna internals'],
+        a11yRecs:['Add aria-live="polite" around result count and empty state display in risk assessments panel','Verify Luna Accordion emits aria-expanded on the trigger button'],
+        i18nRisks:['parentModelLabel interpolation requires translations for all entity type strings in all 9 locales'],
+        i18nRecs:['Verify all parentModelLabel values have entries in en-US.json and Applanga translations'],
+        tokens:{ score:36, violations:80, css_files:62, token_usages:45, by_cat:{color:0,space:80,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/module-risks/inventory/risk-entities/table-header.css',violations:6},
+            {path:'apps/client/app/components/module-risks/inventory/hierarchy/table-header.css',violations:6},
+            {path:'apps/client/app/components/module-risks/hierarchy/risk-tree/table-header.css',violations:5},
+            {path:'apps/client/app/components/module-risks/shared/brackets/range-editor.css',violations:5},
+            {path:'apps/client/app/components/module-risks/view/intake/intake.css',violations:5},
+            {path:'apps/client/app/components/module-risks/intake/subsection.css',violations:4},
+            {path:'apps/client/app/components/module-risks/inventory/risk-entities/node.css',violations:4},
+            {path:'apps/client/app/components/module-risks/view/control-mapping/mapping-step-footer.css',violations:4}
+          ]
+        }
+      },
+      { name:'owner-dashboard', display:'Owner Dashboard',
+        a11y:58, i18n:82,
+        a11yRisks:['narratives-list.gjs uses {{on "click"}} on a Link; may not respond to Enter/Space as expected','0 aria-label attributes in sampled components'],
+        a11yRecs:['Replace on "click" handler on Link with a Button component for the preview action','Add aria-label to narrative preview trigger identifying the specific narrative by title'],
+        i18nRisks:['ICU select covers 4 types + "other"; new entity types will silently fall through to generic "Entities" label'],
+        i18nRecs:['Add new entity types to the ICU select statement as the product expands'],
+        tokens:{ score:59, violations:7, css_files:10, token_usages:10, by_cat:{color:0,space:7,radius:0,typography:0},
+          top_files:[
+            {path:'apps/client/app/components/owner-dashboard/dashboard-nav.css',violations:3},
+            {path:'apps/client/app/components/owner-dashboard/tasks/tasks-overview.css',violations:2},
+            {path:'apps/client/app/components/owner-dashboard/risks/risks-chart.css',violations:1},
+            {path:'apps/client/app/components/owner-dashboard/overview-panel/doughnut-chart.css',violations:1}
+          ]
+        }
+      },
+    ];
 
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  async function checkPassword() {
-    const val = document.getElementById('gate-pw').value;
-    const hash = await sha256(val);
-    if (hash === HASH) {
-      document.getElementById('gate').classList.add('hidden');
-      document.getElementById('page').style.display = '';
-      renderStats();
-      renderTable();
-    } else {
-      document.getElementById('gate-error').classList.add('visible');
+    // ---- Helpers ----
+    function scoreColor(score) {
+      if (score >= 80) return 'var(--color-success)';
+      if (score >= 65) return 'var(--color-warning-text)';
+      return 'var(--color-danger)';
     }
-  }
-
-  document.getElementById('gate-pw').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkPassword();
-  });
-
-  // Module data
-  const MODULES = [
-    {
-      name: 'admin', a11y: 75, i18n: 82, tokens: 100, tokenViolations: 0, tokenCssFiles: 0,
-      a11yRisks: ['No aria-live regions for async status changes', 'Icon-only buttons rely on @tooltip as sole label'],
-      a11yRecs:  ['Add role="status" aria-live="polite" around search result counts', 'Add explicit aria-label to all IconButton usages'],
-      i18nRisks: ['PROJ#{id} pattern should be documented as format-exempt'],
-      i18nRecs:  ['Run pnpm generate:en-US to capture strings from recent admin work'],
-      tokenTopFiles: []
-    },
-    {
-      name: 'workspace', a11y: 66, i18n: 80, tokens: null, tokenViolations: null, tokenCssFiles: null,
-      a11yRisks: ['No explicit focus management on route transitions', 'ARIA entirely delegated to Luna internals across 51 sub-routes'],
-      a11yRecs:  ['Audit 51 workspace sub-routes for custom interactive elements bypassing Luna', 'Add focus-management on modal/drawer open for custom overlay patterns'],
-      i18nRisks: ['842-file scope makes coverage uniformity hard to verify'],
-      i18nRecs:  ['Run intl-extractor against full workspace directory to surface drifted strings'],
-      tokenTopFiles: []
-    },
-    {
-      name: 'site-configuration', a11y: 63, i18n: 88, tokens: null, tokenViolations: null, tokenCssFiles: null,
-      a11yRisks: ['app-settings.gjs (576 lines) has only 1 aria-label despite dense form content', 'features.gjs (887 lines) has no detected ARIA in sampled sections'],
-      a11yRecs:  ['Add aria-describedby linking each @helperText to its input in app-settings.gjs', 'Audit features.gjs toggles and selects for missing labels'],
-      i18nRisks: ['Character limits embedded in label strings block translator flexibility'],
-      i18nRecs:  ['Parameterize character limits: formatMessage with a limit param'],
-      tokenTopFiles: []
-    },
-    {
-      name: 'opsaudits', a11y: 52, i18n: 76, tokens: 100, tokenViolations: 0, tokenCssFiles: 6,
-      a11yRisks: ['0 aria-label/describedby/role attributes in any sampled template', 'Import modal open has no screen reader announcement'],
-      a11yRecs:  ['Add aria-label to all icon-only buttons in workflow list templates', 'Add focus management on import modal open: move focus to first focusable element'],
-      i18nRisks: ['OpsAudit-specific terminology needs translator context notes'],
-      i18nRecs:  ['Add Applanga context notes for "OpsAudit" and "Work Step" to prevent mistranslation'],
-      tokenTopFiles: []
-    },
-    {
-      name: 'assessments', a11y: 82, i18n: 85, tokens: 0, tokenViolations: 5, tokenCssFiles: 7,
-      a11yRisks: ['didInsert focus management (comment.gjs:163) is Ember-classic; verify lifecycle compatibility'],
-      a11yRecs:  ['Document aria-labelledby="comments-heading-{{@model.id}}" as the team standard for dynamic region labeling'],
-      i18nRisks: ['Email notification setting labels need translator context for configuration-specific copy'],
-      i18nRecs:  ['Add @description hint strings to complex notification setting labels'],
-      tokenTopFiles: [
-        { path: 'module-assessments/view/stepper/ratings.css', violations: 3, usages: 0 },
-        { path: 'module-assessments/components/assessable-response-table.css', violations: 1, usages: 0 },
-        { path: 'module-assessments/components/assessment-progress-bar.css', violations: 1, usages: 0 }
-      ]
-    },
-    {
-      name: 'compliance', a11y: 72, i18n: 83, tokens: 49, tokenViolations: 85, tokenCssFiles: 67,
-      a11yRisks: ['Drag-and-drop reviewer reordering needs keyboard + screen reader verification'],
-      a11yRecs:  ['Test reviewer reordering with keyboard only and verify VoiceOver announcements'],
-      i18nRisks: ['Framework-specific terms (ECW, crosswalk, instantiated control) risk semantic drift in translation'],
-      i18nRecs:  ['Create a compliance-specific translator glossary in Applanga for technical terms'],
-      tokenTopFiles: [
-        { path: 'module-compliance-assessments/layered-tree/node.css', violations: 14, usages: 3 },
-        { path: 'module-compliance-assessments/task/item.css', violations: 6, usages: 5 },
-        { path: 'module-compliance-assessments/view/assessment-task.css', violations: 5, usages: 4 },
-        { path: 'module-compliance-assessments/view/assessment/info/overview.css', violations: 5, usages: 5 },
-        { path: 'module-compliance-assessments/view/assessment-item/info.css', violations: 4, usages: 0 },
-        { path: 'module-compliance-assessments/view/assessment/info/evidence.css', violations: 4, usages: 2 },
-        { path: 'module-compliance-assessments/ecw/csv-import.css', violations: 4, usages: 7 },
-        { path: 'module-compliance-assessments/layered-tree.css', violations: 3, usages: 2 }
-      ]
-    },
-    {
-      name: 'hubs', a11y: 53, i18n: 78, tokens: 62, tokenViolations: 3, tokenCssFiles: 3,
-      a11yRisks: ['0 ARIA attributes across all sampled hubs templates', 'Export actions have no screen reader announcement when dialog opens'],
-      a11yRecs:  ['Add aria-label to export/import action buttons', 'Add aria-live="polite" region that announces when data table finishes loading'],
-      i18nRisks: ['"Superuser" label may need locale-appropriate privilege terminology'],
-      i18nRecs:  ['Verify "Superuser" is translated appropriately across all 9 locales'],
-      tokenTopFiles: [
-        { path: 'manage-hub/modals/preview-control.css', violations: 2, usages: 3 },
-        { path: 'manage-hub/modals/manage-control-environment-setup/workflow-option-frame.css', violations: 1, usages: 2 }
-      ]
-    },
-    {
-      name: 'issues', a11y: 60, i18n: 74, tokens: 39, tokenViolations: 11, tokenCssFiles: 5,
-      a11yRisks: ['View switcher has no aria-current on the active view'],
-      a11yRecs:  ['Add aria-current="page" to active Switcher.list-link in issues-view-switcher.gjs'],
-      i18nRisks: ['"Mitigation Plans" and "Issues" conditionally hardcoded at issues-view-switcher.gjs:19'],
-      i18nRecs:  ['Replace conditional hardcoded strings with formatMessage calls'],
-      tokenTopFiles: [
-        { path: 'module-issues/shared/issue-list-bulk-actions.css', violations: 4, usages: 1 },
-        { path: 'module-issues/view/issue-summary-report-new.css', violations: 4, usages: 6 },
-        { path: 'module-issues/shared/issue-framework-item-id-code-cell.css', violations: 3, usages: 0 }
-      ]
-    },
-    {
-      name: 'tasks', a11y: 80, i18n: 86, tokens: 64, tokenViolations: 28, tokenCssFiles: 21,
-      a11yRisks: ['Target-area overlay Button (task-list-toolkit.gjs:57) may create duplicate interactive elements for keyboard users'],
-      a11yRecs:  ['Verify the target-area overlay button with VoiceOver: confirm it is not announced twice alongside the Heading'],
-      i18nRisks: ['PROJ#{id} badge pattern needs translator documentation'],
-      i18nRecs:  ['Add translator description comment to the PROJ#{id} formatMessage call'],
-      tokenTopFiles: [
-        { path: 'module-tasks/shared/task-card.css', violations: 6, usages: 2 },
-        { path: 'module-tasks/view/workstep-task.css', violations: 6, usages: 6 },
-        { path: 'module-tasks/view/task-container.css', violations: 4, usages: 1 },
-        { path: 'module-tasks/shared/index-task-header.css', violations: 2, usages: 0 },
-        { path: 'module-tasks/shared/index-header.css', violations: 2, usages: 0 },
-        { path: 'module-tasks/view/index.css', violations: 2, usages: 0 },
-        { path: 'module-tasks/workstream-task/task-details-team-members.css', violations: 1, usages: 2 },
-        { path: 'module-tasks/workstream-task/task-team-members-panel.css', violations: 1, usages: 7 }
-      ]
-    },
-    {
-      name: 'resource-planner', a11y: 72, i18n: 81, tokens: 0, tokenViolations: 9, tokenCssFiles: 3,
-      a11yRisks: ['Search aria-label interpolates @modelType directly; may be an untranslated internal enum key'],
-      a11yRecs:  ['Map @modelType to a human-readable formatMessage string before using it in aria-label'],
-      i18nRisks: ['@modelType passed to aria-label interpolation may be an internal key not a locale label'],
-      i18nRecs:  ['Use intl.formatMessage to look up display name for each modelType'],
-      tokenTopFiles: [
-        { path: 'module-resource-planner/card/resource-card.css', violations: 6, usages: 0 },
-        { path: 'module-resource-planner/card/booking-history-card.css', violations: 3, usages: 0 }
-      ]
-    },
-    {
-      name: 'dashboard', a11y: 62, i18n: 64, tokens: 30, tokenViolations: 7, tokenCssFiles: 12,
-      a11yRisks: ['project-counts table has no caption or aria-label', 'Status values communicated only by badge color with no text alternative'],
-      a11yRecs:  ['Add caption or aria-label to the project counts table', 'Add visually-hidden text alternative when status is communicated only by badge color'],
-      i18nRisks: ['Status enums (Inactive, Open, Submitted, Certified) may flow from API as English strings with no i18n mapping'],
-      i18nRecs:  ['Audit how status enum values are rendered: add a status-to-i18n mapping layer if they come raw from the API'],
-      tokenTopFiles: [
-        { path: 'module-dashboard/sigma/bookmark-menu-button.css', violations: 3, usages: 0 },
-        { path: 'module-dashboard/esg-metric-value/list-item.css', violations: 2, usages: 1 },
-        { path: 'module-dashboard/sigma/embed.css', violations: 1, usages: 0 },
-        { path: 'module-dashboard/view/metric-update-request.css', violations: 1, usages: 1 },
-        { path: 'module-dashboard/sigma/admin/table.css', violations: 0, usages: 1 }
-      ]
-    },
-    {
-      name: 'risks', a11y: 70, i18n: 84, tokens: 36, tokenViolations: 80, tokenCssFiles: 62,
-      a11yRisks: ['"No Results Found" text not wrapped in aria-live region', 'Accordion expand/collapse state may not be announced if aria-expanded is only inside Luna internals'],
-      a11yRecs:  ['Add aria-live="polite" around result count and empty state display in risk assessments panel', 'Verify Luna Accordion emits aria-expanded on the trigger button'],
-      i18nRisks: ['parentModelLabel interpolation requires translations for all entity type strings in all 9 locales'],
-      i18nRecs:  ['Verify all parentModelLabel values have entries in en-US.json and Applanga translations'],
-      tokenTopFiles: [
-        { path: 'module-risks/inventory/risk-entities/table-header.css', violations: 6, usages: 0 },
-        { path: 'module-risks/inventory/hierarchy/table-header.css', violations: 6, usages: 0 },
-        { path: 'module-risks/hierarchy/risk-tree/table-header.css', violations: 5, usages: 0 },
-        { path: 'module-risks/shared/brackets/range-editor.css', violations: 5, usages: 13 },
-        { path: 'module-risks/view/intake/intake.css', violations: 5, usages: 0 },
-        { path: 'module-risks/intake/subsection.css', violations: 4, usages: 0 },
-        { path: 'module-risks/inventory/risk-entities/node.css', violations: 4, usages: 1 },
-        { path: 'module-risks/view/control-mapping/mapping-step-footer.css', violations: 4, usages: 0 }
-      ]
-    },
-    {
-      name: 'owner-dashboard', a11y: 58, i18n: 82, tokens: 59, tokenViolations: 7, tokenCssFiles: 10,
-      a11yRisks: ['narratives-list.gjs uses {{on "click"}} on a Link; may not respond to Enter/Space as expected', '0 aria-label attributes in sampled components'],
-      a11yRecs:  ['Replace on "click" handler on Link with a Button component for the preview action', 'Add aria-label to narrative preview trigger identifying the specific narrative by title'],
-      i18nRisks: ['ICU select covers 4 types + "other"; new entity types will silently fall through to generic "Entities" label'],
-      i18nRecs:  ['Add new entity types to the ICU select statement as the product expands'],
-      tokenTopFiles: [
-        { path: 'owner-dashboard/dashboard-nav.css', violations: 3, usages: 0 },
-        { path: 'owner-dashboard/tasks/tasks-overview.css', violations: 2, usages: 3 },
-        { path: 'owner-dashboard/risks/risks-chart.css', violations: 1, usages: 0 },
-        { path: 'owner-dashboard/overview-panel/doughnut-chart.css', violations: 1, usages: 0 },
-        { path: 'owner-dashboard/tasks/tasks-list.css', violations: 0, usages: 4 },
-        { path: 'owner-dashboard/risks/my-risks-page.css', violations: 0, usages: 3 }
-      ]
+    function scoreBadgeClass(score) {
+      if (score >= 80) return 'badge--success';
+      if (score >= 65) return 'badge--warning';
+      return 'badge--danger';
     }
-  ];
-
-  // Grade function
-  function grade(score) {
-    if (score === null) return 'N/A';
-    if (score >= 97) return 'A+';
-    if (score >= 93) return 'A';
-    if (score >= 90) return 'A-';
-    if (score >= 87) return 'B+';
-    if (score >= 83) return 'B';
-    if (score >= 80) return 'B-';
-    if (score >= 77) return 'C+';
-    if (score >= 73) return 'C';
-    if (score >= 70) return 'C-';
-    if (score >= 67) return 'D+';
-    if (score >= 63) return 'D';
-    if (score >= 60) return 'D-';
-    return 'F';
-  }
-
-  function scoreBand(score) {
-    if (score === null) return 'null-score';
-    if (score >= 80) return 'success';
-    if (score >= 65) return 'warning';
-    return 'danger';
-  }
-
-  function scoreColor(score) {
-    if (score === null) return 'var(--color-subdued)';
-    if (score >= 80) return 'var(--color-success)';
-    if (score >= 65) return 'var(--color-warning-text)';
-    return 'var(--color-danger)';
-  }
-
-  function scoreBtn(score, facet, moduleName) {
-    if (score === null) {
-      return '<button class="score-btn null-score" disabled>N/A</button>';
+    function letterGrade(score) {
+      if (score >= 93) return 'A';
+      if (score >= 90) return 'A\u2212';
+      if (score >= 87) return 'B+';
+      if (score >= 83) return 'B';
+      if (score >= 80) return 'B\u2212';
+      if (score >= 77) return 'C+';
+      if (score >= 73) return 'C';
+      if (score >= 70) return 'C\u2212';
+      if (score >= 67) return 'D+';
+      if (score >= 63) return 'D';
+      if (score >= 60) return 'D\u2212';
+      return 'F';
     }
-    const band = scoreBand(score);
-    const g = grade(score);
-    return '<button class="score-btn ' + band + '" onclick="openDrawer(\'' + moduleName + '\',\'' + facet + '\')" aria-label="Open ' + moduleName + ' ' + facet + ' details">' + score + ' <span style="opacity:0.65;font-weight:400;">(' + g + ')</span></button>';
-  }
+    function scoreBadge(score) {
+      return `<span class="badge ${scoreBadgeClass(score)}">${score}</span>`;
+    }
 
-  // Stat cards
-  function renderStats() {
-    const avgA11y = 67;
-    const avgI18n = 80;
-    const avgTokens = 49;
-    const atRisk = 12;
+    // ---- Derived averages ----
+    const count = MODULES.length;
+    const avgA11y = Math.round(MODULES.reduce((s, m) => s + m.a11y, 0) / count);
+    const avgI18n = Math.round(MODULES.reduce((s, m) => s + m.i18n, 0) / count);
+    const tokenModules = MODULES.filter(m => m.tokens !== null);
+    const avgTokens = Math.round(tokenModules.reduce((s, m) => s + m.tokens.score, 0) / tokenModules.length);
 
-    document.getElementById('stat-row').innerHTML =
-      '<div class="stat-card">' +
-        '<div class="stat-card__label">Avg A11y</div>' +
-        '<div class="stat-card__value" style="color:' + scoreColor(avgA11y) + '">' + avgA11y + '</div>' +
-        '<div class="stat-card__description">out of 100, 13 modules</div>' +
-      '</div>' +
-      '<div class="stat-card">' +
-        '<div class="stat-card__label">Avg i18n</div>' +
-        '<div class="stat-card__value" style="color:' + scoreColor(avgI18n) + '">' + avgI18n + '</div>' +
-        '<div class="stat-card__description">out of 100, 13 modules</div>' +
-      '</div>' +
-      '<div class="stat-card">' +
-        '<div class="stat-card__label">Avg Luna Tokens</div>' +
-        '<div class="stat-card__value" style="color:' + scoreColor(avgTokens) + '">' + avgTokens + '%</div>' +
-        '<div class="stat-card__description">11 modules scored</div>' +
-      '</div>' +
-      '<div class="stat-card">' +
-        '<div class="stat-card__label">Modules at Risk</div>' +
-        '<div class="stat-card__value" style="color:var(--color-danger)">' + atRisk + '</div>' +
-        '<div class="stat-card__description">a11y, i18n, or token concern</div>' +
-      '</div>';
-  }
-
-  // Table
-  function renderTable() {
+    // ---- Render table ----
     const tbody = document.getElementById('table-body');
-    let html = '';
-    MODULES.forEach(function(m) {
-      html += '<tr>' +
-        '<td><span class="module-name">' + escHtml(m.name) + '</span></td>' +
-        '<td>' + scoreBtn(m.a11y, 'a11y', m.name) + '</td>' +
-        '<td>' + scoreBtn(m.i18n, 'i18n', m.name) + '</td>' +
-        '<td>' + scoreBtn(m.tokens, 'tokens', m.name) + '</td>' +
-      '</tr>';
-    });
-    tbody.innerHTML = html;
-  }
 
-  // Drawer
-  function openDrawer(moduleName, facet) {
-    var m = MODULES.find(function(x) { return x.name === moduleName; });
-    if (!m) return;
-    document.getElementById('drawer-title').textContent = m.name;
-    document.getElementById('drawer-subtitle').textContent = facetLabel(facet);
-    var body = document.getElementById('drawer-body');
-    if (facet === 'a11y') {
-      body.innerHTML = buildA11yContent(m);
-    } else if (facet === 'i18n') {
-      body.innerHTML = buildI18nContent(m);
-    } else if (facet === 'tokens') {
-      body.innerHTML = buildTokensContent(m);
+    const avgRow = `
+      <tr class="avg-row">
+        <td>
+          <div class="avg-row__label">Average</div>
+        </td>
+        <td class="score-td" onclick="openDrawerAvg('a11y')">
+          <div class="avg-score">
+            <div class="avg-score__value" style="color:${scoreColor(avgA11y)}">${avgA11y}</div>
+            <span class="badge ${scoreBadgeClass(avgA11y)}">${letterGrade(avgA11y)} across ${count} modules</span>
+          </div>
+        </td>
+        <td class="score-td" onclick="openDrawerAvg('i18n')">
+          <div class="avg-score">
+            <div class="avg-score__value" style="color:${scoreColor(avgI18n)}">${avgI18n}</div>
+            <span class="badge ${scoreBadgeClass(avgI18n)}">${letterGrade(avgI18n)} across ${count} modules</span>
+          </div>
+        </td>
+        <td class="score-td" onclick="openDrawerAvg('tokens')">
+          <div class="avg-score">
+            <div class="avg-score__value" style="color:${scoreColor(avgTokens)}">${avgTokens}</div>
+            <span class="badge ${scoreBadgeClass(avgTokens)}">${letterGrade(avgTokens)} across ${tokenModules.length} modules</span>
+          </div>
+        </td>
+      </tr>
+    `;
+
+    const moduleRows = MODULES.map(m => {
+      const tokCell = m.tokens !== null
+        ? `<td class="score-td" onclick="openDrawer('${m.name}','tokens')">${scoreBadge(m.tokens.score)}</td>`
+        : `<td><span class="badge badge--na">N/A</span></td>`;
+      return `
+        <tr class="data-row">
+          <td>
+            <div class="module-name">${m.name}</div>
+            <div class="module-display">${m.display}</div>
+          </td>
+          <td class="score-td" onclick="openDrawer('${m.name}','a11y')">${scoreBadge(m.a11y)}</td>
+          <td class="score-td" onclick="openDrawer('${m.name}','i18n')">${scoreBadge(m.i18n)}</td>
+          ${tokCell}
+        </tr>
+      `;
+    }).join('');
+
+    tbody.innerHTML = avgRow + moduleRows;
+
+    // ---- Drawer helpers ----
+    function buildA11yBody(m) {
+      const risks = m.a11yRisks.map(r => `<li>${r}</li>`).join('');
+      const recs  = m.a11yRecs.map(r => `<li>${r}</li>`).join('');
+      const prompt = `You are reviewing the ${m.display} module in auditboard-frontend for accessibility issues.\n\nTop risks identified:\n${m.a11yRisks.map(r => '- ' + r).join('\n')}\n\nRecommended fixes:\n${m.a11yRecs.map(r => '- ' + r).join('\n')}\n\nPlease help me address these accessibility issues. Start by searching for the relevant files and then propose concrete code changes.`;
+      return `
+        <div class="drawer-section">
+          <div class="drawer-section-title">Risks</div>
+          <ul class="risk-list">${risks}</ul>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Recommendations</div>
+          <ul class="rec-list">${recs}</ul>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Claude Code Prompt</div>
+          <div style="margin-bottom:var(--space-s);">
+            <button class="prompt-copy-btn" onclick="copyPrompt(this, ${JSON.stringify(prompt)})">Copy prompt</button>
+          </div>
+          <pre class="prompt-pre prompt-collapsed">${prompt}</pre>
+          <button class="prompt-toggle" onclick="togglePrompt(this)">Show more ›</button>
+        </div>
+      `;
     }
-    document.getElementById('drawer-overlay').classList.add('open');
-    var drawer = document.getElementById('drawer');
-    drawer.classList.add('open');
-    drawer.focus();
-  }
 
-  function closeDrawer() {
-    document.getElementById('drawer-overlay').classList.remove('open');
-    document.getElementById('drawer').classList.remove('open');
-  }
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDrawer();
-  });
-
-  function facetLabel(facet) {
-    if (facet === 'a11y') return 'Accessibility Score';
-    if (facet === 'i18n') return 'Internationalization Score';
-    if (facet === 'tokens') return 'Luna Token Adoption';
-    return '';
-  }
-
-  function scoreSummaryHTML(score, unit) {
-    var band = scoreBand(score);
-    var g = grade(score);
-    var colorVar = band === 'success' ? 'var(--color-success)' : band === 'warning' ? 'var(--color-warning-text)' : 'var(--color-danger)';
-    return '<div style="display:flex;align-items:center;gap:var(--space-l);margin-bottom:var(--space-m);">' +
-      '<div style="text-align:center;">' +
-        '<div style="font-size:2.6rem;font-weight:600;color:' + colorVar + ';line-height:1;">' + score + (unit || '') + '</div>' +
-        '<div style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:4px;">out of 100</div>' +
-      '</div>' +
-      '<div>' +
-        '<span class="score-btn ' + band + '" style="cursor:default;font-size:var(--text-s);padding:var(--space-xs) var(--space-m);">' + g + '</span>' +
-        '<div style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:var(--space-xs);">Letter grade</div>' +
-      '</div>' +
-    '</div>';
-  }
-
-  function buildA11yContent(m) {
-    var risks = m.a11yRisks.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
-    var recs  = m.a11yRecs.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
-    return '<div class="drawer-section">' +
-        '<div class="drawer-section-title">Score Summary</div>' +
-        scoreSummaryHTML(m.a11y, '') +
-      '</div>' +
-      '<div class="drawer-section">' +
-        '<div class="drawer-section-title">Accessibility Findings</div>' +
-        '<div class="drawer-grid">' +
-          '<div>' +
-            '<div class="drawer-col-label" style="color:var(--color-danger);">Risks</div>' +
-            '<ul class="risk-list" style="color:var(--color-danger);">' + risks + '</ul>' +
-          '</div>' +
-          '<div>' +
-            '<div class="drawer-col-label" style="color:var(--color-success);">Recommendations</div>' +
-            '<ul class="risk-list" style="color:var(--color-success);">' + recs + '</ul>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-  }
-
-  function buildI18nContent(m) {
-    var risks = m.i18nRisks.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
-    var recs  = m.i18nRecs.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
-    return '<div class="drawer-section">' +
-        '<div class="drawer-section-title">Score Summary</div>' +
-        scoreSummaryHTML(m.i18n, '') +
-      '</div>' +
-      '<div class="drawer-section">' +
-        '<div class="drawer-section-title">Internationalization Findings</div>' +
-        '<div class="drawer-grid">' +
-          '<div>' +
-            '<div class="drawer-col-label" style="color:var(--color-danger);">Risks</div>' +
-            '<ul class="risk-list" style="color:var(--color-danger);">' + risks + '</ul>' +
-          '</div>' +
-          '<div>' +
-            '<div class="drawer-col-label" style="color:var(--color-success);">Recommendations</div>' +
-            '<ul class="risk-list" style="color:var(--color-success);">' + recs + '</ul>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-  }
-
-  function buildTokensContent(m) {
-    if (m.tokens === null) {
-      return '<div class="drawer-section">' +
-        '<div class="callout callout--info">' +
-          '<div class="callout__title">Not Scored</div>' +
-          '<div class="callout__body">The <strong>' + escHtml(m.name) + '</strong> module does not have a Luna Token Adoption score. This is expected for modules without directly owned CSS files (workspace and site-configuration delegate styling to sub-modules or shared libraries).</div>' +
-        '</div>' +
-      '</div>';
+    function buildI18nBody(m) {
+      const risks = m.i18nRisks.map(r => `<li>${r}</li>`).join('');
+      const recs  = m.i18nRecs.map(r => `<li>${r}</li>`).join('');
+      const prompt = `You are reviewing the ${m.display} module in auditboard-frontend for internationalization issues.\n\nTop risks identified:\n${m.i18nRisks.map(r => '- ' + r).join('\n')}\n\nRecommended fixes:\n${m.i18nRecs.map(r => '- ' + r).join('\n')}\n\nPlease help me address these i18n issues. Start by searching for the relevant files and then propose concrete code changes.`;
+      return `
+        <div class="drawer-section">
+          <div class="drawer-section-title">Risks</div>
+          <ul class="risk-list">${risks}</ul>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Recommendations</div>
+          <ul class="rec-list">${recs}</ul>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Claude Code Prompt</div>
+          <div style="margin-bottom:var(--space-s);">
+            <button class="prompt-copy-btn" onclick="copyPrompt(this, ${JSON.stringify(prompt)})">Copy prompt</button>
+          </div>
+          <pre class="prompt-pre prompt-collapsed">${prompt}</pre>
+          <button class="prompt-toggle" onclick="togglePrompt(this)">Show more ›</button>
+        </div>
+      `;
     }
-    var band = scoreBand(m.tokens);
-    var g = grade(m.tokens);
-    var colorVar = band === 'success' ? 'var(--color-success)' : band === 'warning' ? 'var(--color-warning-text)' : 'var(--color-danger)';
-    var fileRows = '';
-    if (m.tokenTopFiles.length > 0) {
-      m.tokenTopFiles.forEach(function(f) {
-        fileRows += '<li class="token-file-item">' +
-          '<span class="token-file-path" title="' + escHtml(f.path) + '">' + escHtml(f.path) + '</span>' +
-          '<span class="token-file-stats">' +
-            '<span class="badge badge--danger">' + f.violations + ' viol.</span>' +
-            '<span class="badge badge--success">' + f.usages + ' usages</span>' +
-          '</span>' +
-        '</li>';
+
+    function buildTokensBody(m) {
+      const t = m.tokens;
+      const maxViol = Math.max(...Object.values(t.by_cat), 1);
+      const catBars = ['color','space','radius','typography'].map(cat => {
+        const v = t.by_cat[cat] || 0;
+        const pct = Math.round((v / maxViol) * 100);
+        return `<div class="cat-bar-row">
+          <div class="cat-bar-label">${cat.charAt(0).toUpperCase() + cat.slice(1)}</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+          <div class="cat-bar-count">${v}</div>
+        </div>`;
+      }).join('');
+      const fileRows = t.top_files.length > 0
+        ? t.top_files.map(f => `<div class="token-file-row"><span class="token-file-path">${f.path.replace('apps/client/app/components/','')}</span><span class="badge badge--danger">${f.violations}</span></div>`).join('')
+        : `<div style="font-size:var(--text-xs);color:var(--color-subdued);">No violations detected.</div>`;
+      const prompt = `You are reviewing the ${m.display} module in auditboard-frontend for Luna design token adoption.\n\nToken score: ${t.score}% (${t.violations} violations, ${t.token_usages} token usages across ${t.css_files} CSS files)\n\nTop violation files:\n${t.top_files.map(f => '- ' + f.path + ' (' + f.violations + ' violations)').join('\n') || 'None'}\n\nPlease help me migrate the hardcoded spacing values in these files to use var(--luna-space-*) tokens. Start with the highest-violation file.`;
+      return `
+        <div class="drawer-section">
+          <div class="drawer-section-title">Stats</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-m);">
+            <div class="stat-card"><div class="stat-card__label">Score</div><div class="stat-card__value" style="color:${scoreColor(t.score)}">${t.score}%</div></div>
+            <div class="stat-card"><div class="stat-card__label">Violations</div><div class="stat-card__value" style="color:var(--color-danger)">${t.violations}</div></div>
+            <div class="stat-card"><div class="stat-card__label">Token Usages</div><div class="stat-card__value" style="color:var(--color-success)">${t.token_usages}</div></div>
+          </div>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Violations by Category</div>
+          ${catBars}
+        </div>
+        ${t.top_files.length > 0 ? `
+        <div class="drawer-section">
+          <div class="drawer-section-title">Top Violation Files</div>
+          ${fileRows}
+        </div>` : ''}
+        <div class="drawer-section">
+          <div class="drawer-section-title">Claude Code Prompt</div>
+          <div style="margin-bottom:var(--space-s);">
+            <button class="prompt-copy-btn" onclick="copyPrompt(this, ${JSON.stringify(prompt)})">Copy prompt</button>
+          </div>
+          <pre class="prompt-pre prompt-collapsed">${prompt}</pre>
+          <button class="prompt-toggle" onclick="togglePrompt(this)">Show more ›</button>
+        </div>
+      `;
+    }
+
+    function openDrawer(name, facet) {
+      const m = MODULES.find(x => x.name === name);
+      if (!m) return;
+      let headerHtml = '';
+      let bodyHtml = '';
+
+      if (facet === 'a11y') {
+        headerHtml = `
+          <div>
+            <div style="font-size:var(--text-xs);color:var(--color-subdued);margin-bottom:var(--space-xs);">${m.display}</div>
+            <h4 style="display:flex;align-items:center;gap:var(--space-s);">Accessibility <span class="badge ${scoreBadgeClass(m.a11y)}">${m.a11y}</span></h4>
+          </div>
+          <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+        `;
+        bodyHtml = buildA11yBody(m);
+      } else if (facet === 'i18n') {
+        headerHtml = `
+          <div>
+            <div style="font-size:var(--text-xs);color:var(--color-subdued);margin-bottom:var(--space-xs);">${m.display}</div>
+            <h4 style="display:flex;align-items:center;gap:var(--space-s);">Internationalization <span class="badge ${scoreBadgeClass(m.i18n)}">${m.i18n}</span></h4>
+          </div>
+          <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+        `;
+        bodyHtml = buildI18nBody(m);
+      } else if (facet === 'tokens' && m.tokens) {
+        headerHtml = `
+          <div>
+            <div style="font-size:var(--text-xs);color:var(--color-subdued);margin-bottom:var(--space-xs);">${m.display}</div>
+            <h4 style="display:flex;align-items:center;gap:var(--space-s);">Luna Token Adoption <span class="badge ${scoreBadgeClass(m.tokens.score)}">${m.tokens.score}%</span></h4>
+          </div>
+          <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+        `;
+        bodyHtml = buildTokensBody(m);
+      }
+
+      document.getElementById('drawerHeader').innerHTML = headerHtml;
+      document.getElementById('drawerBody').innerHTML = bodyHtml;
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.getElementById('drawer').classList.add('open');
+    }
+
+    function openDrawerAvg(facet) {
+      let headerHtml = '';
+      let bodyHtml = '';
+
+      if (facet === 'a11y') {
+        headerHtml = `
+          <div>
+            <div style="font-size:var(--text-xs);color:var(--color-subdued);margin-bottom:var(--space-xs);">All 13 Modules</div>
+            <h4 style="display:flex;align-items:center;gap:var(--space-s);">Accessibility Average <span class="badge ${scoreBadgeClass(avgA11y)}">${avgA11y}</span></h4>
+          </div>
+          <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+        `;
+        const sorted = [...MODULES].sort((a, b) => a.a11y - b.a11y);
+        const rows = sorted.map(m => `
+          <tr style="cursor:pointer;" onclick="closeDrawer();setTimeout(()=>openDrawer('${m.name}','a11y'),200)">
+            <td><div class="module-name">${m.name}</div></td>
+            <td>${scoreBadge(m.a11y)}</td>
+            <td style="font-size:var(--text-xs);color:var(--color-subdued);">${m.a11yRisks[0]}</td>
+          </tr>
+        `).join('');
+        bodyHtml = `
+          <div class="drawer-section">
+            <div class="drawer-section-title">All Module Scores (A11y)</div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Module</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Score</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Top Risk</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (facet === 'i18n') {
+        headerHtml = `
+          <div>
+            <div style="font-size:var(--text-xs);color:var(--color-subdued);margin-bottom:var(--space-xs);">All 13 Modules</div>
+            <h4 style="display:flex;align-items:center;gap:var(--space-s);">i18n Average <span class="badge ${scoreBadgeClass(avgI18n)}">${avgI18n}</span></h4>
+          </div>
+          <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+        `;
+        const sorted = [...MODULES].sort((a, b) => a.i18n - b.i18n);
+        const rows = sorted.map(m => `
+          <tr style="cursor:pointer;" onclick="closeDrawer();setTimeout(()=>openDrawer('${m.name}','i18n'),200)">
+            <td><div class="module-name">${m.name}</div></td>
+            <td>${scoreBadge(m.i18n)}</td>
+            <td style="font-size:var(--text-xs);color:var(--color-subdued);">${m.i18nRisks[0]}</td>
+          </tr>
+        `).join('');
+        bodyHtml = `
+          <div class="drawer-section">
+            <div class="drawer-section-title">All Module Scores (i18n)</div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Module</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Score</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Top Risk</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (facet === 'tokens') {
+        headerHtml = `
+          <div>
+            <div style="font-size:var(--text-xs);color:var(--color-subdued);margin-bottom:var(--space-xs);">${tokenModules.length} Scanned Modules</div>
+            <h4 style="display:flex;align-items:center;gap:var(--space-s);">Luna Token Average <span class="badge ${scoreBadgeClass(avgTokens)}">${avgTokens}%</span></h4>
+          </div>
+          <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+        `;
+        const sorted = [...tokenModules].sort((a, b) => a.tokens.score - b.tokens.score);
+        const rows = sorted.map(m => `
+          <tr style="cursor:pointer;" onclick="closeDrawer();setTimeout(()=>openDrawer('${m.name}','tokens'),200)">
+            <td><div class="module-name">${m.name}</div></td>
+            <td>${scoreBadge(m.tokens.score)}</td>
+            <td class="numeric" style="font-size:var(--text-xs);color:var(--color-subdued);">${m.tokens.violations}</td>
+            <td class="numeric" style="font-size:var(--text-xs);color:var(--color-subdued);">${m.tokens.css_files}</td>
+          </tr>
+        `).join('');
+        bodyHtml = `
+          <div class="drawer-section">
+            <div class="drawer-section-title">All Module Scores (Luna Tokens)</div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Module</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:left;">Score</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:right;">Violations</th>
+                  <th style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-subdued);padding:var(--space-s) var(--space-m);border-bottom:2px solid #E3E8F2;text-align:right;">CSS Files</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('drawerHeader').innerHTML = headerHtml;
+      document.getElementById('drawerBody').innerHTML = bodyHtml;
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.getElementById('drawer').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.getElementById('drawer').classList.remove('open');
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+    function copyPrompt(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
       });
-    } else {
-      fileRows = '<li style="font-size:var(--text-xs);color:var(--color-subdued);padding:var(--space-s) 0;">No CSS files with violations found.</li>';
     }
 
-    var statsRow = '';
-    if (m.tokenViolations !== null) {
-      statsRow = '<div style="text-align:center;">' +
-          '<div style="font-size:var(--text-l);font-weight:600;color:var(--color-danger);line-height:1;">' + m.tokenViolations + '</div>' +
-          '<div style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:4px;">violations</div>' +
-        '</div>' +
-        '<div style="text-align:center;">' +
-          '<div style="font-size:var(--text-l);font-weight:600;color:var(--color-ink);line-height:1;">' + m.tokenCssFiles + '</div>' +
-          '<div style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:4px;">CSS files</div>' +
-        '</div>';
+    function togglePrompt(btn) {
+      const pre = btn.previousElementSibling;
+      if (pre.classList.contains('prompt-collapsed')) {
+        pre.classList.remove('prompt-collapsed');
+        btn.textContent = 'Show less \u2039';
+      } else {
+        pre.classList.add('prompt-collapsed');
+        btn.textContent = 'Show more \u203a';
+      }
     }
-
-    return '<div class="drawer-section">' +
-        '<div class="drawer-section-title">Score Summary</div>' +
-        '<div style="display:flex;align-items:center;gap:var(--space-l);margin-bottom:var(--space-m);">' +
-          '<div style="text-align:center;">' +
-            '<div style="font-size:2.6rem;font-weight:600;color:' + colorVar + ';line-height:1;">' + m.tokens + '%</div>' +
-            '<div style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:4px;">token adoption</div>' +
-          '</div>' +
-          '<div>' +
-            '<span class="score-btn ' + band + '" style="cursor:default;font-size:var(--text-s);padding:var(--space-xs) var(--space-m);">' + g + '</span>' +
-            '<div style="font-size:var(--text-xs);color:var(--color-subdued);margin-top:var(--space-xs);">Letter grade</div>' +
-          '</div>' +
-          statsRow +
-        '</div>' +
-      '</div>' +
-      '<div class="drawer-section">' +
-        '<div class="drawer-section-title">Top Files with Violations</div>' +
-        '<ul class="token-file-list">' + fileRows + '</ul>' +
-      '</div>' +
-      '<div class="drawer-section">' +
-        '<div class="drawer-section-title">What This Measures</div>' +
-        '<p style="font-size:var(--text-xs);color:var(--color-paragraph);line-height:var(--line-height-s);">Score = var(--luna-*) usages / (usages + violations). A violation is a hardcoded CSS value that matches a known Luna design token value. Higher scores mean more consistent use of the Luna token system.</p>' +
-      '</div>';
-  }
-
-  function escHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-</script>
+  </script>
 
 </body>
 </html>
