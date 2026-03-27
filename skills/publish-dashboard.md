@@ -8,13 +8,13 @@ Use this skill when asked to create and publish a new dashboard or report to Jef
 
 ## Site context
 
-- **Live URL:** https://jcarpenter-optro.github.io/jcarpenter/
-- **Repo:** https://github.com/jcarpenter-optro/jcarpenter.git
-- **Local working copy:** ~/jcarpenter/
+- **Live URL:** https://jcarpenter-optro.github.io/dashboard-projects/
+- **Repo:** https://github.com/jcarpenter-optro/dashboard-projects.git
+- **Local working copy:** ~/dashboard-projects/
 
-If ~/jcarpenter/ does not exist locally, clone it first:
+If ~/dashboard-projects/ does not exist locally, clone it first:
 ```bash
-git clone https://github.com/jcarpenter-optro/jcarpenter.git ~/jcarpenter
+git clone https://github.com/jcarpenter-optro/dashboard-projects.git ~/dashboard-projects
 ```
 
 ## Steps to publish a new dashboard
@@ -23,7 +23,7 @@ git clone https://github.com/jcarpenter-optro/jcarpenter.git ~/jcarpenter
 
 - Self-contained single HTML file, no external dependencies (all CSS and JS inline)
 - Name it descriptively, e.g. `my-report.html`
-- Place it at the root of ~/jcarpenter/
+- Place it at the root of ~/dashboard-projects/
 - Sub-pages go in a matching subdirectory, e.g. `my-report/page.html`
 - Do NOT add a password gate: the gate lives only on index.html
 - Do NOT use em dashes (—) or separator dashes (e.g. "Title - Subtitle"). Use a colon and a space instead (e.g. "Title: Subtitle")
@@ -33,7 +33,7 @@ Apply the EUI Style Guide below exactly. Do not invent new patterns.
 
 ### 2. Add a project card to index.html
 
-Open ~/jcarpenter/index.html and find:
+Open ~/dashboard-projects/index.html and find:
 ```html
 <!-- ADD NEW PROJECTS ABOVE THIS LINE -->
 ```
@@ -56,7 +56,7 @@ Insert above it:
 ### 3. Deploy
 
 ```bash
-cd ~/jcarpenter
+cd ~/dashboard-projects
 git add -A
 git commit -m "feat: add [report name] dashboard"
 git push origin main
