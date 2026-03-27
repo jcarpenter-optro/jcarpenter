@@ -9,8 +9,8 @@ Use this skill to re-run accessibility and i18n evaluations against the 13 audit
 ## Prereqs
 
 - Repo: `/Users/jcarpenter/Git Repositories/auditboard-frontend`
-- Dashboard: `/tmp/luna-report/auditboard-a11y-i18n.html`
-- If `/tmp/luna-report/` is missing: `git clone https://github.com/jcarpenter-optro/jcarpenter.git /tmp/luna-report`
+- Dashboard: `~/jcarpenter/auditboard-a11y-i18n.html`
+- If `~/jcarpenter/` is missing: `git clone https://github.com/jcarpenter-optro/jcarpenter.git ~/jcarpenter`
 - Style guide: `~/.claude/skills/publish-dashboard.md`
 - Eval skills: `~/.claude/skills/eval-accessibility.md`, `~/.claude/skills/eval-i18n.md`
 - Coordinator: `~/.claude/skills/eval-coordinator.md`
@@ -57,7 +57,7 @@ For each module, produce:
 
 > **Do not change style or layout.** Only update data. The CSS, HTML structure, icons, and visual layout of the deployed `auditboard-a11y-i18n.html` are the canonical versions. The only permitted change in this file is replacing the `const MODULES` array and updating the date.
 
-Open `/tmp/luna-report/auditboard-a11y-i18n.html`.
+Open `~/jcarpenter/auditboard-a11y-i18n.html`.
 
 Replace the entire `const MODULES = [...]` array in the `<script>` block with the fresh evaluation results from Phase 1.
 
@@ -91,7 +91,7 @@ Format each entry as:
 ## Phase 3: Deploy
 
 ```bash
-cd /tmp/luna-report
+cd ~/jcarpenter
 git add auditboard-a11y-i18n.html
 git commit -m "chore: refresh a11y + i18n scores $(date +%Y-%m-%d)"
 git push origin main
