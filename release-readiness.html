@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Release Readiness: AuditBoard Frontend (Vibe)</title>
+  <title>Release Readiness: AuditBoard Frontend</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Figtree:wght@300;400;500;600&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
@@ -158,6 +158,12 @@
     .callout--danger  { background: var(--color-danger-bg);  border-color: var(--color-danger); }
     .callout__title { font-size: var(--text-s); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-xs); color: var(--color-ink); }
     .callout__body { font-size: var(--text-s); color: var(--color-paragraph); }
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-m); margin-bottom: var(--space-l); }
+    .stat-card { background: var(--color-empty-shade); border: var(--border-thin); border-radius: var(--border-radius); padding: var(--space-m) var(--space-l); }
+    .stat-card__label { font-size: var(--text-xs); color: var(--color-subdued); margin-bottom: var(--space-xs); text-transform: uppercase; letter-spacing: 0.05em; font-weight: var(--font-weight-semibold); }
+    .stat-card__value { font-size: var(--text-xl); font-weight: 700; font-family: var(--font-heading); color: var(--color-ink); font-variant-numeric: tabular-nums; line-height: 1; }
+    .stat-card__description { font-size: var(--text-xs); color: var(--color-subdued); margin-top: var(--space-xs); }
+    .insights-row { display: flex; flex-direction: column; gap: var(--space-m); margin-bottom: var(--space-l); }
     .code-example { background: var(--color-lightest-shade); border: var(--border-thin); border-radius: var(--border-radius); padding: var(--space-m); font-family: var(--font-mono); font-size: var(--text-xs); }
     .code-before { color: var(--color-danger); }
     .code-after  { color: var(--color-success); }
@@ -176,7 +182,7 @@
 
   <header class="page-header">
     <div class="page-header-inner">
-      <div class="breadcrumb"><a href="index.html">Projects</a> / Release Readiness (Vibe)</div>
+      <div class="breadcrumb"><a href="index.html">Projects</a> / Release Readiness</div>
       <h1>Release Readiness: AuditBoard Frontend</h1>
       <p>A11y, i18n, Luna token adoption, and Smart Forms governance per module · Click any score for details</p>
       <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 27, 2026</p>
@@ -184,6 +190,9 @@
   </header>
 
   <main class="page-body">
+
+    <div id="stat-section" class="stat-row"></div>
+    <div id="insights-section" class="insights-row"></div>
 
     <div class="panel">
       <div class="panel-header">
@@ -1618,6 +1627,51 @@
     }
 
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
+
+    // Stat cards + insights
+    (function() {
+      var avg = function(arr) { return Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length); };
+      var scoreColor = function(s) { return s >= 80 ? 'var(--color-success)' : s >= 65 ? 'var(--color-warning-text)' : 'var(--color-danger)'; };
+
+      var tokenModules = MODULES.filter(function(m){ return m.tokens !== null; });
+      var avgA11y = avg(MODULES.map(function(m){return m.a11y;}));
+      var avgI18n = avg(MODULES.map(function(m){return m.i18n;}));
+      var avgTokens = avg(tokenModules.map(function(m){return m.tokens.score;}));
+      var atRisk = MODULES.filter(function(m){
+        var scores = [m.a11y, m.i18n].concat(m.tokens ? [m.tokens.score] : []);
+        return scores.some(function(s){return s < 65;});
+      });
+      var totalViolations = tokenModules.reduce(function(s,m){return s+m.tokens.violations;},0);
+      var totalCssFiles = tokenModules.reduce(function(s,m){return s+m.tokens.css_files;},0);
+
+      var statCards = [
+        { label:'Avg A11y',          value: avgA11y + '/100',  desc:'13 modules evaluated',     color: scoreColor(avgA11y) },
+        { label:'Avg i18n',          value: avgI18n + '/100',  desc:'13 modules evaluated',     color: scoreColor(avgI18n) },
+        { label:'Avg Token Adoption', value: avgTokens + '%',  desc:'11 modules scanned',        color: scoreColor(avgTokens) },
+        { label:'Modules at Risk',   value: atRisk.length,     desc:'any dimension below 65',   color: atRisk.length > 6 ? 'var(--color-danger)' : 'var(--color-warning-text)' }
+      ];
+      document.getElementById('stat-section').innerHTML = statCards.map(function(s){
+        return '<div class="stat-card"><div class="stat-card__label">'+s.label+'</div><div class="stat-card__value" style="color:'+s.color+';">'+s.value+'</div><div class="stat-card__description">'+s.desc+'</div></div>';
+      }).join('');
+
+      var a11yLow = MODULES.filter(function(m){return m.a11y < 65;});
+      var i18nLow = MODULES.filter(function(m){return m.i18n < 65;});
+      var topPerf = MODULES.filter(function(m){return m.a11y >= 80 && m.i18n >= 80 && (!m.tokens || m.tokens.score >= 70);});
+      var tokenLow = tokenModules.filter(function(m){return m.tokens.score < 50;});
+      var insights = '';
+
+      if (a11yLow.length > 0) {
+        insights += '<div class="callout callout--danger"><div class="callout__title">Accessibility Risk: '+a11yLow.length+' module'+(a11yLow.length>1?'s':'')+' below threshold</div><div class="callout__body">'+a11yLow.map(function(m){return m.display;}).join(', ')+' score below 65 on A11y. These modules are highest priority for accessibility remediation before release.</div></div>';
+      }
+      if (i18nLow.length > 0) {
+        insights += '<div class="callout callout--warning"><div class="callout__title">i18n Coverage: '+i18nLow.length+' module'+(i18nLow.length>1?'s':'')+' need attention</div><div class="callout__body">'+i18nLow.map(function(m){return m.display;}).join(', ')+' score below 65 on internationalization. These modules likely contain hardcoded user-visible strings that need Applanga coverage.</div></div>';
+      }
+      insights += '<div class="callout callout--info"><div class="callout__title">Luna Token Adoption: '+totalViolations+' violations across '+totalCssFiles+' CSS files</div><div class="callout__body">'+tokenModules.length+' modules scanned for hardcoded CSS values.'+(tokenLow.length > 0 ? ' '+tokenLow.length+' module'+(tokenLow.length>1?'s':'')+' ('+tokenLow.map(function(m){return m.display;}).join(', ')+') score below 50% — click any token score to see specific violations and suggested fixes.' : ' Token adoption is progressing well across scanned modules.')+'</div></div>';
+      if (topPerf.length > 0) {
+        insights += '<div class="callout callout--success"><div class="callout__title">Top Performers</div><div class="callout__body">'+topPerf.map(function(m){return m.display;}).join(', ')+' score 80+ on both A11y and i18n with strong token adoption. Use these modules as implementation references.</div></div>';
+      }
+      document.getElementById('insights-section').innerHTML = insights;
+    })();
   </script>
 
 </body>
