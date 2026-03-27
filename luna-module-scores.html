@@ -921,7 +921,7 @@
 
     function buildPrompt(mod) {
       if (mod.violations === 0) {
-        return mod.name + ' already scores 100% on Luna token adoption. No CSS changes are needed in this module — it has no hardcoded values that map to Luna tokens.';
+        return mod.name + ' already scores 100% on Luna token adoption. No CSS changes are needed in this module; it has no hardcoded values that map to Luna tokens.';
       }
       var path = MODULE_PATHS[mod.name] || 'apps/client/app/components/' + mod.name;
       var L = [];
@@ -947,7 +947,7 @@
         });
         L.push('');
       }
-      L.push('TOKEN REFERENCE — SPACE / SIZE');
+      L.push('TOKEN REFERENCE: SPACE / SIZE');
       L.push('Replace hardcoded values in spacing properties (margin, padding, gap, width, height, top, right, bottom, left, min-width, min-height, max-width, max-height) with:');
       L.push('  2px  / 0.125rem  ->  var(--luna-space-xxs)');
       L.push('  4px  / 0.25rem   ->  var(--luna-space-xs)');
@@ -961,7 +961,7 @@
       L.push('  64px / 4rem      ->  var(--luna-space-xxxxl)');
       L.push('');
       if (mod.by_cat.color > 0) {
-        L.push('TOKEN REFERENCE — COLOR');
+        L.push('TOKEN REFERENCE: COLOR');
         L.push('Replace hardcoded hex values in color, background-color, background, border-color, fill, and stroke properties with:');
         L.push('  #1A1C21  ->  var(--luna-color-ink)');
         L.push('  #343741  ->  var(--luna-color-paragraph)');
@@ -981,7 +981,7 @@
         L.push('');
       }
       if (mod.by_cat.radius > 0) {
-        L.push('TOKEN REFERENCE — BORDER RADIUS');
+        L.push('TOKEN REFERENCE: BORDER RADIUS');
         L.push('Replace hardcoded values in border-radius (and longhand variants) with:');
         L.push('  4px   ->  var(--luna-radius-s)');
         L.push('  8px   ->  var(--luna-radius-m)');
@@ -989,7 +989,7 @@
         L.push('');
       }
       if (mod.by_cat.typography > 0) {
-        L.push('TOKEN REFERENCE — TYPOGRAPHY');
+        L.push('TOKEN REFERENCE: TYPOGRAPHY');
         L.push('Replace hardcoded values in font-size with:');
         L.push('  0.857rem  ->  var(--luna-font-size-xs)');
         L.push('  1rem      ->  var(--luna-font-size-s)');

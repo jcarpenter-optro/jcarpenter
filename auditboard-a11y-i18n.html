@@ -171,10 +171,10 @@
         <div class="callout__title">Strongest patterns found</div>
         <div class="callout__body">
           <ul class="callout__list">
-            <li><strong>assessments</strong> and <strong>tasks</strong> lead the field — both score above 80 on a11y and 85 on i18n, and serve as internal reference implementations.</li>
+            <li><strong>assessments</strong> and <strong>tasks</strong> lead the field: both score above 80 on a11y and 85 on i18n, and serve as internal reference implementations.</li>
             <li>i18n health is consistently stronger than a11y across all 13 modules. The <code>formatMessage</code> + ICU pattern is well established.</li>
             <li>Luna components provide a solid a11y baseline. Modules that rely heavily on Luna primitives (tasks, compliance) inherit correct ARIA structure with little extra effort.</li>
-            <li>Applanga integration is active — translator context notes and glossaries are already in use where teams have invested in them.</li>
+            <li>Applanga integration is active: translator context notes and glossaries are already in use where teams have invested in them.</li>
           </ul>
         </div>
       </div>
@@ -182,11 +182,11 @@
         <div class="callout__title">Top cross-cutting gaps</div>
         <div class="callout__body">
           <ul class="callout__list">
-            <li><strong>Missing aria-live regions</strong> for async state changes recurs across admin, hubs, risks, and workspace — no consistent pattern for announcing loading or result counts.</li>
+            <li><strong>Missing aria-live regions</strong> for async state changes recurs across admin, hubs, risks, and workspace; no consistent pattern for announcing loading or result counts.</li>
             <li><strong>Icon-only buttons without aria-label</strong> appears in admin, opsaudits, and hubs. @tooltip is not a screen reader substitute.</li>
             <li><strong>No focus management on modal/drawer open</strong> is flagged in workspace and opsaudits; likely present elsewhere as custom overlays grow.</li>
             <li><strong>dashboard</strong> has the lowest scores (a11y 62, i18n 64): status values communicated only by badge color with no text alternative, and API-sourced enum strings with no i18n mapping layer.</li>
-            <li><strong>PROJ#{id} badge pattern</strong> is undocumented across admin and tasks — needs a translator exemption note before Applanga flags it.</li>
+            <li><strong>PROJ#{id} badge pattern</strong> is undocumented across admin and tasks; needs a translator exemption note before Applanga flags it.</li>
           </ul>
         </div>
       </div>
@@ -240,11 +240,11 @@
         i18nRecs:['Parameterize character limits: formatMessage("Company Name (max {limit} chars)", { limit: 200 })'] },
       { name:'opsaudits',        files:130,  a11y:52, i18n:76,
         a11yRisks:['0 aria-label/describedby/role attributes in any sampled template','Import modal open has no screen reader announcement'],
-        a11yRecs:['Add aria-label to all icon-only buttons in workflow list templates','Add focus management on import modal open — move focus to first focusable element'],
+        a11yRecs:['Add aria-label to all icon-only buttons in workflow list templates','Add focus management on import modal open: move focus to first focusable element'],
         i18nRisks:['OpsAudit-specific terminology needs translator context notes'],
         i18nRecs:['Add Applanga context notes for "OpsAudit" and "Work Step" to prevent mistranslation'] },
       { name:'assessments',      files:212,  a11y:82, i18n:85,
-        a11yRisks:['didInsert focus management (comment.gjs:163) is Ember-classic — verify lifecycle compatibility'],
+        a11yRisks:['didInsert focus management (comment.gjs:163) is Ember-classic; verify lifecycle compatibility'],
         a11yRecs:['Document aria-labelledby="comments-heading-{{@model.id}}" as the team standard for dynamic region labeling'],
         i18nRisks:['Email notification setting labels need translator context for configuration-specific copy'],
         i18nRecs:['Add @description hint strings to complex notification setting labels'] },
@@ -265,11 +265,11 @@
         i18nRecs:['Replace conditional hardcoded strings with formatMessage calls'] },
       { name:'tasks',            files:156,  a11y:80, i18n:86,
         a11yRisks:['Target-area overlay Button (task-list-toolkit.gjs:57) may create duplicate interactive elements for keyboard users'],
-        a11yRecs:['Verify the target-area overlay button with VoiceOver — confirm it is not announced twice alongside the Heading'],
+        a11yRecs:['Verify the target-area overlay button with VoiceOver: confirm it is not announced twice alongside the Heading'],
         i18nRisks:['PROJ#{id} badge pattern needs translator documentation'],
         i18nRecs:['Add translator description comment to the PROJ#{id} formatMessage call'] },
       { name:'resource-planner', files:74,   a11y:72, i18n:81,
-        a11yRisks:['Search aria-label interpolates @modelType directly — may be an untranslated internal enum key'],
+        a11yRisks:['Search aria-label interpolates @modelType directly; may be an untranslated internal enum key'],
         a11yRecs:['Map @modelType to a human-readable formatMessage string before using it in aria-label'],
         i18nRisks:['@modelType passed to aria-label interpolation may be an internal key not a locale label'],
         i18nRecs:['Use intl.formatMessage to look up display name for each modelType'] },
@@ -277,16 +277,16 @@
         a11yRisks:['project-counts table has no caption or aria-label','Status values communicated only by badge color with no text alternative'],
         a11yRecs:['Add &lt;caption&gt; or aria-label to the project counts table','Add visually-hidden text alternative when status is communicated only by badge color'],
         i18nRisks:['Status enums (Inactive, Open, Submitted, Certified) may flow from API as English strings with no i18n mapping'],
-        i18nRecs:['Audit how status enum values are rendered — add a status-to-i18n mapping layer if they come raw from the API'] },
+        i18nRecs:['Audit how status enum values are rendered: add a status-to-i18n mapping layer if they come raw from the API'] },
       { name:'risks',            files:149,  a11y:70, i18n:84,
         a11yRisks:['"No Results Found" text not wrapped in aria-live region','Accordion expand/collapse state may not be announced if aria-expanded is only inside Luna internals'],
         a11yRecs:['Add aria-live="polite" around result count and empty state display in risk assessments panel','Verify Luna Accordion emits aria-expanded on the trigger button'],
         i18nRisks:['parentModelLabel interpolation requires translations for all entity type strings in all 9 locales'],
         i18nRecs:['Verify all parentModelLabel values have entries in en-US.json and Applanga translations'] },
       { name:'owner-dashboard',  files:51,   a11y:58, i18n:82,
-        a11yRisks:['narratives-list.gjs uses {{on "click"}} on a Link — may not respond to Enter/Space as expected','0 aria-label attributes in sampled components'],
+        a11yRisks:['narratives-list.gjs uses {{on "click"}} on a Link; may not respond to Enter/Space as expected','0 aria-label attributes in sampled components'],
         a11yRecs:['Replace on "click" handler on Link with a Button component for the preview action','Add aria-label to narrative preview trigger identifying the specific narrative by title'],
-        i18nRisks:['ICU select covers 4 types + "other" — new entity types will silently fall through to generic "Entities" label'],
+        i18nRisks:['ICU select covers 4 types + "other"; new entity types will silently fall through to generic "Entities" label'],
         i18nRecs:['Add new entity types to the ICU select statement as the product expands'] },
     ];
 
