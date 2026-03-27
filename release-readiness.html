@@ -83,7 +83,9 @@
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: var(--text-s); }
-    thead th { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-subdued); text-align: left; padding: var(--space-s) var(--space-m); border-bottom: var(--border-thick); white-space: nowrap; }
+    thead th { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-subdued); text-align: left; padding: var(--space-xl) var(--space-m); border-bottom: var(--border-thick); white-space: nowrap; }
+    thead th .th-inner { display: flex; align-items: center; gap: var(--space-xs); }
+    thead th .th-icon { flex-shrink: 0; opacity: 0.7; }
     tbody td { padding: var(--space-m); border-bottom: var(--border-thin); vertical-align: middle; color: var(--color-paragraph); }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr.data-row:hover { background: var(--color-lightest-shade); }
@@ -158,7 +160,7 @@
     <div class="page-header-inner">
       <div class="breadcrumb"><a href="index.html">Projects</a> / Release Readiness</div>
       <h1>Release Readiness: AuditBoard Frontend</h1>
-      <p>A11y, i18n, and Luna token adoption per module · Click any score for details</p>
+      <p>A11y, i18n, Luna token adoption, and Smart Forms governance per module · Click any score for details</p>
       <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 26, 2026 at 06:00 PM</p>
     </div>
   </header>
@@ -175,9 +177,10 @@
           <thead>
             <tr>
               <th>Module</th>
-              <th>A11y</th>
-              <th>i18n</th>
-              <th>Luna Tokens</th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="3" r="1.5" fill="currentColor"/><path d="M4 6.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 6.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.5 13.5L8 10.5l2.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A11y</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.5S6 5 6 8s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 5.5h10M3 10.5h10" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>i18n</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 10.5A6 6 0 116 3.5a4 4 0 007.5 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Luna Tokens</div></th>
+              <th><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Smart Forms</div></th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -201,7 +204,8 @@
         a11yRecs:['Add role="status" aria-live="polite" around search result counts','Add explicit aria-label to all IconButton usages'],
         i18nRisks:['PROJ#{id} pattern should be documented as format-exempt'],
         i18nRecs:['Run pnpm generate:en-US to capture strings from recent admin work'],
-        tokens:{ score:100, violations:0, css_files:0, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] }
+        tokens:{ score:100, violations:0, css_files:0, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] },
+        smartForms: null
       },
       { name:'workspace', display:'Workspace',
         a11y:66, i18n:80,
@@ -209,7 +213,8 @@
         a11yRecs:['Audit 51 workspace sub-routes for custom interactive elements bypassing Luna','Add focus-management on modal/drawer open for custom overlay patterns'],
         i18nRisks:['842-file scope makes coverage uniformity hard to verify'],
         i18nRecs:['Run intl-extractor against full workspace directory to surface drifted strings'],
-        tokens: null
+        tokens: null,
+        smartForms: null
       },
       { name:'site-configuration', display:'Site Configuration',
         a11y:63, i18n:88,
@@ -217,7 +222,8 @@
         a11yRecs:['Add aria-describedby linking each @helperText to its input in app-settings.gjs','Audit features.gjs toggles and selects for missing labels'],
         i18nRisks:['Character limits embedded in label strings block translator flexibility'],
         i18nRecs:['Parameterize character limits: formatMessage("Company Name (max {limit} chars)", { limit: 200 })'],
-        tokens: null
+        tokens: null,
+        smartForms: null
       },
       { name:'opsaudits', display:'Ops Audits',
         a11y:52, i18n:76,
@@ -225,7 +231,8 @@
         a11yRecs:['Add aria-label to all icon-only buttons in workflow list templates','Add focus management on import modal open: move focus to first focusable element'],
         i18nRisks:['OpsAudit-specific terminology needs translator context notes'],
         i18nRecs:['Add Applanga context notes for "OpsAudit" and "Work Step" to prevent mistranslation'],
-        tokens:{ score:100, violations:0, css_files:6, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] }
+        tokens:{ score:100, violations:0, css_files:6, token_usages:0, by_cat:{color:0,space:0,radius:0,typography:0}, top_files:[] },
+        smartForms: null
       },
       { name:'assessments', display:'Assessments',
         a11y:82, i18n:85,
@@ -239,7 +246,8 @@
             {path:'apps/client/app/components/module-assessments/components/assessable-response-table.css',violations:1},
             {path:'apps/client/app/components/module-assessments/components/assessment-progress-bar.css',violations:1}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'compliance', display:'Compliance',
         a11y:72, i18n:83,
@@ -258,7 +266,8 @@
             {path:'apps/client/app/components/module-compliance-assessments/ecw/csv-import.css',violations:4},
             {path:'apps/client/app/components/module-compliance-assessments/layered-tree.css',violations:3}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'hubs', display:'Hubs',
         a11y:53, i18n:78,
@@ -271,7 +280,8 @@
             {path:'apps/client/app/components/manage-hub/modals/preview-control.css',violations:2},
             {path:'apps/client/app/components/manage-hub/modals/manage-control-environment-setup/workflow-option-frame.css',violations:1}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'issues', display:'Issues',
         a11y:60, i18n:74,
@@ -285,7 +295,8 @@
             {path:'apps/client/app/components/module-issues/view/issue-summary-report-new.css',violations:4},
             {path:'apps/client/app/components/module-issues/shared/issue-framework-item-id-code-cell.css',violations:3}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'tasks', display:'Tasks',
         a11y:80, i18n:86,
@@ -304,7 +315,8 @@
             {path:'apps/client/app/components/module-tasks/workstream-task/task-details-team-members.css',violations:1},
             {path:'apps/client/app/components/module-tasks/workstream-task/task-team-members-panel.css',violations:1}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'resource-planner', display:'Resource Planner',
         a11y:72, i18n:81,
@@ -317,7 +329,8 @@
             {path:'apps/client/app/components/module-resource-planner/card/resource-card.css',violations:6},
             {path:'apps/client/app/components/module-resource-planner/card/booking-history-card.css',violations:3}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'dashboard', display:'Dashboard',
         a11y:62, i18n:64,
@@ -332,7 +345,8 @@
             {path:'apps/client/app/components/module-dashboard/sigma/embed.css',violations:1},
             {path:'apps/client/app/components/module-dashboard/view/metric-update-request.css',violations:1}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'risks', display:'Risks',
         a11y:70, i18n:84,
@@ -351,7 +365,8 @@
             {path:'apps/client/app/components/module-risks/inventory/risk-entities/node.css',violations:4},
             {path:'apps/client/app/components/module-risks/view/control-mapping/mapping-step-footer.css',violations:4}
           ]
-        }
+        },
+        smartForms: null
       },
       { name:'owner-dashboard', display:'Owner Dashboard',
         a11y:58, i18n:82,
@@ -366,7 +381,8 @@
             {path:'apps/client/app/components/owner-dashboard/risks/risks-chart.css',violations:1},
             {path:'apps/client/app/components/owner-dashboard/overview-panel/doughnut-chart.css',violations:1}
           ]
-        }
+        },
+        smartForms: null
       },
     ];
 
@@ -429,6 +445,8 @@
     const avgI18n = Math.round(MODULES.reduce((s, m) => s + m.i18n, 0) / count);
     const tokenModules = MODULES.filter(m => m.tokens !== null);
     const avgTokens = Math.round(tokenModules.reduce((s, m) => s + m.tokens.score, 0) / tokenModules.length);
+    const sfModules = MODULES.filter(m => m.smartForms !== null && m.smartForms !== undefined);
+    const avgSmartForms = sfModules.length > 0 ? Math.round(sfModules.reduce((s, m) => s + m.smartForms.score, 0) / sfModules.length) : null;
 
     // ---- Render table ----
     const tbody = document.getElementById('table-body');
@@ -441,6 +459,10 @@
         '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + count + ' Modules</div></div></td>' +
       '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgTokens) + '">' + avgTokens + ' <span style="font-size:var(--text-l);opacity:0.75;">(' + letterGrade(avgTokens) + ')</span></div>' +
         '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + tokenModules.length + ' Modules</div></div></td>' +
+      (avgSmartForms !== null
+        ? '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgSmartForms) + '">' + avgSmartForms + ' <span style="font-size:var(--text-l);opacity:0.75;">(' + letterGrade(avgSmartForms) + ')</span></div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + sfModules.length + ' Modules</div></div></td>'
+        : '<td><div style="font-size:var(--text-xs);color:var(--color-subdued);">Not yet evaluated</div></td>') +
       '</tr>';
 
     let moduleRowsHtml = '';
@@ -448,11 +470,14 @@
       const tokCell = m.tokens !== null
         ? '<td>' + scoreBtn(m.tokens.score, 'tokens', m.name) + '</td>'
         : '<td>' + scoreBtn(null, 'tokens', m.name) + '</td>';
+      const sfScore = (m.smartForms !== null && m.smartForms !== undefined) ? m.smartForms.score : null;
+      const sfCell = '<td>' + scoreBtn(sfScore, 'smart-forms', m.name) + '</td>';
       moduleRowsHtml += '<tr class="data-row">' +
         '<td><span class="module-name">' + escHtml(m.name) + '</span></td>' +
         '<td>' + scoreBtn(m.a11y, 'a11y', m.name) + '</td>' +
         '<td>' + scoreBtn(m.i18n, 'i18n', m.name) + '</td>' +
         tokCell +
+        sfCell +
         '</tr>';
     });
 
@@ -742,14 +767,76 @@
       return html;
     }
 
+    function buildSmartFormsPrompt(m) {
+      if (!m.smartForms || m.smartForms.score === null) return '';
+      const L = [];
+      L.push('You are reviewing the ' + m.name + ' module in auditboard-frontend for Smart Forms governance compliance.');
+      L.push('');
+      L.push('CURRENT SCORE: ' + m.smartForms.score + '/100 (Grade ' + letterGrade(m.smartForms.score) + ')');
+      L.push('');
+      L.push('RISKS IDENTIFIED:');
+      m.smartForms.risks.forEach(function(r) { L.push('- ' + r); });
+      L.push('');
+      L.push('RECOMMENDED FIXES:');
+      m.smartForms.recs.forEach(function(r) { L.push('- ' + r); });
+      L.push('');
+      L.push('GOVERNANCE REQUIREMENT: All forms must use @auditboard/schema-form (SchemaForm / schemaFormEngineResource). Legacy LunaFormGroup usage must be migrated. Create forms use row layout with submit-group validation; click-to-edit forms use column layout with blur-save per field.');
+      L.push('');
+      L.push('Please help me address these Smart Forms compliance issues. Start by searching for the relevant files, then propose concrete code changes.');
+      return L.join('\n');
+    }
+
+    function buildSmartFormsContent(m) {
+      if (!m.smartForms || m.smartForms.score === null) {
+        _currentPrompt = '';
+        const isUnevaluated = !m.smartForms;
+        return '<div class="callout callout--info">' +
+          '<div class="callout__title">' + (isUnevaluated ? 'Not Yet Evaluated' : 'Not Applicable') + '</div>' +
+          '<div class="callout__body">' + (isUnevaluated
+            ? 'Smart Forms scores have not been generated for this module yet. Run <code>eval-coordinator</code> or <code>eval-smart-forms</code> against the auditboard-frontend repo to populate scores.'
+            : 'This module is exempt from Smart Forms governance. It likely contains multi-step forms, questionnaire surveys, or assessment workflows that are pending feature parity support.') +
+          '</div>' +
+        '</div>';
+      }
+      const sf = m.smartForms;
+      const calloutType = sf.score >= 80 ? 'success' : sf.score >= 65 ? 'warning' : 'danger';
+      const risks = sf.risks.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
+      const recs  = sf.recs.map(function(r) { return '<li>' + escHtml(r) + '</li>'; }).join('');
+      _currentPrompt = buildSmartFormsPrompt(m);
+      return '<div class="callout callout--' + calloutType + '" style="margin-bottom:var(--space-l);">' +
+          '<div class="callout__title">Score: ' + sf.score + '/100 (Grade ' + letterGrade(sf.score) + ')</div>' +
+          '<div class="callout__body">Evaluates adoption of <code>@auditboard/schema-form</code>, migration away from LunaFormGroup, and compliance with AuditBoard Form Pattern guidelines (layout, validation, labeling).</div>' +
+        '</div>' +
+        '<div class="drawer-section">' +
+          '<div class="drawer-section-title">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+            'Findings' +
+          '</div>' +
+          '<div class="drawer-grid">' +
+            '<div>' +
+              '<div class="drawer-col-label" style="color:var(--color-danger);">Risks</div>' +
+              '<ul class="risk-list" style="color:var(--color-danger);">' + risks + '</ul>' +
+            '</div>' +
+            '<div>' +
+              '<div class="drawer-col-label" style="color:var(--color-success);">Recommendations</div>' +
+              '<ul class="risk-list" style="color:var(--color-success);">' + recs + '</ul>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        promptSection();
+    }
+
     // ---- Lightbox open/close ----
     function openDrawer(moduleName, facet) {
       const m = MODULES.find(function(x) { return x.name === moduleName; });
       if (!m) return;
 
-      const scoreVal = facet === 'a11y' ? m.a11y : facet === 'i18n' ? m.i18n : (m.tokens ? m.tokens.score : null);
+      const scoreVal = facet === 'a11y' ? m.a11y
+        : facet === 'i18n' ? m.i18n
+        : facet === 'tokens' ? (m.tokens ? m.tokens.score : null)
+        : (m.smartForms ? m.smartForms.score : null);
       const badgeClass = scoreVal !== null ? scoreBadgeClass(scoreVal) : 'badge--default';
-      const facetLabel = facet === 'a11y' ? 'Accessibility' : facet === 'i18n' ? 'Internationalization' : 'Luna Token Adoption';
+      const facetLabel = facet === 'a11y' ? 'Accessibility' : facet === 'i18n' ? 'Internationalization' : facet === 'tokens' ? 'Luna Token Adoption' : 'Smart Forms';
       const scoreDisplay = scoreVal !== null ? (facet === 'tokens' ? scoreVal + '%' : scoreVal + '') : 'N/A';
       const gradeDisplay = scoreVal !== null ? letterGrade(scoreVal) : '';
 
@@ -766,9 +853,10 @@
         '<button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>';
 
       const body = document.getElementById('drawerBody');
-      if (facet === 'a11y')        body.innerHTML = buildA11yContent(m);
-      else if (facet === 'i18n')   body.innerHTML = buildI18nContent(m);
-      else if (facet === 'tokens') body.innerHTML = buildTokensContent(m);
+      if (facet === 'a11y')              body.innerHTML = buildA11yContent(m);
+      else if (facet === 'i18n')         body.innerHTML = buildI18nContent(m);
+      else if (facet === 'tokens')       body.innerHTML = buildTokensContent(m);
+      else if (facet === 'smart-forms')  body.innerHTML = buildSmartFormsContent(m);
 
       document.getElementById('drawer-overlay').classList.add('open');
       const drawer = document.getElementById('drawer');
