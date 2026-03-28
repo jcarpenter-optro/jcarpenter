@@ -165,7 +165,7 @@
       <div class="breadcrumb"><a href="index.html">Projects</a> / Luna Token Adoption</div>
       <h1>Luna Token Adoption: Module Scores</h1>
       <p class="text-subdued" style="margin-top:var(--space-xs);">Scans CSS/SCSS for hardcoded values that match Luna design token values. Score = var(--luna-*) usages / (usages + violations).</p>
-      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 27, 2026 at 09:48 PM</p>
+      <p class="text-subdued text-xs" style="margin-top:var(--space-xs);">March 27, 2026 at 10:02 PM</p>
     </div>
   </header>
 
@@ -1779,7 +1779,7 @@
         ? '<ul class="mi-dir-list">' + dirs.map(function(d) { return '<li><code>' + d + '</code></li>'; }).join('') + '</ul>'
         : '<p style="color:var(--color-subdued);font-size:var(--text-xs);">No directories listed.</p>';
       var filesHtml = '<div style="font-size:var(--text-s);padding:var(--space-s) 0;color:var(--color-ink);">' +
-        '<strong>' + m.css_files + '</strong> CSS file' + (m.css_files !== 1 ? 's' : '') + ' scanned</div>';
+        '<strong>' + m.css_files + '</strong> CSS / SCSS file' + (m.css_files !== 1 ? 's' : '') + ' scanned</div>';
       var sampleHtml = '';
       if (m.top_files && m.top_files.length) {
         sampleHtml = '<div class="mi-section-label" style="margin-top:var(--space-l);">Sample File Locations</div>' +

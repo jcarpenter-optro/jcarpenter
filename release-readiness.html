@@ -1816,14 +1816,16 @@
       var dirsHtml = dirs.length
         ? '<ul class="mi-dir-list">' + dirs.map(function(d) { return '<li><code>' + d + '</code></li>'; }).join('') + '</ul>'
         : '';
-      var filesHtml = '';
+      var filesRows = [];
       if (m.tokens) {
-        filesHtml = '<div style="font-size:var(--text-s);padding:var(--space-s) 0;color:var(--color-ink);">' +
-          '<strong>' + m.tokens.css_files + '</strong> CSS file' + (m.tokens.css_files !== 1 ? 's' : '') + ' scanned</div>';
+        filesRows.push('<strong>' + m.tokens.css_files + '</strong> CSS / SCSS file' + (m.tokens.css_files !== 1 ? 's' : '') + ' — scanned for Luna token adoption');
       }
+      filesRows.push('Template files (.gjs, .gts, .hbs) — evaluated for accessibility and i18n');
+      var filesHtml = '<ul style="margin:var(--space-s) 0 0;padding-left:var(--space-l);font-size:var(--text-s);color:var(--color-ink);line-height:1.6;">' +
+        filesRows.map(function(r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
       var sampleHtml = '';
       if (m.tokens && m.tokens.top_files && m.tokens.top_files.length) {
-        sampleHtml = '<div class="mi-section-label" style="margin-top:var(--space-l);">Sample File Locations</div>' +
+        sampleHtml = '<div class="mi-section-label" style="margin-top:var(--space-l);">Sample CSS File Locations</div>' +
           '<ul class="mi-dir-list">' +
           m.tokens.top_files.slice(0,8).map(function(f) { return '<li><code>' + f.path + '</code></li>'; }).join('') +
           '</ul>';
@@ -1831,7 +1833,7 @@
       document.getElementById('miContent').innerHTML =
         '<div class="mi-title">' + dispName + '</div>' +
         '<div class="mi-section-label">Code Components</div>' + dirsHtml +
-        (filesHtml ? '<div class="mi-section-label">Files</div>' + filesHtml : '') +
+        '<div class="mi-section-label">Files Scanned</div>' + filesHtml +
         sampleHtml;
       document.getElementById('miOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';

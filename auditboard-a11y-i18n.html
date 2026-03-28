@@ -558,7 +558,7 @@
         ? '<ul class="mi-dir-list">' + dirs.map(function(d) { return '<li><code>' + d + '</code></li>'; }).join('') + '</ul>'
         : '';
       var filesHtml = '<div style="font-size:var(--text-s);padding:var(--space-s) 0;color:var(--color-ink);">' +
-        '<strong>' + m.files + '</strong> template file' + (m.files !== 1 ? 's' : '') + ' scanned</div>';
+        '<strong>' + m.files + '</strong> template file' + (m.files !== 1 ? 's' : '') + ' scanned (.gjs, .gts, .hbs)</div>';
       document.getElementById('miContent').innerHTML =
         '<div class="mi-title">' + dispName + '</div>' +
         '<div class="mi-section-label">Code Components</div>' + dirsHtml +

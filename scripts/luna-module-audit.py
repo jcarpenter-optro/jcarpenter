@@ -739,7 +739,7 @@ def generate_html(results, maps):
         ? '<ul class="mi-dir-list">' + dirs.map(function(d) {{ return '<li><code>' + d + '</code></li>'; }}).join('') + '</ul>'
         : '<p style="color:var(--color-subdued);font-size:var(--text-xs);">No directories listed.</p>';
       var filesHtml = '<div style="font-size:var(--text-s);padding:var(--space-s) 0;color:var(--color-ink);">' +
-        '<strong>' + m.css_files + '</strong> CSS file' + (m.css_files !== 1 ? 's' : '') + ' scanned</div>';
+        '<strong>' + m.css_files + '</strong> CSS / SCSS file' + (m.css_files !== 1 ? 's' : '') + ' scanned</div>';
       var sampleHtml = '';
       if (m.top_files && m.top_files.length) {{
         sampleHtml = '<div class="mi-section-label" style="margin-top:var(--space-l);">Sample File Locations</div>' +
