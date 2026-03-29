@@ -139,10 +139,8 @@
 
     /* ── KPI row ── */
     .kpi-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-m);
       margin-bottom: var(--space-l);
+      max-width: 50%;
     }
     .kpi-left {
       display: grid;
@@ -275,6 +273,7 @@
       border-radius: var(--border-radius);
       padding: var(--space-l);
       margin-bottom: var(--space-l);
+      max-width: 50%;
     }
     .sources-header {
       display: flex;
@@ -889,16 +888,6 @@
         <div class="stat-card__label">Neg : Pos Ratio</div>
         <div class="stat-card__value danger">5.7x</div>
         <div class="stat-card__desc">Complaints vs praise</div>
-      </div>
-    </div>
-    <div class="kpi-total">
-      <div class="kpi-total__row">
-        <span class="kpi-total__num">7,773</span>
-        <span class="kpi-total__text">Total Records</span>
-      </div>
-      <div class="kpi-total__row">
-        <span class="kpi-total__num">11</span>
-        <span class="kpi-total__text">Data Sources</span>
       </div>
     </div>
   </div>
