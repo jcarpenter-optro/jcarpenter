@@ -194,7 +194,6 @@
 
   <main class="page-body">
 
-    <div id="stat-section" class="stat-row"></div>
     <div id="insights-section" class="insights-row"></div>
 
     <div class="panel">
@@ -320,7 +319,7 @@
       } else {
         facesHtml = '<span style="font-size:var(--text-xs);color:var(--color-light-shade);">—</span>';
       }
-      return '<td style="white-space:nowrap;">' + npsHtml + '</td>' +
+      return '<td style="white-space:nowrap;text-align:center;">' + npsHtml + '</td>' +
              '<td style="text-align:center;">' + facesHtml + '</td>';
     }
 
@@ -1946,15 +1945,6 @@
       var totalViolations = tokenModules.reduce(function(s,m){return s+m.tokens.violations;},0);
       var totalCssFiles = tokenModules.reduce(function(s,m){return s+m.tokens.css_files;},0);
 
-      var statCards = [
-        { label:'Avg A11y',          value: avgA11y + '/100',  desc:'13 modules evaluated',     color: scoreColor(avgA11y) },
-        { label:'Avg i18n',          value: avgI18n + '/100',  desc:'13 modules evaluated',     color: scoreColor(avgI18n) },
-        { label:'Avg Token Adoption', value: avgTokens + '%',  desc:'11 modules scanned',        color: scoreColor(avgTokens) },
-        { label:'Modules at Risk',   value: atRisk.length,     desc:'any dimension below 65',   color: atRisk.length > 6 ? 'var(--color-danger)' : 'var(--color-warning-text)' }
-      ];
-      document.getElementById('stat-section').innerHTML = statCards.map(function(s){
-        return '<div class="stat-card"><div class="stat-card__label">'+s.label+'</div><div class="stat-card__value" style="color:'+s.color+';">'+s.value+'</div><div class="stat-card__description">'+s.desc+'</div></div>';
-      }).join('');
 
       var a11yLow = MODULES.filter(function(m){return m.a11y < 65;});
       var i18nLow = MODULES.filter(function(m){return m.i18n < 65;});
