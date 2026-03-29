@@ -316,8 +316,7 @@
       const activeIdx = sentimentFaceIndex(e.ratio);
       let facesHtml = '';
       if (activeIdx !== null) {
-        for (var i = 1; i <= 5; i++) facesHtml += renderFace(i, activeIdx, href);
-        facesHtml = '<div style="display:flex;gap:2px;align-items:center;">' + facesHtml + '</div>';
+        facesHtml = renderFace(activeIdx, activeIdx, href);
       } else {
         facesHtml = '<span style="font-size:var(--text-xs);color:var(--color-light-shade);">—</span>';
       }
