@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Files: Customer Sentiment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Figtree:wght@300;400;500;600&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #0073ea;
+      --color-primary-bg: #dce9ff;
+      --color-primary-hover: #0060c0;
+      --color-accent: #595ad4;
+      --color-success: #258750;
+      --color-success-bg: #d7f0e0;
+      --color-warning: #f5a623;
+      --color-warning-text: #7a4f00;
+      --color-warning-bg: #fdf3dc;
+      --color-danger: #d83a52;
+      --color-danger-bg: #fbe9ec;
+      --color-ink: #1f1f1f;
+      --color-paragraph: #323338;
+      --color-subdued: #676879;
+      --color-light-shade: #c3c6d4;
+      --color-lightest-shade: #f6f7fb;
+      --color-empty-shade: #ffffff;
+      --font-heading: 'Poppins', system-ui, sans-serif;
+      --font-body: 'Figtree', system-ui, sans-serif;
+      --font-mono: 'Roboto Mono', Menlo, monospace;
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --text-xs: 0.75rem;
+      --text-s: 0.875rem;
+      --text-m: 1rem;
+      --text-l: 1.125rem;
+      --text-xl: 1.5rem;
+      --text-xxl: 2rem;
+      --line-height-s: 1.375rem;
+      --line-height-m: 1.5rem;
+      --space-xxs: 2px;
+      --space-xs: 4px;
+      --space-s: 8px;
+      --space-m: 12px;
+      --space-base: 16px;
+      --space-l: 24px;
+      --space-xl: 32px;
+      --space-xxl: 40px;
+      --space-xxxl: 48px;
+      --border-thin: 1px solid #c3c6d4;
+      --border-radius: 8px;
+      --border-radius-s: 4px;
+      --shadow-s: 0px 4px 8px rgba(0,0,0,0.10);
+      --page-max-width: 1100px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-s);
+      font-weight: var(--font-weight-regular);
+      line-height: var(--line-height-m);
+      color: var(--color-paragraph);
+      background: var(--color-lightest-shade);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Page header */
+    .page-header {
+      background: var(--color-empty-shade);
+      border-top: 3px solid var(--color-primary);
+      border-bottom: var(--border-thin);
+      padding: var(--space-l) 0;
+    }
+    .page-header-inner {
+      max-width: var(--page-max-width);
+      margin: 0 auto;
+      padding: 0 var(--space-l);
+    }
+    .breadcrumb { font-size: var(--text-xs); color: var(--color-subdued); margin-bottom: var(--space-xs); }
+    .breadcrumb a { color: var(--color-primary); }
+    .page-header h1 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+      letter-spacing: -0.02em;
+    }
+    .page-header p {
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+      margin-top: var(--space-xs);
+    }
+
+    /* Page body */
+    .page-body {
+      max-width: var(--page-max-width);
+      margin: 0 auto;
+      padding: var(--space-l) var(--space-l) var(--space-xxxl);
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-bold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-primary);
+      margin-bottom: var(--space-m);
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--color-empty-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+      padding: var(--space-m) var(--space-l);
+      border-bottom: var(--border-thin);
+      background: var(--color-lightest-shade);
+    }
+    .panel-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-m);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-ink);
+    }
+    .panel-body { padding: var(--space-l); }
+
+    /* Top row */
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-m);
+      margin-bottom: var(--space-l);
+      align-items: stretch;
+    }
+    @media (max-width: 800px) {
+      .top-row { grid-template-columns: 1fr; }
+    }
+    .stat-card {
+      background: var(--color-empty-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius);
+      padding: var(--space-l) var(--space-base);
+    }
+    .stat-card__label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-subdued);
+      margin-bottom: var(--space-xs);
+    }
+    .stat-card__value {
+      font-family: var(--font-heading);
+      font-size: 1.75rem;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+      line-height: 1;
+    }
+    .stat-card__value.danger { color: var(--color-danger); }
+    .stat-card__value.warning { color: var(--color-warning-text); }
+    .stat-card__value.success { color: var(--color-success); }
+    .stat-card__value.primary { color: var(--color-primary); }
+    .stat-card__desc {
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+      margin-top: var(--space-xs);
+      line-height: 1.4;
+    }
+    .nps-gauge-wrap { margin: var(--space-s) 0; }
+    .prop-bar {
+      display: flex;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: var(--space-s);
+    }
+    .prop-bar__neg { background: var(--color-danger); }
+    .prop-bar__pos { background: var(--color-success); }
+    .prop-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .nps-bar-wrap { margin-top: var(--space-s); }
+    .nps-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      gap: 2px;
+    }
+    .nps-bar__promoter { background: var(--color-success); }
+    .nps-bar__passive  { background: var(--color-light-shade); }
+    .nps-bar__detractor{ background: var(--color-danger); }
+    .nps-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--color-subdued);
+      margin-top: 3px;
+    }
+
+    .cat-bar-wrap { margin-top: var(--space-m); }
+    .cat-bar {
+      display: flex;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .cat-bar > *:first-child { border-radius: 10px 0 0 10px; }
+    .cat-bar > *:last-child  { border-radius: 0 10px 10px 0; }
+    .cat-bar__improvement { background: var(--color-primary); }
+    .cat-bar__complaint   { background: var(--color-danger); }
+    .cat-bar__praise      { background: var(--color-success); }
+    .cat-bar__help        { background: var(--color-warning); }
+    .cat-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-m);
+      margin-top: var(--space-s);
+    }
+    .cat-legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-xs);
+      color: var(--color-paragraph);
+    }
+    .cat-legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sources-section {
+      background: var(--color-empty-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius);
+      padding: var(--space-l);
+    }
+    .sources-header {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-l);
+      margin-bottom: var(--space-m);
+    }
+    .total-records-line {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-subdued);
+      margin-bottom: 2px;
+    }
+    .total-records-line strong {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .sources-label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-primary);
+      margin-top: var(--space-m);
+      margin-bottom: var(--space-s);
+    }
+    .source-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-s);
+    }
+    .source-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 5px var(--space-m) 5px var(--space-s);
+      border: var(--border-thin);
+      border-radius: 20px;
+      background: var(--color-lightest-shade);
+      font-size: var(--text-xs);
+      color: var(--color-paragraph);
+      font-weight: var(--font-weight-medium);
+      white-space: nowrap;
+    }
+    .source-chip__icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .source-chip__icon svg { width: 12px; height: 12px; }
+    .source-chip__count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-subdued);
+      margin-left: 2px;
+    }
+    .chip-gong      { background: #ede9fe; color: #5b21b6; }
+    .chip-zendesk   { background: #d1fae5; color: #065f46; }
+    .chip-qualtrics { background: #fee2e2; color: #991b1b; }
+    .chip-snowflake { background: #dbeafe; color: #1e40af; }
+    .chip-g2        { background: #fef3c7; color: #92400e; }
+    .chip-salesforce{ background: #e0f2fe; color: #0c4a6e; }
+
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--color-light-shade);
+      margin-bottom: var(--space-l);
+      overflow-x: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: var(--space-m) var(--space-base);
+      border: none;
+      background: none;
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-subdued);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      text-align: center;
+      min-width: 72px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--color-ink); }
+    .tab-btn.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+    .tab-btn .tab-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+    .tab-btn .tab-icon svg { width: 16px; height: 16px; }
+    .tab-btn .tab-label { line-height: 1.2; }
+    .tab-btn .tab-count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-subdued);
+      font-weight: var(--font-weight-regular);
+    }
+    .tab-btn.active .tab-count { color: var(--color-primary); opacity: 0.8; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .theme-table { width: 100%; border-collapse: collapse; }
+    .theme-table th {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-subdued);
+      text-align: left;
+      padding: var(--space-s) var(--space-m);
+      border-bottom: 2px solid var(--color-light-shade);
+    }
+    .theme-table th.right { text-align: right; }
+    .theme-table td {
+      padding: var(--space-s) var(--space-m);
+      border-bottom: var(--border-thin);
+      vertical-align: middle;
+      color: var(--color-paragraph);
+    }
+    .theme-table tr:last-child td { border-bottom: none; }
+    .theme-table tr:hover td { background: var(--color-lightest-shade); }
+    .theme-table td.rank {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+      width: 40px;
+    }
+    .theme-table td.count {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+      white-space: nowrap;
+    }
+    .theme-bar-cell { width: 140px; }
+    .theme-bar-bg {
+      background: var(--color-lightest-shade);
+      border-radius: 3px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .theme-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+    .bar-complaint   { background: var(--color-danger); opacity: 0.75; }
+    .bar-improvement { background: var(--color-primary); opacity: 0.75; }
+    .bar-praise      { background: var(--color-success); opacity: 0.75; }
+    .bar-help        { background: var(--color-warning); opacity: 0.75; }
+    .bar-neutral     { background: var(--color-accent); opacity: 0.7; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      padding: 2px var(--space-s);
+      border-radius: var(--border-radius-s);
+      white-space: nowrap;
+    }
+    .badge--improvement { background: var(--color-primary-bg); color: var(--color-primary); }
+    .badge--complaint   { background: var(--color-danger-bg); color: var(--color-danger); }
+    .badge--praise      { background: var(--color-success-bg); color: var(--color-success); }
+    .badge--help        { background: var(--color-warning-bg); color: var(--color-warning-text); }
+    .badge--new         { background: var(--color-primary-bg); color: var(--color-primary); }
+    .badge--delivered   { background: var(--color-success-bg); color: var(--color-success); }
+
+    .quotes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-m);
+      margin-top: var(--space-l);
+    }
+    .quote-card {
+      background: var(--color-lightest-shade);
+      border: var(--border-thin);
+      border-left: 3px solid var(--color-light-shade);
+      border-radius: var(--border-radius-s);
+      padding: var(--space-m);
+    }
+    .quote-card.complaint   { border-left-color: var(--color-danger); }
+    .quote-card.improvement { border-left-color: var(--color-primary); }
+    .quote-card.praise      { border-left-color: var(--color-success); }
+    .quote-text {
+      font-size: var(--text-xs);
+      line-height: 1.6;
+      color: var(--color-paragraph);
+      font-style: italic;
+      margin-bottom: var(--space-s);
+    }
+    .quote-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-s);
+    }
+    .quote-attribution {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-subdued);
+    }
+    .quote-attribution span { font-weight: var(--font-weight-regular); }
+    .quote-link {
+      font-size: 10px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .deep-dive-panel {
+      margin-top: var(--space-l);
+      background: var(--color-lightest-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius-s);
+      padding: var(--space-m) var(--space-l);
+    }
+    .deep-dive-title {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-bold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-danger);
+      margin-bottom: var(--space-s);
+    }
+    .deep-dive-theme {
+      font-size: var(--text-s);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-ink);
+      margin-bottom: var(--space-m);
+    }
+    .subtheme-list { display: flex; flex-direction: column; gap: var(--space-xs); }
+    .subtheme-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-m);
+      font-size: var(--text-xs);
+      color: var(--color-paragraph);
+    }
+    .subtheme-count {
+      font-family: var(--font-mono);
+      color: var(--color-subdued);
+      flex-shrink: 0;
+      width: 32px;
+      text-align: right;
+    }
+
+    .insight-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: var(--border-radius-s);
+      padding: var(--space-m) var(--space-l);
+      margin-top: var(--space-l);
+    }
+    .insight-label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-bold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-warning-text);
+      margin-bottom: var(--space-xs);
+    }
+    .insight-text {
+      font-size: var(--text-xs);
+      line-height: 1.6;
+      color: var(--color-paragraph);
+    }
+
+    .detractor-list { display: flex; flex-direction: column; gap: var(--space-m); }
+    .detractor-card {
+      background: var(--color-empty-shade);
+      border: var(--border-thin);
+      border-left: 3px solid var(--color-danger);
+      border-radius: var(--border-radius-s);
+      padding: var(--space-m) var(--space-l);
+    }
+    .detractor-score {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-bold);
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+      flex-shrink: 0;
+    }
+    .detractor-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+      margin-bottom: var(--space-s);
+    }
+    .detractor-comment {
+      font-size: var(--text-xs);
+      line-height: 1.6;
+      color: var(--color-paragraph);
+    }
+    .detractor-link {
+      font-size: 10px;
+      color: var(--color-primary);
+      margin-top: var(--space-xs);
+      display: inline-block;
+    }
+
+    .pattern-list { display: flex; flex-direction: column; gap: var(--space-m); }
+    .pattern-card {
+      background: var(--color-lightest-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius-s);
+      padding: var(--space-m) var(--space-l);
+      font-size: var(--text-xs);
+      line-height: 1.6;
+      color: var(--color-paragraph);
+    }
+
+    .priority-list { display: flex; flex-direction: column; gap: var(--space-m); }
+    .priority-card {
+      background: var(--color-empty-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    .priority-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-m);
+      padding: var(--space-m) var(--space-l);
+      background: var(--color-lightest-shade);
+      border-bottom: var(--border-thin);
+    }
+    .priority-rank {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-light-shade);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 32px;
+    }
+    .priority-short-title {
+      font-size: var(--text-m);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-ink);
+    }
+    .priority-card-body { padding: var(--space-m) var(--space-l); }
+    .priority-description {
+      font-size: var(--text-xs);
+      line-height: 1.6;
+      color: var(--color-paragraph);
+      margin-bottom: var(--space-s);
+    }
+    .priority-data-basis {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+    }
+    .priority-data-basis svg { opacity: 0.6; }
+
+    .ideas-list { display: flex; flex-direction: column; gap: var(--space-s); }
+    .idea-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-m);
+      padding: var(--space-s) var(--space-m);
+      border: var(--border-thin);
+      border-radius: var(--border-radius-s);
+      background: var(--color-empty-shade);
+    }
+    .idea-count {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+      flex-shrink: 0;
+      width: 32px;
+      text-align: right;
+    }
+    .idea-text {
+      flex: 1;
+      font-size: var(--text-xs);
+      color: var(--color-paragraph);
+    }
+
+    .competitor-chips { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-s); }
+    .competitor-chip {
+      padding: 2px var(--space-s);
+      background: var(--color-lightest-shade);
+      border: var(--border-thin);
+      border-radius: 12px;
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-l);
+    }
+    @media (max-width: 700px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .text-subdued { color: var(--color-subdued); }
+    .mt-l { margin-top: var(--space-l); }
+    .mt-m { margin-top: var(--space-m); }
+    .mb-m { margin-bottom: var(--space-m); }
+    .gap-s { gap: var(--space-s); }
+
+    .nps-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-m);
+    }
+    .nps-box {
+      background: var(--color-lightest-shade);
+      border: var(--border-thin);
+      border-radius: var(--border-radius-s);
+      padding: var(--space-m) var(--space-l);
+    }
+    .nps-box__label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-subdued);
+      margin-bottom: var(--space-xs);
+    }
+    .nps-box__score {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: var(--font-weight-bold);
+      line-height: 1;
+      color: var(--color-danger);
+    }
+    .nps-box__score.moderate { color: var(--color-warning-text); }
+    .nps-box__responses {
+      font-size: var(--text-xs);
+      color: var(--color-subdued);
+      margin-top: var(--space-xs);
+    }
+    .inline-svg { display: inline-flex; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="../index.html">Projects</a> /
+      <a href="#">Enterpret</a> /
+      Files
+    </div>
+    <h1>Files: Customer Sentiment</h1>
+    <p>Enterpret analysis &middot; Last 12 months &middot; Generated 2026-03-28</p>
+  </div>
+</header>
+
+<main class="page-body">
+
+  <div class="top-row">
+
+    <div class="stat-card">
+      <div class="stat-card__label">Module NPS</div>
+      <div class="nps-gauge-wrap">
+        <svg viewBox="0 0 200 148" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;display:block;margin:0 auto">
+          <text x="36" y="43" text-anchor="middle" font-size="8" fill="#d83a52" font-family="Figtree, sans-serif" font-weight="600">Poor</text>
+          <text x="133" y="26" text-anchor="middle" font-size="8" fill="#f5a623" font-family="Figtree, sans-serif" font-weight="600">OK</text>
+          <text x="183" y="72" text-anchor="middle" font-size="8" fill="#258750" font-family="Figtree, sans-serif" font-weight="600">Good</text>
+          <path d="M 32,105 A 68,68 0 0 1 168,105" fill="none" stroke="#e5e7eb" stroke-width="14" stroke-linecap="butt"/>
+          <path d="M 32,105 A 68,68 0 0 1 100,37" fill="none" stroke="#d83a52" stroke-width="14" stroke-linecap="butt"/>
+          <path d="M 100,37 A 68,68 0 0 1 148,57" fill="none" stroke="#f5a623" stroke-width="14" stroke-linecap="butt"/>
+          <path d="M 148,57 A 68,68 0 0 1 168,105" fill="none" stroke="#258750" stroke-width="14" stroke-linecap="butt"/>
+          <line x1="100" y1="105" x2="61.0" y2="49.3" stroke="#1f1f1f" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="100" cy="105" r="5" fill="#1f1f1f"/>
+          <text x="100" y="135" text-anchor="middle" font-family="Poppins, sans-serif" font-size="22" font-weight="700" fill="#d83a52">-38.9</text>
+          <text x="22" y="121" text-anchor="middle" font-size="9" fill="#676879" font-family="Figtree, sans-serif">-100</text>
+          <text x="178" y="121" text-anchor="middle" font-size="9" fill="#676879" font-family="Figtree, sans-serif">100</text>
+        </svg>
+      </div>
+      <div class="stat-card__desc" style="text-align:center">22.2% promoters &middot; 61.1% detractors &middot; 16 responses</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__label">Neg : Pos Ratio</div>
+      <div style="display:flex;align-items:center;gap:var(--space-m);margin:var(--space-m) 0 var(--space-xs)">
+        <div style="font-family:var(--font-heading);font-size:2.5rem;font-weight:700;color:#92400e;line-height:1">1.6&times;</div>
+        <div style="display:flex;gap:5px;align-items:center">
+          <svg viewBox="0 0 28 28" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="13" fill="none"/><circle cx="14" cy="14" r="13" fill="none" stroke="#c3c6d4" stroke-width="1.5"/><path d="M 8,9.5 L 12,11.5" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/><path d="M 16,11.5 L 20,9.5" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/><circle cx="10.5" cy="13" r="1.5" fill="#c3c6d4"/><circle cx="17.5" cy="13" r="1.5" fill="#c3c6d4"/><path d="M 8,19.5 Q 14,13.5 20,19.5" fill="none" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 28 28" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="13" fill="none" stroke="#c3c6d4" stroke-width="1.5"/><circle cx="10.5" cy="12.5" r="1.5" fill="#c3c6d4"/><circle cx="17.5" cy="12.5" r="1.5" fill="#c3c6d4"/><path d="M 9,18 Q 14,15 19,18" fill="none" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 28 28" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="13" fill="none" stroke="#92400e" stroke-width="1.5"/><circle cx="10.5" cy="12" r="1.5" fill="#92400e"/><circle cx="17.5" cy="12" r="1.5" fill="#92400e"/><line x1="9" y1="17" x2="19" y2="17" stroke="#92400e" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 28 28" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="13" fill="none" stroke="#c3c6d4" stroke-width="1.5"/><circle cx="10.5" cy="12" r="1.5" fill="#c3c6d4"/><circle cx="17.5" cy="12" r="1.5" fill="#c3c6d4"/><path d="M 9,16 Q 14,19.5 19,16" fill="none" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 28 28" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="13" fill="none" stroke="#c3c6d4" stroke-width="1.5"/><path d="M 9,12.5 Q 10.5,10.5 12,12.5" fill="none" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/><path d="M 16,12.5 Q 17.5,10.5 19,12.5" fill="none" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/><path d="M 8,15 Q 14,21.5 20,15" fill="none" stroke="#c3c6d4" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="stat-card__desc" style="margin-bottom:var(--space-m)">Complaints outpace praise 1.6 to 1</div>
+      <div class="prop-bar">
+        <div class="prop-bar__neg" style="width:61.9%"></div>
+        <div class="prop-bar__pos" style="width:38.1%"></div>
+      </div>
+      <div class="prop-bar-labels">
+        <span style="color:var(--color-danger);font-weight:600">61.9% Complaints</span>
+        <span style="color:var(--color-success);font-weight:600">38.1% Praise</span>
+      </div>
+      <div style="margin-top:var(--space-m);display:flex;gap:var(--space-m)">
+        <div style="text-align:center;flex:1">
+          <div style="font-family:var(--font-heading);font-size:1.25rem;font-weight:700;color:var(--color-danger)">262</div>
+          <div style="font-size:10px;color:var(--color-subdued)">complaints</div>
+        </div>
+        <div style="text-align:center;flex:1">
+          <div style="font-family:var(--font-heading);font-size:1.25rem;font-weight:700;color:var(--color-success)">161</div>
+          <div style="font-size:10px;color:var(--color-subdued)">praise</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sources-section">
+      <div class="total-records-line"><strong>2,079</strong> Total Records</div>
+      <div class="total-records-line" style="margin-bottom:var(--space-m)"><strong>6</strong> Data Sources</div>
+      <div class="source-chips">
+        <div class="source-chip"><span class="source-chip__icon chip-gong"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5"/></svg></span>Gong <span class="source-chip__count">1,310</span></div>
+        <div class="source-chip"><span class="source-chip__icon chip-zendesk"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1z"/></svg></span>Zendesk <span class="source-chip__count">649</span></div>
+        <div class="source-chip"><span class="source-chip__icon chip-g2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187z"/></svg></span>G2 <span class="source-chip__count">41</span></div>
+        <div class="source-chip"><span class="source-chip__icon chip-snowflake"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/><path fill="currentColor" d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg></span>Snowflake <span class="source-chip__count">54</span></div>
+        <div class="source-chip"><span class="source-chip__icon chip-qualtrics"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5zM3 2.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 0 0-1h-.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1H12a.5.5 0 0 0 0 1h.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5zm2 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM4.5 12a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5" clip-rule="evenodd"/></svg></span>Qualtrics <span class="source-chip__count">16</span></div>
+        <div class="source-chip"><span class="source-chip__icon chip-salesforce"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09M4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/></svg></span>Salesforce <span class="source-chip__count">9</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel mb-m" style="padding: var(--space-m) var(--space-l);">
+    <div class="cat-bar">
+      <div class="cat-bar__improvement" style="width:32.4%"></div>
+      <div class="cat-bar__complaint" style="width:33.7%"></div>
+      <div class="cat-bar__praise" style="width:20.7%"></div>
+      <div class="cat-bar__help" style="width:12.1%"></div>
+    </div>
+    <div class="cat-legend">
+      <div class="cat-legend-item"><span class="cat-legend-dot" style="background:var(--color-primary)"></span>Improvements 32.4%</div>
+      <div class="cat-legend-item"><span class="cat-legend-dot" style="background:var(--color-danger)"></span>Complaints 33.7%</div>
+      <div class="cat-legend-item"><span class="cat-legend-dot" style="background:var(--color-success)"></span>Praise 20.7%</div>
+      <div class="cat-legend-item"><span class="cat-legend-dot" style="background:var(--color-warning)"></span>Help / Confusion 12.1%</div>
+    </div>
+  </div>
+
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" onclick="showTab('complaints')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073c.02-.034.04-.049.054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/><path fill="currentColor" d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg></span>
+      <span class="tab-label">Complaints</span>
+      <span class="tab-count">262</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('improvements')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07" clip-rule="evenodd"/></svg></span>
+      <span class="tab-label">Improvements</span>
+      <span class="tab-count">252</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('praise')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362c.394-.572.418-1.201.234-1.734-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05 9.37 9.37 0 0 0-.062-4.509C9.999.568 9.587.227 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014.231-.046c.2-.037.48-.082.806-.111.662-.06 1.456-.054 2.109.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.87.87 0 0 1-.121.416c-.165.288-.503.56-1.066.56"/></svg></span>
+      <span class="tab-label">Praise</span>
+      <span class="tab-count">161</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('help')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path fill="currentColor" d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg></span>
+      <span class="tab-label">Help &amp; Confusion</span>
+      <span class="tab-count">94</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('gong')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5"/></svg></span>
+      <span class="tab-label">Gong Calls</span>
+      <span class="tab-count">1,310</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('detractors')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path fill="currentColor" d="M4.285 12.433a.5.5 0 0 0 .683-.183A3.5 3.5 0 0 1 8 10.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.5 4.5 0 0 0 8 9.5c-1.666 0-3.12.906-3.898 2.25a.5.5 0 0 0 .183.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5M11 6.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/></svg></span>
+      <span class="tab-label">NPS Detractors</span>
+      <span class="tab-count">3</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('community')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg></span>
+      <span class="tab-label">Community Ideas</span>
+      <span class="tab-count">6</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('priorities')" role="tab">
+      <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M14.779.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12 12 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A20 20 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a20 20 0 0 0 1.349-.476l.019-.007.004-.002h.001M14 1.221c-.22.078-.48.167-.766.255-.81.252-1.872.523-2.734.523-.886 0-1.592-.286-2.203-.534l-.008-.003C7.662 1.21 7.139 1 6.5 1c-.669 0-1.606.229-2.415.478A21 21 0 0 0 3 1.845v6.433c.22-.078.48-.167.766-.255C4.576 7.77 5.638 7.5 6.5 7.5c.847 0 1.548.28 2.158.525l.028.01C9.32 8.29 9.86 8.5 10.5 8.5c.668 0 1.606-.229 2.415-.478A21 21 0 0 0 14 7.655z"/></svg></span>
+      <span class="tab-label">Priorities</span>
+      <span class="tab-count">5</span>
+    </button>
+  </nav>
+
+  <div id="tab-complaints" class="tab-panel active">
+    <div class="panel">
+      <div class="panel-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="color:var(--color-danger);flex-shrink:0"><path fill="currentColor" d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073c.02-.034.04-.049.054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/><path fill="currentColor" d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg>
+        <div class="panel-title">Top Complaints</div>
+        <span class="badge badge--complaint">262 records</span>
+      </div>
+      <div class="panel-body">
+        <table class="theme-table"><thead><tr><th style="width:40px">#</th><th>Theme</th><th class="right">Records</th><th class="theme-bar-cell"></th></tr></thead><tbody>
+<tr><td class="rank">1</td><td>Difficulty with Document Template Customization</td><td class="count">114</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:100%"></div></div></td></tr>
+            <tr><td class="rank">2</td><td>Document Management Usability Issues</td><td class="count">80</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:70%"></div></div></td></tr>
+            <tr><td class="rank">3</td><td>Difficulty Finding Documents in Flat Structure</td><td class="count">27</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:24%"></div></div></td></tr>
+            <tr><td class="rank">4</td><td>Platform-wide Search Misses Content</td><td class="count">18</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:16%"></div></div></td></tr>
+            <tr><td class="rank">5</td><td>Unexpected Check-ins from Auto Check-in</td><td class="count">12</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:11%"></div></div></td></tr>
+            <tr><td class="rank">6</td><td>Stale Templates</td><td class="count">12</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:11%"></div></div></td></tr>
+            <tr><td class="rank">7</td><td>Difficulty Overriding Stuck Checkouts</td><td class="count">4</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:4%"></div></div></td></tr>
+            <tr><td class="rank">8</td><td>General Document Check-In/Check-Out Issues</td><td class="count">2</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-complaint" style="width:2%"></div></div></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="section-label mt-l">Customer Verbatim</div>
+    <div class="quotes-grid">
+      <div class="quote-card complaint"><div class="quote-text">"Better save functionality — prompting the user to save before closing (or autosaving upon document close). Auto check-in working papers when you logout of AB. Comment filter to show only open comments and also a comment status/priority so we can mark some comments as critical. See more of the work paper name in the workstep."</div><div class="quote-meta"><div class="quote-attribution">Customer <span>&middot; Michigan Office of the Auditor</span></div><a class="quote-link" href="https://dashboard.enterpret.com/auditboard/record/8cbb73be-0fa9-5e83-a98e-df154c1fbc1c" target="_blank">View in Enterpret &rarr;</a></div></div>
+      <div class="quote-card complaint"><div class="quote-text">"Recurring issues when uploading documents to the system (stuck at 100% not uploading)."</div><div class="quote-meta"><div class="quote-attribution">Customer <span>&middot; Walmart Inc.</span></div><a class="quote-link" href="https://dashboard.enterpret.com/auditboard/record/961408b0-27d2-552f-ad5f-26c33d4b75b7" target="_blank">View in Enterpret &rarr;</a></div></div>
+    </div>
+  </div>
+
+  <div id="tab-improvements" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="color:var(--color-primary);flex-shrink:0"><path fill="currentColor" fill-rule="evenodd" d="M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07" clip-rule="evenodd"/></svg>
+        <div class="panel-title">Top Improvement Requests</div>
+        <span class="badge badge--improvement">252 records</span>
+      </div>
+      <div class="panel-body">
+        <table class="theme-table"><thead><tr><th style="width:40px">#</th><th>Theme</th><th class="right">Records</th><th class="theme-bar-cell"></th></tr></thead><tbody>
+<tr><td class="rank">1</td><td>Reduce Manual Effort for File Reorganization</td><td class="count">60</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:100%"></div></div></td></tr>
+            <tr><td class="rank">2</td><td>Enable Real-time Collaborative Editing</td><td class="count">50</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:83%"></div></div></td></tr>
+            <tr><td class="rank">3</td><td>Improve External Document System Integration</td><td class="count">46</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:77%"></div></div></td></tr>
+            <tr><td class="rank">4</td><td>Enable Nested Folder Hierarchy</td><td class="count">43</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:72%"></div></div></td></tr>
+            <tr><td class="rank">5</td><td>Add Industry-specific Prebuilt Templates</td><td class="count">41</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:68%"></div></div></td></tr>
+            <tr><td class="rank">6</td><td>Improve Visibility of Checked-out Documents</td><td class="count">15</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:25%"></div></div></td></tr>
+            <tr><td class="rank">7</td><td>General Ideas for Document Templates</td><td class="count">4</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-improvement" style="width:7%"></div></div></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="tab-praise" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="color:var(--color-success);flex-shrink:0"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362c.394-.572.418-1.201.234-1.734-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05 9.37 9.37 0 0 0-.062-4.509C9.999.568 9.587.227 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014.231-.046c.2-.037.48-.082.806-.111.662-.06 1.456-.054 2.109.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.87.87 0 0 1-.121.416c-.165.288-.503.56-1.066.56"/></svg>
+        <div class="panel-title">Praise Themes</div>
+        <span class="badge badge--praise">161 records</span>
+      </div>
+      <div class="panel-body">
+        <table class="theme-table"><thead><tr><th style="width:40px">#</th><th>Theme</th><th class="right">Records</th><th class="theme-bar-cell"></th></tr></thead><tbody>
+<tr><td class="rank">1</td><td>Praise for Centralized Document Repository</td><td class="count">106</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-praise" style="width:100%"></div></div></td></tr>
+            <tr><td class="rank">2</td><td>Praise for Time-saving Prebuilt Templates</td><td class="count">33</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-praise" style="width:31%"></div></div></td></tr>
+            <tr><td class="rank">3</td><td>General Document Check-In/Check-Out Praise</td><td class="count">17</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-praise" style="width:16%"></div></div></td></tr>
+            <tr><td class="rank">4</td><td>General Praise for Document Management</td><td class="count">4</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-praise" style="width:4%"></div></div></td></tr>
+            <tr><td class="rank">5</td><td>General Praise for Document Storage &amp; Organization</td><td class="count">3</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-praise" style="width:3%"></div></div></td></tr>
+            <tr><td class="rank">6</td><td>General Document Templates Appreciation</td><td class="count">3</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-praise" style="width:3%"></div></div></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="tab-help" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="color:var(--color-warning-text);flex-shrink:0"><path fill="currentColor" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path fill="currentColor" d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg>
+        <div class="panel-title">Help &amp; Confusion Themes</div>
+        <span class="badge badge--help">94 records</span>
+      </div>
+      <div class="panel-body">
+        <table class="theme-table"><thead><tr><th style="width:40px">#</th><th>Theme</th><th class="right">Records</th><th class="theme-bar-cell"></th></tr></thead><tbody>
+<tr><td class="rank">1</td><td>Confusion About Document Management Scope</td><td class="count">69</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-help" style="width:100%"></div></div></td></tr>
+            <tr><td class="rank">2</td><td>Confusion About Missing Checkout Button</td><td class="count">20</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-help" style="width:29%"></div></div></td></tr>
+            <tr><td class="rank">3</td><td>General Questions About Document Check-In/Check-Out</td><td class="count">3</td><td class="theme-bar-cell"><div class="theme-bar-bg"><div class="theme-bar-fill bar-help" style="width:4%"></div></div></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div id="tab-gong" class="tab-panel">
+    <div class="two-col">
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="color:var(--color-accent);flex-shrink:0"><path fill="currentColor" d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5"/></svg>
+            <div class="panel-title">Top Gong Themes</div>
+            <span class="badge badge--improvement">1,310 call records</span>
+          </div>
+          <div class="panel-body">
+            <table class="theme-table"><thead><tr><th>Theme</th><th>Type</th><th class="right">Records</th></tr></thead><tbody>
+<tr><td>Praise for Centralized Document Repository</td><td><span class="badge badge--praise">PRAISE</span></td><td class="count">76</td></tr>
+                <tr><td>Confusion About Document Management Scope</td><td><span class="badge badge--help">HELP</span></td><td class="count">66</td></tr>
+                <tr><td>Difficulty with Document Template Customization</td><td><span class="badge badge--complaint">COMPLAINT</span></td><td class="count">65</td></tr>
+                <tr><td>Document Management Usability Issues</td><td><span class="badge badge--complaint">COMPLAINT</span></td><td class="count">43</td></tr>
+                <tr><td>Enable Real-time Collaborative Editing</td><td><span class="badge badge--improvement">IMPROVEMENT</span></td><td class="count">42</td></tr>
+                <tr><td>Improve External Document System Integration</td><td><span class="badge badge--improvement">IMPROVEMENT</span></td><td class="count">42</td></tr>
+                <tr><td>Add Industry-specific Prebuilt Templates</td><td><span class="badge badge--improvement">IMPROVEMENT</span></td><td class="count">38</td></tr>
+                <tr><td>Reduce Manual Effort for File Reorganization</td><td><span class="badge badge--improvement">IMPROVEMENT</span></td><td class="count">35</td></tr>
+                <tr><td>Praise for Time-saving Prebuilt Templates</td><td><span class="badge badge--praise">PRAISE</span></td><td class="count">32</td></tr>
+                <tr><td>Enable Nested Folder Hierarchy</td><td><span class="badge badge--improvement">IMPROVEMENT</span></td><td class="count">28</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+
+      </div>
+
+      <div>
+        <p style="color:var(--color-subdued);font-size:var(--text-xs)">No narrative patterns available</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-detractors" class="tab-panel">
+    <div class="section-label" style="display:flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 16 16" style="color:var(--color-danger)"><path fill="currentColor" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path fill="currentColor" d="M4.285 12.433a.5.5 0 0 0 .683-.183A3.5 3.5 0 0 1 8 10.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.5 4.5 0 0 0 8 9.5c-1.666 0-3.12.906-3.898 2.25a.5.5 0 0 0 .183.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5M11 6.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/></svg>NPS Detractor Comments (Score 0&ndash;6)</div>
+    <div class="detractor-list">
+      <div class="detractor-card"><div class="detractor-header"><div class="detractor-score">5</div><div style="font-size:var(--text-xs);color:var(--color-subdued)">NPS Score</div></div><div class="detractor-comment">Current required documents for auditors to assess, test and workpaper documentation is not easily able to be saved in this platform nor is customizable.</div><a class="detractor-link" href="https://dashboard.enterpret.com/auditboard/record/62706e71-bc6e-5e78-8ec5-4d3c8ca279bf" target="_blank">View in Enterpret &rarr;</a></div>
+      <div class="detractor-card"><div class="detractor-header"><div class="detractor-score">5</div><div style="font-size:var(--text-xs);color:var(--color-subdued)">NPS Score</div></div><div class="detractor-comment">Better save functionality. Auto check-in working papers when you logout. The workpaper and files screens need signoff status... Word— would be nice to have ability to see comments/track changes in the preview pane. Excel— would be nice to be able to see cell formulas in the preview pane.</div><a class="detractor-link" href="https://dashboard.enterpret.com/auditboard/record/8cbb73be-0fa9-5e83-a98e-df154c1fbc1c" target="_blank">View in Enterpret &rarr;</a></div>
+      <div class="detractor-card"><div class="detractor-header"><div class="detractor-score">6</div><div style="font-size:var(--text-xs);color:var(--color-subdued)">NPS Score</div></div><div class="detractor-comment">Recurring issues when uploading documents to the system (stuck at 100% not uploading). No offline mode to work on the system. Having the ability to just upload a file with changes, instead of working on those 1 by 1.</div><a class="detractor-link" href="https://dashboard.enterpret.com/auditboard/record/961408b0-27d2-552f-ad5f-26c33d4b75b7" target="_blank">View in Enterpret &rarr;</a></div>
+    </div>
+  </div>
+
+  <div id="tab-community" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="color:var(--color-warning-text);flex-shrink:0"><path fill="currentColor" d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg><div class="panel-title">Community Ideas</div></div>
+      <div class="panel-body">
+        <div class="ideas-list">
+          <div class="idea-row"><div class="idea-count">7</div><div class="idea-text">External Auditor control results without workpaper access</div><span class="badge badge--new">New</span></div>
+          <div class="idea-row"><div class="idea-count">6</div><div class="idea-text">Move Workpaper between work steps</div><span class="badge badge--new">New</span></div>
+          <div class="idea-row"><div class="idea-count">6</div><div class="idea-text">Annotate test sheet and files retained in archive</div><span class="badge badge--new">New</span></div>
+          <div class="idea-row"><div class="idea-count">5</div><div class="idea-text">Add Partially Effective Designation for Workpapers</div><span class="badge badge--new">New</span></div>
+          <div class="idea-row"><div class="idea-count">5</div><div class="idea-text">Ability to Download Annotated Files with Project Export</div><span class="badge badge--new">New</span></div>
+          <div class="idea-row"><div class="idea-count">4</div><div class="idea-text">Check out Multiple Workpapers at Same Time</div><span class="badge badge--delivered">Delivered</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-priorities" class="tab-panel">
+    <div class="section-label" style="display:flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 16 16" style="color:var(--color-primary)"><path fill="currentColor" d="M14.779.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12 12 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A20 20 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a20 20 0 0 0 1.349-.476l.019-.007.004-.002h.001M14 1.221c-.22.078-.48.167-.766.255-.81.252-1.872.523-2.734.523-.886 0-1.592-.286-2.203-.534l-.008-.003C7.662 1.21 7.139 1 6.5 1c-.669 0-1.606.229-2.415.478A21 21 0 0 0 3 1.845v6.433c.22-.078.48-.167.766-.255C4.576 7.77 5.638 7.5 6.5 7.5c.847 0 1.548.28 2.158.525l.028.01C9.32 8.29 9.86 8.5 10.5 8.5c.668 0 1.606-.229 2.415-.478A21 21 0 0 0 14 7.655z"/></svg>Priority Recommendations</div>
+    <div class="priority-list">
+      <div class="priority-card"><div class="priority-card-header"><div class="priority-rank">1</div><div><div class="priority-short-title">Fix file upload reliability (stuck at 100%)</div></div></div><div class="priority-card-body"><div class="priority-description">Multiple NPS detractors, Zendesk tickets, and Gong CS calls describe file uploads getting stuck at 100% without completing. This is a critical reliability issue for a module whose primary function is file storage. Fix: (a) add a clear error state with retry option when upload fails, (b) investigate and fix the underlying upload reliability issue for large files (200MB+ video evidence), and (c) imp</div><div class="priority-data-basis"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/><path fill="currentColor" d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg>NPS detractor + Zendesk pattern in 241 tickets</div></div></div>
+      <div class="priority-card"><div class="priority-card-header"><div class="priority-rank">2</div><div><div class="priority-short-title">Investigate and urgently resolve the periodic deletion of core files engineering issue</div></div></div><div class="priority-card-body"><div class="priority-description">One Gong note describes a customer with an open ticket for 200+ days for core files being periodically deleted— a critical data integrity issue driving non-renewal risk. This should be triaged as P0 immediately and given engineering priority regardless of engineering capacity constraints.</div><div class="priority-data-basis"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/><path fill="currentColor" d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg>Gong churn risk signal</div></div></div>
+      <div class="priority-card"><div class="priority-card-header"><div class="priority-rank">3</div><div><div class="priority-short-title">Add subfolder hierarchy to the Files toolkit</div></div></div><div class="priority-card-body"><div class="priority-description">43 improvement records + 6 community idea votes for moving files + customer NPS comments requesting subfolders \= consistent demand for organizational hierarchy. The current flat list is unusable for customers managing 200+ evidence files per audit. A simple 2-level subfolder capability (Folder Subfolder) would resolve the most common navigation complaint.</div><div class="priority-data-basis"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/><path fill="currentColor" d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg>43 improvement records + 27 complaint records</div></div></div>
+      <div class="priority-card"><div class="priority-card-header"><div class="priority-rank">4</div><div><div class="priority-short-title">Enable self-service document template customization</div></div></div><div class="priority-card-body"><div class="priority-description">114 complaint records— the largest single complaint cluster— center on inability to customize audit templates, workpaper templates, and report templates without support intervention. Deliver a template editor that allows admins to: (a) create new template types, (b) add/remove/reorder sections, (c) set formatting and branding. This mirrors the Issue Management self-service form request (Module</div><div class="priority-data-basis"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/><path fill="currentColor" d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg>114 complaint records</div></div></div>
+      <div class="priority-card"><div class="priority-card-header"><div class="priority-rank">5</div><div><div class="priority-short-title">Add visible review/signoff status to the Files screen</div></div></div><div class="priority-card-body"><div class="priority-description">The score-5 NPS detractor requests: &quot;On the files screen you can see create and last updated user and date/time but not whether the file has been reviewed yet.&quot; Adding a &quot;Reviewed&quot; status column and signoff timestamp to the Files list view would give reviewers the visibility they need without requiring them to click into each file individually. This is a low-effort, high-impact UX improvement.</div><div class="priority-data-basis"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/><path fill="currentColor" d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/><path fill="currentColor" d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg>NPS detractor + community idea pattern</div></div></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
