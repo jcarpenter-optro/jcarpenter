@@ -207,6 +207,8 @@
           <thead>
             <tr>
               <th></th>
+              <th title="Module NPS from Enterpret customer feedback"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 12.5A5.5 5.5 0 1 1 8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor" opacity=".3"/><path d="M8 4.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5zM8 7.25a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0V8a.75.75 0 0 1 .75-.75z" fill="currentColor"/></svg></span>NPS</div></th>
+              <th title="Customer sentiment based on neg:pos ratio from Enterpret"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="7" r="1" fill="currentColor"/><circle cx="10.5" cy="7" r="1" fill="currentColor"/><path d="M5 10.5c.8 1.2 5.2 1.2 6 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Sentiment</div></th>
               <th class="th-clickable" onclick="openColumnDrawer('a11y')" title="Click to learn how A11y scores are evaluated"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="3" r="1.5" fill="currentColor"/><path d="M4 6.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 6.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.5 13.5L8 10.5l2.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A11y</div></th>
               <th class="th-clickable" onclick="openColumnDrawer('i18n')" title="Click to learn how i18n scores are evaluated"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.5S6 5 6 8s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 5.5h10M3 10.5h10" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>i18n</div></th>
               <th class="th-clickable" onclick="openColumnDrawer('tokens')" title="Click to learn how Luna Token scores are evaluated"><div class="th-inner"><span class="th-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 10.5A6 6 0 116 3.5a4 4 0 007.5 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Luna<br>Tokens</div></th>
@@ -229,6 +231,99 @@
   </div>
 
   <script>
+    // ── Enterpret NPS + sentiment data ──
+    const ENTERPRET_DATA = {
+      'Dashboard':                      { id: 'dashboards',    nps: -79.1, ratio: 5.7  },
+      'Controls':                       { id: 'controls',      nps: -25.8, ratio: null },
+      'Risks':                          { id: 'risks',         nps: -74.6, ratio: 7.6  },
+      'CrossComply':                    { id: 'crosscomply',   nps: -81.3, ratio: null },
+      'Issues':                         { id: 'issues',        nps: -55.6, ratio: 13.6 },
+      'OpsAudit':                       { id: 'opsaudit',      nps: -77.2, ratio: 5.3  },
+      'WorkStream':                     { id: 'workstream',    nps: -45,   ratio: 17.3 },
+      'BCM':                            { id: 'bcm',           nps: null,  ratio: null },
+      'Settings':                       { id: 'settings',      nps: -74.1, ratio: 96.6 },
+      'ESG':                            { id: 'esg',           nps: -100,  ratio: 2.9  },
+      'TPRM':                           { id: 'tprm',          nps: -73,   ratio: 5.5  },
+      'Narratives':                     { id: 'narratives',    nps: null,  ratio: null },
+      'RegComply':                      { id: 'regcomply',     nps: -100,  ratio: 0.8  },
+      'Exceptions':                     { id: 'exceptions',    nps: -80,   ratio: 18.7 },
+      'Integrations':                   { id: 'integrations',  nps: -80.4, ratio: 6.8  },
+      'Automations':                    { id: 'automations',   nps: null,  ratio: null },
+      'Inventory':                      { id: 'inventory',     nps: -90,   ratio: 7.7  },
+      'AI Governance':                  { id: 'ai-governance', nps: null,  ratio: null },
+      'Files':                          { id: 'files',         nps: -38.9, ratio: 2.5  },
+      'Timesheets':                     { id: 'timesheets',    nps: -83.3, ratio: 3.7  },
+      'Automated Security Questionnaires': { id: 'asq',        nps: null,  ratio: null },
+      'ITRM / Cyber Risk':              { id: 'itrm',          nps: -80,   ratio: 6.3  },
+    };
+
+    function npsColor(score) {
+      if (score === null || score === undefined) return 'var(--color-light-shade)';
+      if (score < 0)  return '#d83a52';
+      if (score < 50) return '#f5a623';
+      return '#258750';
+    }
+
+    function sentimentFaceIndex(ratio) {
+      if (ratio === null || ratio === undefined) return null;
+      if (ratio > 3.0) return 1;
+      if (ratio >= 2.0) return 2;
+      if (ratio >= 0.8) return 3;
+      if (ratio >= 0.4) return 4;
+      return 5;
+    }
+
+    const FACE_COLORS = { 1: '#991b1b', 2: '#c0392b', 3: '#92400e', 4: '#166534', 5: '#14532d' };
+
+    function renderFace(faceNum, activeNum, href) {
+      const isActive = faceNum === activeNum;
+      const color = isActive ? FACE_COLORS[faceNum] : '#c3c6d4';
+      const fillOpacity = isActive ? '0.12' : '0';
+      const mouths = [
+        'M 7,18.5 Q 13,12 19,18.5',   // 1: strong frown
+        'M 8,17.5 Q 13,14 18,17.5',   // 2: mild frown
+        'M 8,16 L 18,16',             // 3: flat
+        'M 8,15 Q 13,18.5 18,15',     // 4: mild smile
+        'M 7,14 Q 13,20.5 19,14',     // 5: big smile
+      ];
+      const eyebrows = faceNum === 1
+        ? '<path d="M 7,9 L 11,11" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M 15,11 L 19,9" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round"/>'
+        : '';
+      const eyes = faceNum === 5
+        ? '<path d="M 8.5,12 Q 10,10.5 11.5,12" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M 14.5,12 Q 16,10.5 17.5,12" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round"/>'
+        : '<circle cx="10.5" cy="12" r="1.5" fill="' + color + '"/>' +
+          '<circle cx="17.5" cy="12" r="1.5" fill="' + color + '"/>';
+      return '<svg viewBox="0 0 26 26" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="cursor:' + (href ? 'pointer' : 'default') + '" onclick="' + (href ? 'window.open(\'' + href + '\',\'_blank\')' : '') + '">' +
+        '<circle cx="13" cy="13" r="12" fill="' + color + '" fill-opacity="' + fillOpacity + '"/>' +
+        '<circle cx="13" cy="13" r="12" fill="none" stroke="' + color + '" stroke-width="1.5"/>' +
+        eyebrows + eyes +
+        '<path d="' + mouths[faceNum - 1] + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round"/>' +
+        '</svg>';
+    }
+
+    function enterpretCells(displayName) {
+      const e = ENTERPRET_DATA[displayName];
+      if (!e) return '<td></td><td></td>';
+      const href = e.nps !== null || e.ratio !== null ? 'enterpret/' + e.id + '.html' : null;
+      // NPS cell
+      const npsHtml = e.nps !== null
+        ? '<a href="' + href + '" target="_blank" style="font-family:var(--font-mono);font-size:var(--text-s);font-weight:600;color:' + npsColor(e.nps) + ';text-decoration:none;white-space:nowrap;" title="Module NPS: ' + e.nps + '">' + e.nps + '</a>'
+        : '<span style="font-size:var(--text-xs);color:var(--color-light-shade);">—</span>';
+      // Sentiment cell: 5 faces, click opens enterpret page
+      const activeIdx = sentimentFaceIndex(e.ratio);
+      let facesHtml = '';
+      if (activeIdx !== null) {
+        for (var i = 1; i <= 5; i++) facesHtml += renderFace(i, activeIdx, href);
+        facesHtml = '<div style="display:flex;gap:2px;align-items:center;">' + facesHtml + '</div>';
+      } else {
+        facesHtml = '<span style="font-size:var(--text-xs);color:var(--color-light-shade);">—</span>';
+      }
+      return '<td style="white-space:nowrap;">' + npsHtml + '</td>' +
+             '<td>' + facesHtml + '</td>';
+    }
+
     const MODULES = [
       { name:'Dashboard (module-dashboard, owner-dashboard)', display:'Dashboard',
         a11y:62, i18n:68,
@@ -712,6 +807,7 @@
 
     const avgRow = '<tr class="avg-row">' +
       '<td><div class="avg-row__label">Average</div></td>' +
+      '<td></td><td></td>' +
       '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgA11y) + '">' + avgA11y + ' <span style="font-size:calc(var(--text-l) * 0.7);opacity:0.75;">(' + letterGrade(avgA11y) + ')</span></div>' +
         '<div style="font-size:var(--text-xs);color:var(--color-subdued);font-weight:var(--font-weight-semibold);">' + count + ' Modules</div></div></td>' +
       '<td><div class="avg-score"><div class="avg-score__value" style="color:' + scoreColor(avgI18n) + '">' + avgI18n + ' <span style="font-size:calc(var(--text-l) * 0.7);opacity:0.75;">(' + letterGrade(avgI18n) + ')</span></div>' +
@@ -757,6 +853,7 @@
         : '<button class="score-btn null-score" disabled title="Not yet evaluated">N/A</button>') + '</td>';
       moduleRowsHtml += '<tr class="data-row">' +
         '<td><div class="module-name-cell"><span class="module-icon">' + (MODULE_ICONS[m.display] || '') + '</span><div><span class="module-name">' + escHtml(m.display) + '</span>' + (m.name.indexOf('(') !== -1 ? '<div class="module-subtitle">' + escHtml(m.name.slice(m.name.indexOf('(')+1, -1)) + '</div>' : '') + '</div></div></td>' +
+        enterpretCells(m.display) +
         '<td>' + scoreBtn(m.a11y, 'a11y', m.name) + '</td>' +
         '<td>' + scoreBtn(m.i18n, 'i18n', m.name) + '</td>' +
         tokCell +

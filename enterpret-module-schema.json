@@ -1,0 +1,381 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "enterpret-module-schema.json",
+  "title": "Enterpret Module Sentiment Report",
+  "description": "Schema for AuditBoard product module customer sentiment analysis sourced from Enterpret",
+  "type": "object",
+  "required": ["module", "period", "coverage", "nps", "category_breakdown"],
+
+  "definitions": {
+    "quote": {
+      "type": "object",
+      "description": "A verbatim customer quote extracted from a feedback record",
+      "required": ["text"],
+      "properties": {
+        "text":          { "type": "string", "description": "Verbatim quote text" },
+        "customer_name": { "type": ["string", "null"], "description": "First name, full name, or null if anonymous" },
+        "org":           { "type": ["string", "null"], "description": "Customer organization name" },
+        "source":        { "type": "string", "enum": ["Gong", "Zendesk", "Qualtrics", "G2", "GS Feedback", "Community", "Salesforce", "Clozd", "Chameleon"], "description": "Feedback source system" },
+        "nps_score":     { "type": ["integer", "null"], "minimum": 0, "maximum": 10, "description": "NPS score (0–10) if the quote came from a Qualtrics survey; null otherwise" },
+        "url":           { "type": ["string", "null"], "format": "uri", "description": "Enterpret record deep-link" }
+      }
+    },
+
+    "ranked_theme": {
+      "type": "object",
+      "description": "A single feedback theme with its rank and record count",
+      "required": ["rank", "theme", "count"],
+      "properties": {
+        "rank":  { "type": "integer", "minimum": 1 },
+        "theme": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+
+  "properties": {
+
+    "module": {
+      "type": "object",
+      "description": "Identifying metadata for the product module",
+      "required": ["id", "display_name"],
+      "properties": {
+        "id":           { "type": "string", "description": "Lowercase slug used as a stable identifier, e.g. 'issues', 'dashboards'" },
+        "display_name": { "type": "string", "description": "Human-readable name shown in UI, e.g. 'Issues', 'Dashboards'" },
+        "also_known_as": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Alternative names or brand names for this module, e.g. ['Issue Management', 'Optro Issues']"
+        },
+        "taxonomy": {
+          "type": "object",
+          "description": "Enterpret Knowledge Graph taxonomy path used when querying this module",
+          "properties": {
+            "l1": { "type": ["string", "null"] },
+            "l2": { "type": ["string", "null"] },
+            "l3": { "type": ["string", "null"] }
+          }
+        },
+        "zendesk_module_tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Zendesk module field values or tags that map to this module"
+        }
+      }
+    },
+
+    "period": {
+      "type": "string",
+      "description": "Human-readable time window covered by this report, e.g. 'Last 12 months'"
+    },
+
+    "generated_at": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date when this report was generated, e.g. '2026-03-28'"
+    },
+
+    "executive_summary": {
+      "type": "string",
+      "description": "2–4 sentence plain-language overview of the module's feedback landscape, total volume, dominant signal, and headline NPS finding"
+    },
+
+    "coverage": {
+      "type": "object",
+      "description": "Total feedback volume and breakdown by source",
+      "required": ["total", "by_source"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "Sum of all records across all sources"
+        },
+        "by_source": {
+          "type": "array",
+          "description": "One entry per data source, ordered by record count descending",
+          "items": {
+            "type": "object",
+            "required": ["source", "count"],
+            "properties": {
+              "source": { "type": "string", "description": "Source system name, e.g. 'Gong', 'Zendesk'" },
+              "label":  { "type": "string", "description": "Display label with detail, e.g. 'Gong (call transcripts)'" },
+              "count":  { "type": "integer" },
+              "pct":    { "type": "number", "description": "Percentage of total, rounded to 1 decimal" }
+            }
+          }
+        }
+      }
+    },
+
+    "nps": {
+      "type": "object",
+      "description": "NPS scores — overall product baseline versus module-specific",
+      "required": ["overall_baseline", "module_specific"],
+      "properties": {
+        "overall_baseline": {
+          "type": "object",
+          "description": "NPS across all Qualtrics respondents in the period, regardless of module",
+          "required": ["score", "promoter_pct", "detractor_pct", "response_count"],
+          "properties": {
+            "score":          { "type": "number" },
+            "promoter_pct":   { "type": "number" },
+            "detractor_pct":  { "type": "number" },
+            "response_count": { "type": "integer" }
+          }
+        },
+        "module_specific": {
+          "type": "object",
+          "description": "NPS restricted to Qualtrics respondents whose feedback was tagged to this module's taxonomy",
+          "required": ["score", "promoter_pct", "detractor_pct", "response_count"],
+          "properties": {
+            "score":          { "type": "number" },
+            "promoter_pct":   { "type": "number" },
+            "detractor_pct":  { "type": "number" },
+            "response_count": { "type": "integer" }
+          }
+        },
+        "gap": {
+          "type": "number",
+          "description": "module_specific.score minus overall_baseline.score (negative = module drags NPS down)"
+        },
+        "gap_note": {
+          "type": "string",
+          "description": "Plain-language interpretation of the gap for display in the report"
+        }
+      }
+    },
+
+    "category_breakdown": {
+      "type": "object",
+      "description": "Record counts and shares by Enterpret feedback category",
+      "required": ["improvement", "complaint", "help", "praise"],
+      "properties": {
+        "improvement": {
+          "type": "object",
+          "properties": {
+            "count":     { "type": "integer" },
+            "share_pct": { "type": "number" }
+          }
+        },
+        "complaint": {
+          "type": "object",
+          "properties": {
+            "count":     { "type": "integer" },
+            "share_pct": { "type": "number" }
+          }
+        },
+        "help": {
+          "type": "object",
+          "properties": {
+            "count":     { "type": "integer" },
+            "share_pct": { "type": "number" }
+          }
+        },
+        "praise": {
+          "type": "object",
+          "properties": {
+            "count":     { "type": "integer" },
+            "share_pct": { "type": "number" }
+          }
+        },
+        "negative_to_positive_ratio": {
+          "type": "number",
+          "description": "(complaint + improvement) / praise"
+        },
+        "ratio_note": {
+          "type": "string",
+          "description": "Callout sentence for display, e.g. 'For every 1 piece of praise there are 6 complaints or improvement requests'"
+        }
+      }
+    },
+
+    "top_complaints": {
+      "type": "object",
+      "description": "Ranked complaint themes plus a deep-dive into the #1 cluster",
+      "required": ["themes"],
+      "properties": {
+        "themes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ranked_theme" }
+        },
+        "deep_dive": {
+          "type": "object",
+          "description": "Expanded analysis of the top complaint cluster",
+          "required": ["theme", "total_count"],
+          "properties": {
+            "theme":       { "type": "string" },
+            "total_count": { "type": "integer" },
+            "subthemes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["subtheme", "count"],
+                "properties": {
+                  "subtheme": { "type": "string" },
+                  "count":    { "type": "integer" }
+                }
+              }
+            },
+            "quotes": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/quote" }
+            }
+          }
+        }
+      }
+    },
+
+    "top_improvements": {
+      "type": "object",
+      "description": "Ranked improvement request themes with optional thematic groupings and supporting quotes",
+      "required": ["themes"],
+      "properties": {
+        "themes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ranked_theme" }
+        },
+        "thematic_groups": {
+          "type": "array",
+          "description": "Higher-level groupings that combine related themes for narrative clarity",
+          "items": {
+            "type": "object",
+            "required": ["group_name", "combined_count"],
+            "properties": {
+              "group_name":    { "type": "string" },
+              "theme_ranks":   { "type": "array", "items": { "type": "integer" }, "description": "rank values of constituent themes" },
+              "combined_count":{ "type": "integer" },
+              "description":   { "type": "string" }
+            }
+          }
+        },
+        "quotes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/quote" }
+        }
+      }
+    },
+
+    "praise": {
+      "type": "object",
+      "description": "What customers specifically appreciate about this module",
+      "required": ["themes"],
+      "properties": {
+        "themes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ranked_theme" }
+        },
+        "quotes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/quote" }
+        }
+      }
+    },
+
+    "help_confusion": {
+      "type": "object",
+      "description": "Help-seeking and confusion themes — feature tier questions, terminology confusion, configuration issues",
+      "required": ["themes"],
+      "properties": {
+        "themes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ranked_theme" }
+        },
+        "key_insight": {
+          "type": ["string", "null"],
+          "description": "Optional 1–2 sentence synthesis of the dominant help pattern"
+        }
+      }
+    },
+
+    "gong_call_themes": {
+      "type": "object",
+      "description": "What surfaces in Gong sales, CS, and research calls specifically about this module",
+      "required": ["total_gong_records", "top_themes"],
+      "properties": {
+        "total_gong_records": { "type": "integer" },
+        "top_themes": {
+          "type": "array",
+          "description": "Top themes from Gong calls, each tagged with its feedback category",
+          "items": {
+            "type": "object",
+            "required": ["theme", "category", "count"],
+            "properties": {
+              "theme":    { "type": "string" },
+              "category": { "type": "string", "enum": ["IMPROVEMENT", "COMPLAINT", "PRAISE", "HELP"] },
+              "count":    { "type": "integer" }
+            }
+          }
+        },
+        "narrative_patterns": {
+          "type": "array",
+          "description": "Qualitative patterns identified across call types (sales, CS, research) not captured in theme counts",
+          "items": {
+            "type": "object",
+            "required": ["pattern", "description"],
+            "properties": {
+              "pattern":      { "type": "string", "description": "Short label, e.g. 'ServiceNow alignment'" },
+              "description":  { "type": "string", "description": "1–2 sentence summary of the pattern" },
+              "record_count": { "type": ["integer", "null"] }
+            }
+          }
+        },
+        "competitor_mentions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Competitor products mentioned in calls in relation to this module"
+        },
+        "integration_requests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "External systems customers request integration with for this module"
+        }
+      }
+    },
+
+    "community_ideas": {
+      "type": "array",
+      "description": "Active community feature ideas related to this module",
+      "items": {
+        "type": "object",
+        "required": ["idea", "status"],
+        "properties": {
+          "idea":         { "type": "string" },
+          "status":       { "type": "string", "enum": ["New", "In Progress", "Planned", "Delivered", "Closed"] },
+          "record_count": { "type": ["integer", "null"] }
+        }
+      }
+    },
+
+    "nps_detractor_comments": {
+      "type": "array",
+      "description": "Sample of NPS open-text comments from detractors (score 0–6) who mentioned this module, ordered lowest to highest score",
+      "items": {
+        "type": "object",
+        "required": ["nps_score", "comment"],
+        "properties": {
+          "nps_score":     { "type": "integer", "minimum": 0, "maximum": 6 },
+          "customer_name": { "type": ["string", "null"] },
+          "org":           { "type": ["string", "null"] },
+          "comment":       { "type": "string" },
+          "url":           { "type": ["string", "null"], "format": "uri" }
+        }
+      }
+    },
+
+    "priority_recommendations": {
+      "type": "array",
+      "description": "4–5 data-backed product recommendations ordered by feedback volume",
+      "items": {
+        "type": "object",
+        "required": ["rank", "title", "description", "record_count"],
+        "properties": {
+          "rank":         { "type": "integer", "minimum": 1 },
+          "title":        { "type": "string", "description": "Short imperative headline, e.g. 'Self-Service Configuration (Highest Impact)'" },
+          "description":  { "type": "string", "description": "1–3 sentence explanation of the recommendation and its rationale" },
+          "data_basis":   { "type": "string", "description": "Which complaint/improvement themes or sources drive this recommendation" },
+          "record_count": { "type": "integer", "description": "Aggregate record count supporting the recommendation" }
+        }
+      }
+    }
+
+  }
+}
